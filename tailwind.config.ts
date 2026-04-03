@@ -57,6 +57,16 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        ocean: {
+          deep: "hsl(var(--ocean-deep))",
+          light: "hsl(var(--ocean-light))",
+        },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          soft: "hsl(var(--gold-soft))",
+        },
+        sand: "hsl(var(--sand))",
+        coral: "hsl(var(--coral))",
       },
       borderRadius: {
         lg: "var(--radius)",

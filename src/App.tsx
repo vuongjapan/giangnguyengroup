@@ -27,10 +27,10 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <CartDrawer />
+          <ChatBot />
+          <FloatingButtons />
         </BrowserRouter>
-        <CartDrawer />
-        <ChatBot />
-        <FloatingButtons />
       </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>

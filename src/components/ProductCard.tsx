@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Eye } from 'lucide-react';
 import type { Product } from '@/data/products';
 import { formatPrice } from '@/data/products';
 import { useCart } from '@/contexts/CartContext';
@@ -25,52 +25,68 @@ export default function ProductCard({ product }: Props) {
     toast.success(`Đã thêm ${product.name} vào giỏ hàng!`);
   };
 
+  const hasDiscount = product.badges.includes('hot');
+
   return (
     <Link to={`/product/${product.slug}`} className="group block">
-      <div className="bg-card rounded-xl overflow-hidden border border-border card-hover">
+      <div className="bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+        {/* Image container */}
         <div className="relative aspect-square overflow-hidden bg-muted">
           <img
             src={product.images[0]}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             loading="lazy"
             width={400}
             height={400}
           />
-          <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-            {product.badges.includes('hot') && <span className="badge-hot">🔥 Bán chạy</span>}
-            {product.badges.includes('gift') && <span className="badge-gift">🎁 Quà biếu</span>}
-            {product.badges.includes('limited') && <span className="badge-limited">⏳ Sắp hết</span>}
+          
+          {/* Badges top-left */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {product.badges.includes('hot') && (
+              <span className="badge-hot text-[10px] md:text-xs">🔥 Bán chạy</span>
+            )}
+            {product.badges.includes('gift') && (
+              <span className="badge-gift text-[10px] md:text-xs">🎁 Quà biếu</span>
+            )}
+            {product.badges.includes('limited') && (
+              <span className="badge-limited text-[10px] md:text-xs">⏳ Sắp hết</span>
+            )}
           </div>
+
+          {/* Stock warning */}
           {product.stock < 10 && (
-            <div className="absolute bottom-2 left-2 bg-foreground/80 text-primary-foreground text-xs px-2 py-0.5 rounded">
-              Còn {product.stock} {product.unit}
+            <div className="absolute top-2 right-2 bg-destructive text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+              Còn {product.stock}
             </div>
           )}
+
+          {/* Hover overlay with buttons - like Haisannang */}
+          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex gap-0">
+            <button
+              onClick={handleBuy}
+              className="flex-1 ocean-gradient text-primary-foreground font-bold py-2.5 flex items-center justify-center gap-1.5 text-xs md:text-sm hover:opacity-90 active:scale-95"
+            >
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Mua ngay
+            </button>
+            <span className="flex items-center justify-center px-3 bg-foreground/80 text-primary-foreground text-xs">
+              <Eye className="h-3.5 w-3.5" />
+            </span>
+          </div>
         </div>
 
-        <div className="p-3 md:p-4 space-y-2">
-          <h3 className="font-bold text-sm md:text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+        {/* Info - minimal like Camudo */}
+        <div className="p-2.5 md:p-3">
+          <h3 className="font-semibold text-xs md:text-sm text-foreground line-clamp-2 min-h-[2.5em] leading-tight group-hover:text-primary transition-colors">
             {product.name}
           </h3>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: product.rating }).map((_, i) => (
-              <span key={i} className="text-accent text-xs">★</span>
-            ))}
-          </div>
-          <div className="flex items-end justify-between">
-            <p className="text-lg md:text-xl font-extrabold text-primary">
+          <div className="mt-1.5 flex items-baseline gap-1">
+            <span className="text-base md:text-lg font-extrabold text-coral">
               {formatPrice(product.price)}
-              <span className="text-xs font-normal text-muted-foreground">/{product.unit}</span>
-            </p>
+            </span>
+            <span className="text-[10px] md:text-xs text-muted-foreground">/ {product.unit}</span>
           </div>
-          <button
-            onClick={handleBuy}
-            className="w-full ocean-gradient text-primary-foreground font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm hover:opacity-90 transition-opacity active:scale-95"
-          >
-            <ShoppingCart className="h-4 w-4" />
-            MUA NGAY
-          </button>
         </div>
       </div>
     </Link>

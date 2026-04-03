@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Eye } from 'lucide-react';
+import { ShoppingCart, Eye, Star } from 'lucide-react';
 import type { Product } from '@/data/products';
 import { formatPrice } from '@/data/products';
 import { useCart } from '@/contexts/CartContext';
@@ -25,11 +25,9 @@ export default function ProductCard({ product }: Props) {
     toast.success(`Đã thêm ${product.name} vào giỏ hàng!`);
   };
 
-  const hasDiscount = product.badges.includes('hot');
-
   return (
     <Link to={`/product/${product.slug}`} className="group block">
-      <div className="bg-card rounded-lg overflow-hidden border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
+      <div className="bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
         {/* Image container */}
         <div className="relative aspect-square overflow-hidden bg-muted">
           <img
@@ -44,48 +42,68 @@ export default function ProductCard({ product }: Props) {
           {/* Badges top-left */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {product.badges.includes('hot') && (
-              <span className="badge-hot text-[10px] md:text-xs">🔥 Bán chạy</span>
+              <span className="badge-hot">🔥 Bán chạy</span>
             )}
             {product.badges.includes('gift') && (
-              <span className="badge-gift text-[10px] md:text-xs">🎁 Quà biếu</span>
+              <span className="badge-gift">🎁 Quà biếu</span>
             )}
             {product.badges.includes('limited') && (
-              <span className="badge-limited text-[10px] md:text-xs">⏳ Sắp hết</span>
+              <span className="badge-limited">⏳ Sắp hết</span>
             )}
           </div>
 
           {/* Stock warning */}
           {product.stock < 10 && (
-            <div className="absolute top-2 right-2 bg-destructive text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+            <div className="absolute top-2 right-2 bg-destructive text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded animate-pulse-soft">
               Còn {product.stock}
             </div>
           )}
 
-          {/* Hover overlay with buttons - like Haisannang */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex gap-0">
+          {/* Hover overlay */}
+          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex">
             <button
               onClick={handleBuy}
-              className="flex-1 ocean-gradient text-primary-foreground font-bold py-2.5 flex items-center justify-center gap-1.5 text-xs md:text-sm hover:opacity-90 active:scale-95"
+              className="flex-1 ocean-gradient text-primary-foreground font-bold py-3 flex items-center justify-center gap-1.5 text-xs md:text-sm hover:opacity-90 active:scale-95 transition-all"
             >
               <ShoppingCart className="h-3.5 w-3.5" />
               Mua ngay
             </button>
-            <span className="flex items-center justify-center px-3 bg-foreground/80 text-primary-foreground text-xs">
-              <Eye className="h-3.5 w-3.5" />
+            <span className="flex items-center justify-center px-3.5 bg-foreground/80 text-primary-foreground text-xs hover:bg-foreground/90 transition-colors">
+              <Eye className="h-4 w-4" />
             </span>
           </div>
         </div>
 
-        {/* Info - minimal like Camudo */}
-        <div className="p-2.5 md:p-3">
+        {/* Info */}
+        <div className="p-3">
+          {/* Rating stars */}
+          <div className="flex items-center gap-0.5 mb-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`h-3 w-3 ${i < product.rating ? 'fill-accent text-accent' : 'text-muted'}`}
+              />
+            ))}
+            <span className="text-[10px] text-muted-foreground ml-1">({product.rating})</span>
+          </div>
+
           <h3 className="font-semibold text-xs md:text-sm text-foreground line-clamp-2 min-h-[2.5em] leading-tight group-hover:text-primary transition-colors">
             {product.name}
           </h3>
-          <div className="mt-1.5 flex items-baseline gap-1">
+
+          <div className="mt-2 flex items-baseline gap-1">
             <span className="text-base md:text-lg font-extrabold text-coral">
               {formatPrice(product.price)}
             </span>
             <span className="text-[10px] md:text-xs text-muted-foreground">/ {product.unit}</span>
+          </div>
+
+          {/* Quick info */}
+          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span className="bg-muted px-1.5 py-0.5 rounded">{product.grade}</span>
+            <span className="bg-ocean-light text-primary px-1.5 py-0.5 rounded font-medium">
+              {product.stock > 20 ? '✓ Còn hàng' : `Còn ${product.stock}`}
+            </span>
           </div>
         </div>
       </div>

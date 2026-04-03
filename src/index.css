@@ -65,7 +65,8 @@
 
 @layer components {
   .badge-hot {
-    @apply bg-coral text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full;
+    background-color: hsl(var(--coral));
+    @apply text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full;
   }
   .badge-gift {
     @apply bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full;

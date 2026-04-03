@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 @layer base {
   :root {
     --background: 210 20% 98%;
@@ -40,6 +42,7 @@
     --gold-soft: 45 80% 92%;
     --sand: 40 30% 96%;
     --coral: 15 85% 55%;
+    --success: 142 76% 36%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -61,18 +64,51 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  /* Hide scrollbar for category strip */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {
   .badge-hot {
     background-color: hsl(var(--coral));
-    @apply text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full;
+    @apply text-primary-foreground text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full;
   }
   .badge-gift {
-    @apply bg-accent text-accent-foreground text-xs font-bold px-2 py-0.5 rounded-full;
+    @apply bg-accent text-accent-foreground text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full;
   }
   .badge-limited {
-    @apply bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full;
+    @apply bg-destructive text-destructive-foreground text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full;
+  }
+
+  .trust-icon {
+    @apply flex flex-col items-center text-center gap-1.5 px-3;
+  }
+  .trust-icon .icon-circle {
+    @apply w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-primary-foreground ocean-gradient shadow-md;
+  }
+
+  .section-title {
+    @apply text-lg md:text-2xl font-extrabold text-foreground relative inline-block;
+  }
+  .section-title::after {
+    content: '';
+    @apply block w-12 h-1 rounded-full mt-1.5;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+  }
+
+  .promo-ticker {
+    @apply overflow-hidden whitespace-nowrap;
+  }
+  .promo-ticker-content {
+    display: inline-block;
+    animation: ticker 20s linear infinite;
   }
 }
 
@@ -83,15 +119,55 @@
   .gold-gradient {
     background: linear-gradient(135deg, hsl(45 90% 55%), hsl(35 85% 50%));
   }
+  .coral-gradient {
+    background: linear-gradient(135deg, hsl(15 85% 55%), hsl(0 84% 60%));
+  }
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
   }
   .animate-fade-in {
     animation: fadeIn 0.4s ease-out;
   }
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+  .animate-slide-right {
+    animation: slideRight 0.3s ease-out;
+  }
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+  .animate-bounce-soft {
+    animation: bounceSoft 2s ease-in-out infinite;
+  }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }

@@ -67,6 +67,7 @@ export default {
         },
         sand: "hsl(var(--sand))",
         coral: "hsl(var(--coral))",
+        success: "hsl(var(--success))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -75,20 +76,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {

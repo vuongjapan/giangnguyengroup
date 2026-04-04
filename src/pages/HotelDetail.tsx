@@ -235,7 +235,7 @@ export default function HotelDetail() {
                       <span className="bg-coral text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-full">-{saving}%</span>
                     </div>
                     <ul className="text-xs text-muted-foreground space-y-1 mb-3">
-                      {combo.items.map(it => <li key={it} className="flex items-start gap-1"><CheckCircle className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />{it}</li>)}
+                      {combo.items.map(it => <li key={it} className="flex items-start gap-1"><CheckCircle className="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />{it}</li>)}
                     </ul>
                     <div className="flex items-baseline gap-2 mb-3">
                       <span className="text-coral font-extrabold">{formatPrice(combo.comboPrice)}</span>

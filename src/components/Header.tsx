@@ -14,7 +14,7 @@ const MAIN_MENU = [
   { label: 'BLOG', to: '/blog', icon: BookOpen },
   { label: 'GIỚI THIỆU', to: '/gioi-thieu', icon: BookOpen },
   { label: 'CHÍNH SÁCH', to: '/chinh-sach', icon: ShieldCheck },
-  { label: 'TUẤN ĐẠT HOTEL', to: '/khach-san-tuan-dat', icon: Hotel },
+  { label: 'KHÁCH SẠN LIÊN KẾT', to: '/khach-san', icon: Hotel },
 ];
 
 export default function Header() {

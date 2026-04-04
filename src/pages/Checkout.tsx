@@ -115,7 +115,7 @@ export default function Checkout() {
     setStep('done');
   };
 
-  const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${totalPrice}&des=${encodeURIComponent(orderCode)}`;
+  const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${finalPrice}&des=${encodeURIComponent(orderCode)}`;
 
   return (
     <div className="min-h-screen flex flex-col">

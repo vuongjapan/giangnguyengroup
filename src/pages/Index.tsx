@@ -129,11 +129,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* V. About Section */}
-      <AboutSection />
-
-      {/* Social Proof */}
-      <SocialProof />
 
       {/* Quick category strip */}
       <div className="border-b border-border bg-card sticky top-[88px] md:top-[140px] z-30" id="products">
@@ -258,6 +253,10 @@ export default function Index() {
 
       {/* Newsletter Signup */}
       <NewsletterSignup />
+
+      {/* About & Social Proof */}
+      <AboutSection />
+      <SocialProof />
 
       {/* II. Store Locations */}
       <StoreLocations onSelectStore={handleSelectStore} />

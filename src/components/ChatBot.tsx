@@ -41,7 +41,7 @@ export default function ChatBot() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-24 right-4 z-40 ocean-gradient text-primary-foreground rounded-full p-4 shadow-lg hover:opacity-90 transition-all active:scale-95"
+          className="fixed bottom-6 right-4 z-40 ocean-gradient text-primary-foreground rounded-full p-4 shadow-lg hover:opacity-90 transition-all active:scale-95"
           aria-label="Mở chat tư vấn"
         >
           <MessageCircle className="h-6 w-6" />

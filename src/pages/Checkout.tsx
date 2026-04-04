@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/data/products';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { toast } from 'sonner';
 
 function generateOrderCode() {
   const num = Math.floor(Math.random() * 9999) + 1;
@@ -13,11 +16,13 @@ function generateOrderCode() {
 
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<'info' | 'payment' | 'done'>('info');
   const [orderCode, setOrderCode] = useState('');
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   if (items.length === 0 && step !== 'done') {
     return (
@@ -43,10 +48,60 @@ export default function Checkout() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
+    setSaving(true);
     const code = generateOrderCode();
     setOrderCode(code);
+
+    // Save order to database
+    const orderData: any = {
+      order_code: code,
+      customer_name: form.name.trim(),
+      customer_phone: form.phone.trim(),
+      customer_email: form.email.trim(),
+      customer_address: form.address.trim(),
+      items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image, unit: i.unit })),
+      total: totalPrice,
+      status: 'pending',
+    };
+
+    if (user) {
+      orderData.user_id = user.id;
+      // Calculate points: based on level
+      const { data: profile } = await supabase.from('profiles').select('level').eq('id', user.id).maybeSingle();
+      const cashbackRate = profile?.level === 'PRO' ? 0.1 : profile?.level === 'VIP' ? 0.05 : 0.02;
+      orderData.points_earned = Math.floor(totalPrice * cashbackRate);
+    }
+
+    const { error } = await supabase.from('orders').insert(orderData);
+    if (error) {
+      console.error('Order error:', error);
+      toast.error('Lỗi lưu đơn hàng, vui lòng thử lại');
+      setSaving(false);
+      return;
+    }
+
+    // Update profile total_spent and points if logged in
+    if (user && orderData.points_earned) {
+      const { data: currentProfile } = await supabase.from('profiles').select('total_spent, points, level').eq('id', user.id).maybeSingle();
+      if (currentProfile) {
+        const newTotalSpent = (currentProfile.total_spent || 0) + totalPrice;
+        const newPoints = (currentProfile.points || 0) + orderData.points_earned;
+        // Auto upgrade level
+        let newLevel = 'Thường';
+        if (newTotalSpent >= 10000000) newLevel = 'PRO';
+        else if (newTotalSpent >= 3000000) newLevel = 'VIP';
+
+        await supabase.from('profiles').update({
+          total_spent: newTotalSpent,
+          points: newPoints,
+          level: newLevel,
+        }).eq('id', user.id);
+      }
+    }
+
+    setSaving(false);
     setStep('payment');
   };
 
@@ -81,6 +136,13 @@ export default function Checkout() {
 
         {step === 'info' && (
           <div className="space-y-4">
+            {!user && (
+              <div className="bg-primary/10 rounded-xl border border-primary/30 p-4 text-sm">
+                <Link to="/auth" className="text-primary font-bold hover:underline">Đăng nhập</Link>
+                <span className="text-foreground"> để tích điểm và theo dõi đơn hàng</span>
+              </div>
+            )}
+
             <div className="bg-card rounded-xl border border-border p-4 space-y-3">
               <h2 className="font-extrabold text-foreground text-lg">Thông tin đặt hàng</h2>
               {(['name', 'phone', 'email', 'address'] as const).map(field => (
@@ -89,19 +151,12 @@ export default function Checkout() {
                     {field === 'name' ? 'Họ tên *' : field === 'phone' ? 'Số điện thoại *' : field === 'email' ? 'Email' : 'Địa chỉ giao hàng *'}
                   </label>
                   {field === 'address' ? (
-                    <textarea
-                      value={form[field]}
-                      onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-                      className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
-                      rows={2}
-                    />
+                    <textarea value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40" rows={2} />
                   ) : (
-                    <input
-                      type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
-                      value={form[field]}
-                      onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-                      className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    />
+                    <input type={field === 'email' ? 'email' : field === 'phone' ? 'tel' : 'text'}
+                      value={form[field]} onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40" />
                   )}
                   {errors[field] && <p className="text-destructive text-xs mt-1">{errors[field]}</p>}
                 </div>
@@ -122,11 +177,9 @@ export default function Checkout() {
               </div>
             </div>
 
-            <button
-              onClick={handleSubmit}
-              className="w-full ocean-gradient text-primary-foreground font-bold py-3 rounded-xl text-base hover:opacity-90 active:scale-95 transition-all"
-            >
-              TIẾP TỤC THANH TOÁN
+            <button onClick={handleSubmit} disabled={saving}
+              className="w-full ocean-gradient text-primary-foreground font-bold py-3 rounded-xl text-base hover:opacity-90 active:scale-95 transition-all disabled:opacity-50">
+              {saving ? 'Đang xử lý...' : 'TIẾP TỤC THANH TOÁN'}
             </button>
           </div>
         )}
@@ -146,11 +199,8 @@ export default function Checkout() {
                 <p className="text-foreground">Nội dung CK: <span className="font-bold text-primary">{orderCode}</span></p>
               </div>
             </div>
-
-            <button
-              onClick={handleConfirmPayment}
-              className="w-full ocean-gradient text-primary-foreground font-bold py-3 rounded-xl text-base hover:opacity-90 active:scale-95 transition-all"
-            >
+            <button onClick={handleConfirmPayment}
+              className="w-full ocean-gradient text-primary-foreground font-bold py-3 rounded-xl text-base hover:opacity-90 active:scale-95 transition-all">
               TÔI ĐÃ THANH TOÁN
             </button>
           </div>
@@ -162,12 +212,18 @@ export default function Checkout() {
             <h2 className="text-2xl font-extrabold text-foreground">Đặt hàng thành công!</h2>
             <p className="text-muted-foreground">Mã đơn: <span className="font-bold text-primary">{orderCode}</span></p>
             <p className="text-sm text-muted-foreground">Chúng tôi sẽ liên hệ xác nhận đơn hàng trong vòng 30 phút.</p>
-            <button
-              onClick={() => navigate('/')}
-              className="ocean-gradient text-primary-foreground font-bold px-8 py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all"
-            >
-              VỀ TRANG CHỦ
-            </button>
+            <div className="flex gap-3 justify-center">
+              {user && (
+                <button onClick={() => navigate('/account')}
+                  className="bg-card border border-border text-foreground font-bold px-6 py-3 rounded-xl hover:bg-muted transition-colors text-sm">
+                  XEM ĐƠN HÀNG
+                </button>
+              )}
+              <button onClick={() => navigate('/')}
+                className="ocean-gradient text-primary-foreground font-bold px-8 py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all">
+                VỀ TRANG CHỦ
+              </button>
+            </div>
           </div>
         )}
       </main>

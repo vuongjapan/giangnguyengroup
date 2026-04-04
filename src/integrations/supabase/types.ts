@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      orders: {
+        Row: {
+          created_at: string
+          customer_address: string
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          id: string
+          items: Json
+          order_code: string
+          points_earned: number
+          points_used: number
+          status: string
+          total: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_address: string
+          customer_email?: string
+          customer_name: string
+          customer_phone: string
+          id?: string
+          items?: Json
+          order_code: string
+          points_earned?: number
+          points_used?: number
+          status?: string
+          total: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_address?: string
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+          items?: Json
+          order_code?: string
+          points_earned?: number
+          points_used?: number
+          status?: string
+          total?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           badges: string[]
@@ -70,6 +121,45 @@ export type Database = {
           sort_order?: number
           stock?: number
           unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          birthday: string | null
+          created_at: string
+          email: string
+          id: string
+          level: string
+          name: string
+          phone: string
+          points: number
+          total_spent: number
+          updated_at: string
+        }
+        Insert: {
+          birthday?: string | null
+          created_at?: string
+          email?: string
+          id: string
+          level?: string
+          name?: string
+          phone?: string
+          points?: number
+          total_spent?: number
+          updated_at?: string
+        }
+        Update: {
+          birthday?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          level?: string
+          name?: string
+          phone?: string
+          points?: number
+          total_spent?: number
           updated_at?: string
         }
         Relationships: []

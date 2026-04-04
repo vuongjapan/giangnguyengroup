@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
 
 export default function Header() {
   const { totalItems, totalPrice, setIsOpen } = useCart();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -114,6 +116,15 @@ export default function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1 ml-auto">
+            {/* Account */}
+            <Link
+              to={user ? '/account' : '/auth'}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              title={user ? 'Tài khoản' : 'Đăng nhập'}
+            >
+              <User className="h-5 w-5 text-foreground hover:text-primary transition-colors" />
+            </Link>
+
             {/* Hotline mobile */}
             <a href="tel:0123456789" className="md:hidden p-2 hover:bg-muted rounded-lg">
               <Phone className="h-5 w-5 text-primary" />

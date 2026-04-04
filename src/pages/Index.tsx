@@ -135,9 +135,6 @@ export default function Index() {
       {/* Social Proof */}
       <SocialProof />
 
-      {/* II. Store Locations */}
-      <StoreLocations onSelectStore={handleSelectStore} />
-
       {/* Quick category strip */}
       <div className="border-b border-border bg-card sticky top-[88px] md:top-[140px] z-30" id="products">
         <div className="container mx-auto px-4">

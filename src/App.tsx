@@ -26,6 +26,7 @@ import ContentHub from "./pages/ContentHub.tsx";
 import HotelPartner from "./pages/HotelPartner.tsx";
 import PromotionsPage from "./pages/PromotionsPage.tsx";
 import RecipesPage from "./pages/RecipesPage.tsx";
+import NewsPage from "./pages/NewsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/khach-san-tuan-dat" element={<HotelPartner />} />
               <Route path="/khuyen-mai" element={<PromotionsPage />} />
               <Route path="/mon-ngon" element={<RecipesPage />} />
+              <Route path="/tin-tuc" element={<NewsPage />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />

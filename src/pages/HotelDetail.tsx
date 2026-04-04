@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { MapPin, Phone, Star, CheckCircle, Gift, Truck, Clock, Building2, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { MapPin, Phone, Star, CheckCircle, Gift, Truck, Clock, Building2, ShieldCheck, ArrowLeft, Percent } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';

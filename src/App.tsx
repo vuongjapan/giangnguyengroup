@@ -16,6 +16,8 @@ import ProductDetail from "./pages/ProductDetail.tsx";
 import Checkout from "./pages/Checkout.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
+import BrandStory from "./pages/BrandStory.tsx";
+import ContentHub from "./pages/ContentHub.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,9 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/product/:slug" element={<ProductDetail />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/ve-chung-toi" element={<BrandStory />} />
+              <Route path="/blog" element={<ContentHub />} />
+              <Route path="/blog/:slug" element={<ContentHub />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />

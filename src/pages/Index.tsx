@@ -129,6 +129,9 @@ export default function Index() {
       {/* V. About Section */}
       <AboutSection />
 
+      {/* Social Proof */}
+      <SocialProof />
+
       {/* II. Store Locations */}
       <StoreLocations onSelectStore={handleSelectStore} />
 

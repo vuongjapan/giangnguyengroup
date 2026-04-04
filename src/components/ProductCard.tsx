@@ -4,6 +4,7 @@ import type { Product } from '@/data/products';
 import { formatPrice } from '@/data/products';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import ProductGradeBadge from '@/components/ProductGradeBadge';
 
 interface Props {
   product: Product;
@@ -39,6 +40,11 @@ export default function ProductCard({ product }: Props) {
             height={400}
           />
           
+          {/* Grade badge top-right */}
+          <div className="absolute top-2 right-2 z-10">
+            <ProductGradeBadge grade={product.grade} />
+          </div>
+
           {/* Badges top-left */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {product.badges.includes('hot') && (
@@ -54,7 +60,7 @@ export default function ProductCard({ product }: Props) {
 
           {/* Stock warning */}
           {product.stock < 10 && (
-            <div className="absolute top-2 right-2 bg-destructive text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded animate-pulse-soft">
+            <div className="absolute bottom-2 left-2 bg-destructive text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded animate-pulse-soft">
               Còn {product.stock}
             </div>
           )}
@@ -100,7 +106,6 @@ export default function ProductCard({ product }: Props) {
 
           {/* Quick info */}
           <div className="mt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
-            <span className="bg-muted px-1.5 py-0.5 rounded">{product.grade}</span>
             <span className="bg-ocean-light text-primary px-1.5 py-0.5 rounded font-medium">
               {product.stock > 20 ? '✓ Còn hàng' : `Còn ${product.stock}`}
             </span>

@@ -206,7 +206,7 @@ export default function Checkout() {
             <div className="bg-card rounded-xl border border-border p-6 text-center space-y-4">
               <h2 className="font-extrabold text-foreground text-lg">Quét QR để thanh toán</h2>
               <p className="text-sm text-muted-foreground">Mã đơn hàng: <span className="font-bold text-primary">{orderCode}</span></p>
-              <p className="text-2xl font-extrabold text-primary">{formatPrice(totalPrice)}</p>
+              <p className="text-2xl font-extrabold text-primary">{formatPrice(finalPrice)}</p>
               <div className="flex justify-center">
                 <img src={qrUrl} alt="QR thanh toán" className="w-64 h-64 rounded-xl border border-border" width={256} height={256} />
               </div>

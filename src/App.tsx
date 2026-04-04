@@ -39,6 +39,7 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/chinh-sach-ban-hang" element={<SalesPolicy />} />
               <Route path="/ve-chung-toi" element={<BrandStory />} />
               <Route path="/blog" element={<ContentHub />} />
               <Route path="/blog/:slug" element={<ContentHub />} />

@@ -36,9 +36,12 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <TrackingPixels />
             <CartDrawer />
             <ChatBot />
             <FloatingButtons />
+            <WelcomePopup />
+            <ExitIntentPopup />
           </BrowserRouter>
         </CartProvider>
       </AuthProvider>

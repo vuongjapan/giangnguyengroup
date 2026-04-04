@@ -8,9 +8,11 @@ import { products, formatPrice, categories } from '@/data/products';
 const MAIN_MENU = [
   { label: 'SẢN PHẨM', to: '/san-pham', icon: Package },
   { label: 'COMBO QUÀ BIẾU', to: '/combo', icon: Gift },
+  { label: 'KHUYẾN MÃI', to: '/khuyen-mai', icon: Gift },
+  { label: 'MÓN NGON', to: '/mon-ngon', icon: BookOpen },
   { label: 'GIỚI THIỆU', to: '/gioi-thieu', icon: BookOpen },
-  { label: 'ẨM THỰC', to: '/blog', icon: BookOpen },
   { label: 'CHÍNH SÁCH', to: '/chinh-sach', icon: ShieldCheck },
+  { label: 'TUẤN ĐẠT HOTEL', to: '/khach-san-tuan-dat', icon: Package },
 ];
 
 export default function Header() {

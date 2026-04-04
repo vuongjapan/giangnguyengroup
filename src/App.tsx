@@ -52,6 +52,9 @@ const App = () => (
               <Route path="/chinh-sach-ban-hang" element={<Navigate to="/chinh-sach" replace />} />
               <Route path="/blog" element={<ContentHub />} />
               <Route path="/blog/:slug" element={<ContentHub />} />
+              <Route path="/khach-san-tuan-dat" element={<HotelPartner />} />
+              <Route path="/khuyen-mai" element={<PromotionsPage />} />
+              <Route path="/mon-ngon" element={<RecipesPage />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />

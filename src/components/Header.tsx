@@ -1,18 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
 
+const BEST_SELLERS = [
+  { name: 'Mực khô loại 1', slug: 'muc-kho-loai-1' },
+  { name: 'Cá chỉ vàng', slug: 'ca-chi-vang' },
+  { name: 'Mực 1 nắng', slug: 'muc-1-nang' },
+];
+
 const MAIN_MENU = [
-  { label: 'SẢN PHẨM', to: '/san-pham', icon: Package },
+  { label: 'SẢN PHẨM', to: '/san-pham', icon: Package, hasDropdown: true },
   { label: 'COMBO QUÀ BIẾU', to: '/combo', icon: Gift },
   { label: 'KHUYẾN MÃI', to: '/khuyen-mai', icon: Tag },
   { label: 'MÓN NGON', to: '/mon-ngon', icon: UtensilsCrossed },
   { label: 'TIN TỨC', to: '/tin-tuc', icon: Newspaper },
   { label: 'BLOG', to: '/blog', icon: BookOpen },
   { label: 'GIỚI THIỆU', to: '/gioi-thieu', icon: BookOpen },
+  { label: 'HỆ THỐNG CỬA HÀNG', to: '/he-thong-cua-hang', icon: Store },
   { label: 'CHÍNH SÁCH', to: '/chinh-sach', icon: ShieldCheck },
   { label: 'KHÁCH SẠN LIÊN KẾT', to: '/khach-san', icon: Hotel },
 ];
@@ -24,7 +31,8 @@ export default function Header() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [mobileProductExpanded, setMobileProductExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -67,13 +75,17 @@ export default function Header() {
         <div className="container mx-auto flex items-center justify-between text-[11px] text-primary-foreground/90">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Sầm Sơn, Thanh Hóa</span>
-            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 7:00 – 21:00 hàng ngày</span>
+            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 7:00 – 17:00 hàng ngày</span>
           </div>
           <div className="flex items-center gap-4">
-            <span>✅ Sơ chế miễn phí</span>
-            <span>🔄 Đổi trả 24h</span>
-            <a href="tel:0123456789" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
-              <Phone className="h-3 w-3" /> Hotline: 0123.456.789
+            <a href="tel:0986617939" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
+              <Phone className="h-3 w-3" /> Hotline: 098.661.7939
+            </a>
+            <a href="https://zalo.me/0986617939" target="_blank" rel="noopener noreferrer" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
+              <MessageCircle className="h-3 w-3" /> Zalo: 098.661.7939
+            </a>
+            <a href="mailto:giangnguyendriedseafood@gmail.com" className="text-primary-foreground flex items-center gap-1 hover:underline">
+              <Mail className="h-3 w-3" /> giangnguyendriedseafood@gmail.com
             </a>
           </div>
         </div>
@@ -136,7 +148,6 @@ export default function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1 ml-auto">
-            {/* Account */}
             <Link
               to={user ? '/account' : '/auth'}
               className="p-2 hover:bg-muted rounded-lg transition-colors"
@@ -144,13 +155,9 @@ export default function Header() {
             >
               <User className="h-5 w-5 text-foreground hover:text-primary transition-colors" />
             </Link>
-
-            {/* Hotline mobile */}
-            <a href="tel:0123456789" className="md:hidden p-2 hover:bg-muted rounded-lg">
+            <a href="tel:0986617939" className="md:hidden p-2 hover:bg-muted rounded-lg">
               <Phone className="h-5 w-5 text-primary" />
             </a>
-
-            {/* Cart */}
             <button
               onClick={() => setIsOpen(true)}
               className="relative flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted transition-colors group"
@@ -175,52 +182,71 @@ export default function Header() {
       {/* Main navigation bar - desktop */}
       <nav className="bg-card border-b border-border hidden md:block">
         <div className="container mx-auto px-4">
-          <div className="flex items-center">
-            {/* Category dropdown */}
-            <div className="relative"
-              onMouseEnter={() => setShowCategoryDropdown(true)}
-              onMouseLeave={() => setShowCategoryDropdown(false)}
-            >
-              <button className="flex items-center gap-1.5 px-4 py-2.5 ocean-gradient text-primary-foreground text-sm font-bold rounded-t-lg">
-                <Menu className="h-4 w-4" /> DANH MỤC <ChevronDown className="h-3 w-3" />
-              </button>
-              {showCategoryDropdown && (
-                <div className="absolute top-full left-0 w-56 bg-card rounded-b-xl shadow-2xl border border-border border-t-0 z-50">
-                  {categories.map(cat => (
-                    <Link
-                      key={cat}
-                      to={`/san-pham?category=${encodeURIComponent(cat)}`}
-                      className="block px-4 py-2.5 text-sm text-foreground hover:bg-muted hover:text-primary font-medium transition-colors border-b border-border last:border-0"
-                    >
-                      {cat}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Main menu items */}
+          <div className="flex items-center flex-wrap">
             {MAIN_MENU.map(item => (
-              <Link
+              <div
                 key={item.to}
-                to={item.to}
-                className={`px-4 py-2.5 text-sm font-bold transition-colors relative group ${
-                  isActive(item.to) ? 'text-primary' : 'text-foreground hover:text-primary'
-                }`}
+                className="relative"
+                onMouseEnter={() => item.hasDropdown && setShowProductDropdown(true)}
+                onMouseLeave={() => item.hasDropdown && setShowProductDropdown(false)}
               >
-                {item.label}
-                <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 ${
-                  isActive(item.to) ? 'w-full' : 'w-0 group-hover:w-full'
-                }`} />
-              </Link>
-            ))}
+                <Link
+                  to={item.to}
+                  className={`flex items-center gap-1 px-3 py-2.5 text-sm font-bold transition-colors relative group whitespace-nowrap ${
+                    isActive(item.to) ? 'text-primary' : 'text-foreground hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                  {item.hasDropdown && <ChevronDown className="h-3 w-3" />}
+                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 ${
+                    isActive(item.to) ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`} />
+                </Link>
 
-            <Link
-              to="/san-pham?status=hot"
-              className="px-3 py-2.5 text-sm text-coral font-bold flex items-center gap-1 animate-pulse-soft ml-auto"
-            >
-              🔥 Bán chạy
-            </Link>
+                {/* Product mega dropdown */}
+                {item.hasDropdown && showProductDropdown && (
+                  <div className="absolute top-full left-0 w-72 bg-card rounded-b-xl shadow-2xl border border-border border-t-2 border-t-primary z-50">
+                    {/* Categories */}
+                    <div className="p-2">
+                      <p className="px-3 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Danh mục</p>
+                      {categories.map(cat => (
+                        <Link
+                          key={cat}
+                          to={`/san-pham?category=${encodeURIComponent(cat)}`}
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted hover:text-primary font-medium rounded-lg transition-colors"
+                        >
+                          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                          {cat}
+                        </Link>
+                      ))}
+                    </div>
+                    {/* Best sellers */}
+                    <div className="border-t border-border p-2">
+                      <p className="px-3 py-1.5 text-[10px] font-bold text-coral uppercase tracking-wider">🔥 Bán chạy</p>
+                      {BEST_SELLERS.map(bs => (
+                        <Link
+                          key={bs.slug}
+                          to={`/product/${bs.slug}`}
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted hover:text-coral font-medium rounded-lg transition-colors"
+                        >
+                          <span className="text-coral">→</span>
+                          {bs.name}
+                        </Link>
+                      ))}
+                    </div>
+                    {/* View all */}
+                    <div className="border-t border-border p-2">
+                      <Link
+                        to="/san-pham"
+                        className="block text-center px-3 py-2 text-sm font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                      >
+                        Xem tất cả sản phẩm →
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </nav>
@@ -275,36 +301,63 @@ export default function Header() {
             <div className="p-3">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Menu chính</p>
               {MAIN_MENU.map(item => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={`w-full flex items-center gap-3 px-3 py-3 text-sm font-bold rounded-lg transition-colors ${
-                    isActive(item.to) ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
-              <Link
-                to="/san-pham?status=hot"
-                className="w-full flex items-center gap-3 px-3 py-3 text-sm font-bold text-coral rounded-lg hover:bg-muted"
-              >
-                🔥 BÁN CHẠY
-              </Link>
-            </div>
-
-            {/* Mobile categories */}
-            <div className="p-3 border-t border-border">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Danh mục sản phẩm</p>
-              {categories.map(cat => (
-                <Link
-                  key={cat}
-                  to={`/san-pham?category=${encodeURIComponent(cat)}`}
-                  className="block px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
-                >
-                  {cat}
-                </Link>
+                <div key={item.to}>
+                  {item.hasDropdown ? (
+                    <>
+                      <button
+                        className={`w-full flex items-center justify-between px-3 py-3 text-sm font-bold rounded-lg transition-colors ${
+                          isActive(item.to) ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                        }`}
+                        onClick={() => setMobileProductExpanded(!mobileProductExpanded)}
+                      >
+                        <span className="flex items-center gap-3">
+                          <item.icon className="h-4 w-4" />
+                          {item.label}
+                        </span>
+                        <ChevronDown className={`h-4 w-4 transition-transform ${mobileProductExpanded ? 'rotate-180' : ''}`} />
+                      </button>
+                      {mobileProductExpanded && (
+                        <div className="ml-4 border-l-2 border-primary/20 pl-3 mb-2">
+                          <Link
+                            to="/san-pham"
+                            className="block px-3 py-2 text-sm font-bold text-primary hover:bg-muted rounded-lg"
+                          >
+                            Tất cả sản phẩm
+                          </Link>
+                          {categories.map(cat => (
+                            <Link
+                              key={cat}
+                              to={`/san-pham?category=${encodeURIComponent(cat)}`}
+                              className="block px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-lg"
+                            >
+                              {cat}
+                            </Link>
+                          ))}
+                          <p className="px-3 pt-2 pb-1 text-[10px] font-bold text-coral uppercase">🔥 Bán chạy</p>
+                          {BEST_SELLERS.map(bs => (
+                            <Link
+                              key={bs.slug}
+                              to={`/product/${bs.slug}`}
+                              className="block px-3 py-2 text-sm font-medium text-coral hover:bg-muted rounded-lg"
+                            >
+                              {bs.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      to={item.to}
+                      className={`w-full flex items-center gap-3 px-3 py-3 text-sm font-bold rounded-lg transition-colors ${
+                        isActive(item.to) ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.label}
+                    </Link>
+                  )}
+                </div>
               ))}
             </div>
 
@@ -322,12 +375,18 @@ export default function Header() {
             {/* Mobile contact */}
             <div className="p-3 border-t border-border">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Liên hệ</p>
-              <a href="tel:0123456789" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
-                <Phone className="h-4 w-4" /> 0123.456.789
+              <a href="tel:0986617939" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
+                <Phone className="h-4 w-4" /> 098.661.7939
+              </a>
+              <a href="https://zalo.me/0986617939" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
+                <MessageCircle className="h-4 w-4" /> Zalo: 098.661.7939
+              </a>
+              <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg">
+                <Mail className="h-4 w-4" /> giangnguyendriedseafood@gmail.com
               </a>
               <div className="px-3 py-2 text-xs text-muted-foreground">
                 <p>📍 Sầm Sơn, Thanh Hóa</p>
-                <p>🕐 7:00 – 21:00 hàng ngày</p>
+                <p>🕐 7:00 – 17:00 hàng ngày</p>
               </div>
             </div>
           </div>

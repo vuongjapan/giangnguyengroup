@@ -8,6 +8,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import CartDrawer from "@/components/CartDrawer";
 import ChatBot from "@/components/ChatBot";
 import FloatingButtons from "@/components/FloatingButtons";
+import TrackingPixels from "@/components/TrackingPixels";
+import WelcomePopup from "@/components/WelcomePopup";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Index from "./pages/Index.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import Checkout from "./pages/Checkout.tsx";
@@ -33,9 +36,12 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <TrackingPixels />
             <CartDrawer />
             <ChatBot />
             <FloatingButtons />
+            <WelcomePopup />
+            <ExitIntentPopup />
           </BrowserRouter>
         </CartProvider>
       </AuthProvider>

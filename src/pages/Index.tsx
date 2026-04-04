@@ -9,6 +9,7 @@ import HeroBanner from '@/components/HeroBanner';
 import AboutSection from '@/components/AboutSection';
 import StoreLocations from '@/components/StoreLocations';
 import GoogleMap from '@/components/GoogleMap';
+import FlashSaleBanner from '@/components/FlashSaleBanner';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -78,6 +79,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <FlashSaleBanner />
       <Header />
 
       {/* I. Hero Banner with Slider */}

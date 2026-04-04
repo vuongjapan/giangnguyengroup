@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User, Gift, BookOpen, ShieldCheck, Package } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
@@ -8,11 +8,13 @@ import { products, formatPrice, categories } from '@/data/products';
 const MAIN_MENU = [
   { label: 'SẢN PHẨM', to: '/san-pham', icon: Package },
   { label: 'COMBO QUÀ BIẾU', to: '/combo', icon: Gift },
-  { label: 'KHUYẾN MÃI', to: '/khuyen-mai', icon: Gift },
-  { label: 'MÓN NGON', to: '/mon-ngon', icon: BookOpen },
+  { label: 'KHUYẾN MÃI', to: '/khuyen-mai', icon: Tag },
+  { label: 'MÓN NGON', to: '/mon-ngon', icon: UtensilsCrossed },
+  { label: 'TIN TỨC', to: '/tin-tuc', icon: Newspaper },
+  { label: 'BLOG', to: '/blog', icon: BookOpen },
   { label: 'GIỚI THIỆU', to: '/gioi-thieu', icon: BookOpen },
   { label: 'CHÍNH SÁCH', to: '/chinh-sach', icon: ShieldCheck },
-  { label: 'TUẤN ĐẠT HOTEL', to: '/khach-san-tuan-dat', icon: Package },
+  { label: 'TUẤN ĐẠT HOTEL', to: '/khach-san-tuan-dat', icon: Hotel },
 ];
 
 export default function Header() {

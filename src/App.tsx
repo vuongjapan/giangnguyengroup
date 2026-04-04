@@ -18,6 +18,7 @@ import AuthPage from "./pages/AuthPage.tsx";
 import Account from "./pages/Account.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
+import SalesPolicy from "./pages/SalesPolicy.tsx";
 import BrandStory from "./pages/BrandStory.tsx";
 import ContentHub from "./pages/ContentHub.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/account" element={<Account />} />
+              <Route path="/chinh-sach-ban-hang" element={<SalesPolicy />} />
               <Route path="/ve-chung-toi" element={<BrandStory />} />
               <Route path="/blog" element={<ContentHub />} />
               <Route path="/blog/:slug" element={<ContentHub />} />

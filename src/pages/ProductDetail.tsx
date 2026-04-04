@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
+import ProductGradeBadge from '@/components/ProductGradeBadge';
+import QRTraceability from '@/components/QRTraceability';
 
 export default function ProductDetail() {
   const { slug } = useParams();

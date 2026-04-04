@@ -254,6 +254,10 @@ export default function Index() {
       {/* Newsletter Signup */}
       <NewsletterSignup />
 
+      {/* About & Social Proof */}
+      <AboutSection />
+      <SocialProof />
+
       {/* II. Store Locations */}
       <StoreLocations onSelectStore={handleSelectStore} />
 

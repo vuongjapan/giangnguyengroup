@@ -18,6 +18,7 @@ import AuthPage from "./pages/AuthPage.tsx";
 import Account from "./pages/Account.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
+import SalesPolicy from "./pages/SalesPolicy.tsx";
 import BrandStory from "./pages/BrandStory.tsx";
 import ContentHub from "./pages/ContentHub.tsx";
 import NotFound from "./pages/NotFound.tsx";

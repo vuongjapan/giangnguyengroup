@@ -1,11 +1,14 @@
 import { useState, useMemo } from 'react';
-import { Filter, ArrowUpDown, ChevronRight, Star, ShoppingCart, Truck, Shield, RotateCcw, Award, Gift, Flame, TrendingUp } from 'lucide-react';
-import heroImg from '@/assets/hero-seafood.jpg';
+import { Filter, ArrowUpDown, ChevronRight, Star, Flame } from 'lucide-react';
 import { products, priceRanges, categories, formatPrice } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import HeroBanner from '@/components/HeroBanner';
+import AboutSection from '@/components/AboutSection';
+import StoreLocations from '@/components/StoreLocations';
+import GoogleMap from '@/components/GoogleMap';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -40,6 +43,7 @@ export default function Index() {
   });
   const [sort, setSort] = useState<SortOption>('default');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [focusStoreId, setFocusStoreId] = useState<string | null>(null);
   const { addItem } = useCart();
 
   const filtered = useMemo(() => {
@@ -67,43 +71,17 @@ export default function Index() {
   const hasFilters = Object.values(filters).some(v => v !== null);
   const bestSellers = products.filter(p => p.badges.includes('hot'));
 
-  const handleQuickBuy = (product: typeof products[0]) => {
-    addItem({ productId: product.id, name: product.name, price: product.price, unit: product.unit, image: product.images[0] });
-    toast.success(`Đã thêm ${product.name} vào giỏ hàng!`);
+  const handleSelectStore = (storeId: string) => {
+    setFocusStoreId(storeId);
+    document.getElementById('map-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
-      {/* Hero banner */}
-      <section className="relative h-48 md:h-72 overflow-hidden">
-        <img src={heroImg} alt="Hải sản khô đặc sản Sầm Sơn" className="w-full h-full object-cover" width={1920} height={800} />
-        <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent flex items-center">
-          <div className="container mx-auto px-4">
-            <div className="max-w-lg animate-slide-up">
-              <span className="inline-block bg-accent text-accent-foreground text-[10px] md:text-xs font-bold px-3 py-1 rounded-full mb-2">
-                🏆 #1 Hải sản khô Sầm Sơn
-              </span>
-              <h2 className="text-2xl md:text-4xl font-black text-primary-foreground leading-tight">
-                Hải Sản Khô<br />
-                <span className="text-accent">Đặc Sản Sầm Sơn</span>
-              </h2>
-              <p className="text-primary-foreground/80 text-xs md:text-sm mt-2 max-w-sm">
-                Phơi nắng tự nhiên • Cam kết chính gốc • Ship toàn quốc
-              </p>
-              <div className="flex gap-2 mt-4">
-                <a href="#products" className="ocean-gradient text-primary-foreground font-bold px-5 py-2.5 rounded-full text-xs md:text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-1.5">
-                  <ShoppingCart className="h-4 w-4" /> Mua ngay
-                </a>
-                <a href="tel:0123456789" className="bg-primary-foreground/20 backdrop-blur text-primary-foreground font-bold px-5 py-2.5 rounded-full text-xs md:text-sm hover:bg-primary-foreground/30 transition-colors">
-                  📞 Gọi đặt hàng
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* I. Hero Banner with Slider */}
+      <HeroBanner />
 
       {/* USP strip */}
       <div className="bg-card border-b border-border py-4">
@@ -145,6 +123,12 @@ export default function Index() {
         </div>
       </section>
 
+      {/* V. About Section */}
+      <AboutSection />
+
+      {/* II. Store Locations */}
+      <StoreLocations onSelectStore={handleSelectStore} />
+
       {/* Quick category strip */}
       <div className="border-b border-border bg-card sticky top-[88px] md:top-[140px] z-30" id="products">
         <div className="container mx-auto px-4">
@@ -174,7 +158,6 @@ export default function Index() {
 
       {/* Main product listing */}
       <main className="container mx-auto px-4 py-5 flex-1">
-        {/* Toolbar */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <button onClick={() => setFilterOpen(true)} className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-card border border-border rounded-lg text-xs font-semibold text-foreground hover:bg-muted transition-colors">
@@ -212,13 +195,12 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Title */}
-        <h1 className="text-lg md:text-xl font-extrabold text-foreground mb-4 flex items-center gap-2">
+        <h2 className="text-lg md:text-xl font-extrabold text-foreground mb-4 flex items-center gap-2">
           {filters.category || 'TẤT CẢ SẢN PHẨM'}
           <span className="text-sm font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             {filtered.length} sản phẩm
           </span>
-        </h1>
+        </h2>
 
         <div className="flex gap-6">
           <FilterSidebar filters={filters} onChange={setFilters} isOpen={filterOpen} onClose={() => setFilterOpen(false)} />
@@ -283,6 +265,11 @@ export default function Index() {
           </a>
         </div>
       </section>
+
+      {/* III. Google Map */}
+      <div id="map-section">
+        <GoogleMap focusStoreId={focusStoreId} />
+      </div>
 
       <Footer />
     </div>

@@ -67,7 +67,7 @@ export default function Checkout() {
       customer_email: form.email.trim(),
       customer_address: form.address.trim(),
       items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image, unit: i.unit })),
-      total: totalPrice,
+      total: finalPrice,
       status: 'pending',
     };
 

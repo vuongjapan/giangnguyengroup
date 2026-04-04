@@ -18,12 +18,16 @@ function generateOrderCode() {
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const { hotelSession } = useHotel();
   const navigate = useNavigate();
   const [step, setStep] = useState<'info' | 'payment' | 'done'>('info');
   const [orderCode, setOrderCode] = useState('');
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  const discount = hotelSession ? Math.round(totalPrice * hotelSession.discountPercent / 100) : 0;
+  const finalPrice = totalPrice - discount;
 
   if (items.length === 0 && step !== 'done') {
     return (

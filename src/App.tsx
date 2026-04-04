@@ -23,6 +23,9 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import SalesPolicy from "./pages/SalesPolicy.tsx";
 import BrandStory from "./pages/BrandStory.tsx";
 import ContentHub from "./pages/ContentHub.tsx";
+import HotelPartner from "./pages/HotelPartner.tsx";
+import PromotionsPage from "./pages/PromotionsPage.tsx";
+import RecipesPage from "./pages/RecipesPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

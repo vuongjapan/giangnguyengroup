@@ -7,6 +7,7 @@ import { products, formatPrice, categories } from '@/data/products';
 
 export default function Header() {
   const { totalItems, totalPrice, setIsOpen } = useCart();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

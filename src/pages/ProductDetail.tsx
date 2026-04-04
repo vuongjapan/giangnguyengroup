@@ -90,7 +90,10 @@ export default function ProductDetail() {
           {/* Info */}
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground">{product.category} / {product.grade}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm text-muted-foreground">{product.category}</p>
+                <ProductGradeBadge grade={product.grade} size="md" />
+              </div>
               <h1 className="text-2xl md:text-3xl font-extrabold text-foreground">{product.name}</h1>
               <div className="flex items-center gap-1 mt-1">
                 {Array.from({ length: product.rating }).map((_, i) => <span key={i} className="text-accent">★</span>)}

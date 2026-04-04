@@ -26,6 +26,7 @@ import BrandStory from "./pages/BrandStory.tsx";
 import ContentHub from "./pages/ContentHub.tsx";
 import HotelsPage from "./pages/HotelsPage.tsx";
 import HotelDetail from "./pages/HotelDetail.tsx";
+import StoreSystemPage from "./pages/StoreSystemPage.tsx";
 import PromotionsPage from "./pages/PromotionsPage.tsx";
 import RecipesPage from "./pages/RecipesPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
@@ -59,6 +60,7 @@ const App = () => (
                 <Route path="/khach-san" element={<HotelsPage />} />
                 <Route path="/khach-san/:slug" element={<HotelDetail />} />
                 <Route path="/khach-san-tuan-dat" element={<Navigate to="/khach-san/tuan-dat-luxury-hotel" replace />} />
+                <Route path="/he-thong-cua-hang" element={<StoreSystemPage />} />
                 <Route path="/khuyen-mai" element={<PromotionsPage />} />
                 <Route path="/mon-ngon" element={<RecipesPage />} />
                 <Route path="/tin-tuc" element={<NewsPage />} />

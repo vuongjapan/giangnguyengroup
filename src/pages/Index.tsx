@@ -11,6 +11,9 @@ import StoreLocations from '@/components/StoreLocations';
 import SocialProof from '@/components/SocialProof';
 import GoogleMap from '@/components/GoogleMap';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
+import RecentlyViewed from '@/components/RecentlyViewed';
+import CustomerReviews from '@/components/CustomerReviews';
+import NewsletterSignup from '@/components/NewsletterSignup';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -232,6 +235,12 @@ export default function Index() {
         </div>
       </main>
 
+      {/* Recently Viewed */}
+      <RecentlyViewed />
+
+      {/* Customer Reviews */}
+      <CustomerReviews />
+
       {/* CTA banner */}
       <section className="ocean-gradient py-8">
         <div className="container mx-auto px-4 text-center">
@@ -249,6 +258,9 @@ export default function Index() {
           </a>
         </div>
       </section>
+
+      {/* Newsletter Signup */}
+      <NewsletterSignup />
 
       {/* III. Google Map */}
       <div id="map-section">

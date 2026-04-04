@@ -177,8 +177,20 @@ export default function Checkout() {
                 </div>
               ))}
               <div className="flex justify-between pt-3 mt-2 border-t border-border">
+                <span className="font-bold text-foreground">Tạm tính</span>
+                <span className="font-bold text-foreground">{formatPrice(totalPrice)}</span>
+              </div>
+              {hotelSession && discount > 0 && (
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Building2 className="h-3 w-3" /> Giảm giá khách {hotelSession.hotelName} ({hotelSession.discountPercent}%)
+                  </span>
+                  <span className="font-bold text-primary">-{formatPrice(discount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between pt-2 border-t border-border mt-2">
                 <span className="font-extrabold text-foreground">Tổng cộng</span>
-                <span className="text-xl font-extrabold text-primary">{formatPrice(totalPrice)}</span>
+                <span className="text-xl font-extrabold text-primary">{formatPrice(finalPrice)}</span>
               </div>
             </div>
 

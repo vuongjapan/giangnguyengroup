@@ -165,10 +165,10 @@ export default function HotelDetail() {
               <p className="text-muted-foreground text-xs mb-4">Nhập thông tin để nhận giảm giá {hotel.discount_percent}% toàn bộ đơn hàng</p>
 
               {verified ? (
-                <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 text-center space-y-2">
-                  <CheckCircle className="h-10 w-10 text-green-500 mx-auto" />
-                  <p className="font-bold text-green-700 dark:text-green-400">Đã xác nhận!</p>
-                  <p className="text-sm text-green-600 dark:text-green-500">Phòng {roomNumber} – {guestName}</p>
+                <div className="bg-accent border border-primary/20 rounded-xl p-4 text-center space-y-2">
+                  <CheckCircle className="h-10 w-10 text-primary mx-auto" />
+                  <p className="font-bold text-primary">Đã xác nhận!</p>
+                  <p className="text-sm text-foreground">Phòng {roomNumber} – {guestName}</p>
                   <p className="text-xs text-muted-foreground">Giảm giá {hotel.discount_percent}% đã được áp dụng cho toàn bộ đơn hàng</p>
                 </div>
               ) : (

@@ -116,6 +116,15 @@ export default function Header() {
 
           {/* Right actions */}
           <div className="flex items-center gap-1 ml-auto">
+            {/* Account */}
+            <Link
+              to={user ? '/account' : '/auth'}
+              className="p-2 hover:bg-muted rounded-lg transition-colors"
+              title={user ? 'Tài khoản' : 'Đăng nhập'}
+            >
+              <User className="h-5 w-5 text-foreground hover:text-primary transition-colors" />
+            </Link>
+
             {/* Hotline mobile */}
             <a href="tel:0123456789" className="md:hidden p-2 hover:bg-muted rounded-lg">
               <Phone className="h-5 w-5 text-primary" />

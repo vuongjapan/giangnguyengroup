@@ -313,6 +313,9 @@ export default function ProductDetail() {
             </div>
           </section>
 
+          {/* QR Traceability */}
+          <QRTraceability product={product} />
+
           {/* 12. CTA */}
           <section className="ocean-gradient rounded-2xl p-6 text-center">
             <p className="text-primary-foreground font-bold text-lg mb-3">{desc.cta}</p>

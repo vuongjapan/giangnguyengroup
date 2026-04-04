@@ -159,6 +159,20 @@ export default function Header() {
               </Link>
             ))}
             <Link
+              to="/ve-chung-toi"
+              className="px-3 py-2.5 text-sm text-foreground hover:text-primary font-medium transition-colors relative group"
+            >
+              Về chúng tôi
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-primary transition-all duration-300" />
+            </Link>
+            <Link
+              to="/blog"
+              className="px-3 py-2.5 text-sm text-foreground hover:text-primary font-medium transition-colors relative group"
+            >
+              Ẩm thực
+              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-primary transition-all duration-300" />
+            </Link>
+            <Link
               to="/?status=hot"
               className="px-3 py-2.5 text-sm text-coral font-bold flex items-center gap-1 animate-pulse-soft"
             >

@@ -26,6 +26,7 @@ import ContentHub from "./pages/ContentHub.tsx";
 import HotelPartner from "./pages/HotelPartner.tsx";
 import PromotionsPage from "./pages/PromotionsPage.tsx";
 import RecipesPage from "./pages/RecipesPage.tsx";
+import NewsPage from "./pages/NewsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

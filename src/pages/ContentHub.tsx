@@ -1,79 +1,247 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Search, Clock, Eye, ChevronRight, BookOpen, ShieldCheck, Fish, Calendar } from 'lucide-react';
+import { Search, Clock, Eye, ChevronRight, BookOpen, ShieldCheck, Fish, Calendar, Compass, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { products, formatPrice } from '@/data/products';
+import { useCart } from '@/contexts/CartContext';
 
 interface Article {
   id: string;
   slug: string;
   title: string;
   excerpt: string;
+  content: string[];
   category: string;
   image: string;
   readTime: string;
   views: number;
   date: string;
+  relatedProductIds: string[];
+  metaTitle: string;
+  metaDescription: string;
 }
 
-const CATEGORIES = ['Tất cả', 'Hướng dẫn chế biến', 'Phân biệt thật giả', 'Kinh nghiệm chọn hải sản', 'Tin tức mùa vụ'];
+const CATEGORIES = ['Tất cả', 'Du lịch Sầm Sơn', 'Đặc sản biển', 'Kinh nghiệm chọn hải sản'];
 
 const ARTICLES: Article[] = [
   {
-    id: '1', slug: 'phan-biet-muc-cau-vs-muc-cao',
+    id: '1', slug: 'top-5-diem-den-sam-son',
+    title: 'Top 5 điểm đến không thể bỏ lỡ khi du lịch Sầm Sơn 2024',
+    excerpt: 'Khám phá những địa điểm du lịch hấp dẫn nhất tại Sầm Sơn – từ bãi biển hoang sơ đến chợ hải sản tươi sống.',
+    content: [
+      'Sầm Sơn không chỉ có biển đẹp mà còn ẩn chứa nhiều điều thú vị. Từ bãi biển trải dài đến những ngôi đền cổ kính, mỗi góc Sầm Sơn đều mang một câu chuyện riêng.',
+      'Bãi biển Sầm Sơn trải dài hơn 6km với cát trắng mịn, nước trong xanh. Đây là điểm đến lý tưởng cho gia đình vào mùa hè.',
+      'Đền Độc Cước – ngôi đền linh thiêng trên núi Trường Lệ, nơi giao hòa giữa biển và núi. Từ đây nhìn xuống, toàn cảnh Sầm Sơn hiện ra tuyệt đẹp.',
+      'Chợ hải sản Sầm Sơn – thiên đường ẩm thực với hàng trăm loại hải sản tươi sống và khô. Đừng quên mua mực khô làm quà!',
+      'Hòn Trống Mái – biểu tượng của tình yêu vĩnh cửu, điểm check-in không thể thiếu khi đến Sầm Sơn.',
+    ],
+    category: 'Du lịch Sầm Sơn',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=400&fit=crop',
+    readTime: '6 phút', views: 8420, date: '25/03/2024',
+    relatedProductIds: ['muc-kho-loai-1', 'ca-thu-1-nang'],
+    metaTitle: 'Top 5 điểm đến Sầm Sơn 2024 | Giang Nguyen Seafood',
+    metaDescription: 'Khám phá 5 điểm du lịch hấp dẫn nhất Sầm Sơn 2024 và mua đặc sản biển làm quà.',
+  },
+  {
+    id: '2', slug: 'cho-hai-san-sam-son-mua-gi',
+    title: 'Đi chợ hải sản Sầm Sơn – Nên mua gì? Giá bao nhiêu?',
+    excerpt: 'Hướng dẫn chi tiết cách đi chợ hải sản Sầm Sơn, mua gì ngon, giá cả ra sao, tránh bị chặt chém.',
+    content: [
+      'Chợ hải sản Sầm Sơn là điểm đến bắt buộc của mọi du khách. Tuy nhiên, không phải ai cũng biết cách chọn hàng ngon giá tốt.',
+      'Mực khô – đặc sản số 1 Sầm Sơn. Giá dao động 800.000 – 1.500.000đ/kg tùy loại. Mực câu ngon hơn mực cào, thịt dày, ngọt tự nhiên.',
+      'Cá thu 1 nắng – loại cá được phơi 1 nắng giữ nguyên độ tươi. Giá khoảng 200.000 – 350.000đ/kg. Nướng than hoa ăn cực kỳ ngon.',
+      'Tôm khô – lựa tôm màu hồng tự nhiên, không quá đỏ (tẩm hóa chất). Giá khoảng 600.000 – 900.000đ/kg.',
+      'Mẹo: Nên đi chợ sáng sớm (5-7h) để mua hàng tươi nhất, giá tốt nhất. Tránh mua hàng ven đường, dễ bị nâng giá.',
+    ],
+    category: 'Du lịch Sầm Sơn',
+    image: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=600&h=400&fit=crop',
+    readTime: '5 phút', views: 6230, date: '22/03/2024',
+    relatedProductIds: ['muc-kho-loai-1', 'tom-kho-boc-noi'],
+    metaTitle: 'Chợ hải sản Sầm Sơn mua gì? Giá bao nhiêu? | Giang Nguyen Seafood',
+    metaDescription: 'Hướng dẫn mua hải sản Sầm Sơn đúng giá, chọn hàng ngon, tránh bị chặt chém.',
+  },
+  {
+    id: '3', slug: 'phan-biet-muc-cau-vs-muc-cao',
     title: 'Phân biệt mực câu vs mực cào – Loại nào ngon hơn?',
     excerpt: 'Hướng dẫn chi tiết cách phân biệt mực câu và mực cào qua màu sắc, thớ thịt, mùi vị. Biết để chọn đúng hàng chất lượng.',
-    category: 'Phân biệt thật giả', image: 'https://images.unsplash.com/photo-1565680018093-ebb6e46b0bbe?w=600&h=400&fit=crop',
-    readTime: '5 phút', views: 2340, date: '20/03/2024',
+    content: [
+      'Mực câu và mực cào là 2 loại phổ biến nhất trên thị trường. Tuy nhiên, chất lượng và giá cả khác nhau rất nhiều.',
+      'Mực câu: Câu bằng tay, con nguyên vẹn, thịt dày trắng ngà, mùi thơm tự nhiên. Khi nướng lên thơm phức, dai ngọt, nhai không bở.',
+      'Mực cào: Dùng lưới kéo, con dễ bị dập nát, thịt mỏng hơn, có thể lẫn cát. Giá rẻ hơn 30-50% so với mực câu.',
+      'Cách phân biệt: Mực câu có đốm nâu đều, thân tròn đầy. Mực cào thường bẹp, có vết xước, màu nhạt hơn.',
+      'Lời khuyên: Nên chọn mực câu loại 1 nếu mua làm quà biếu. Mực cào phù hợp nấu cháo, xào bình thường.',
+    ],
+    category: 'Kinh nghiệm chọn hải sản',
+    image: 'https://images.unsplash.com/photo-1565680018093-ebb6e46b0bbe?w=600&h=400&fit=crop',
+    readTime: '5 phút', views: 4340, date: '20/03/2024',
+    relatedProductIds: ['muc-kho-loai-1'],
+    metaTitle: 'Phân biệt mực câu vs mực cào | Giang Nguyen Seafood',
+    metaDescription: 'Cách phân biệt mực câu và mực cào qua màu sắc, thớ thịt. Biết để mua đúng hàng chất lượng.',
   },
   {
-    id: '2', slug: 'tom-kho-loai-nao-ngon',
-    title: 'Tôm khô loại nào ngon? Bí quyết chọn tôm khô chuẩn Sầm Sơn',
-    excerpt: 'So sánh các loại tôm khô trên thị trường, cách chọn tôm khô tươi ngon, không tẩm hóa chất.',
-    category: 'Kinh nghiệm chọn hải sản', image: 'https://images.unsplash.com/photo-1565680018434-6ce838ebe6f0?w=600&h=400&fit=crop',
-    readTime: '4 phút', views: 1856, date: '15/03/2024',
-  },
-  {
-    id: '3', slug: 'cach-bao-quan-hai-san-kho',
+    id: '4', slug: 'cach-bao-quan-hai-san-kho',
     title: 'Cách bảo quản hải sản khô đúng chuẩn – Giữ ngon 6-8 tháng',
     excerpt: 'Hướng dẫn bảo quản mực khô, cá khô, tôm khô trong tủ lạnh và điều kiện thường đúng cách.',
-    category: 'Hướng dẫn chế biến', image: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=600&h=400&fit=crop',
-    readTime: '3 phút', views: 3120, date: '10/03/2024',
+    content: [
+      'Hải sản khô nếu bảo quản đúng cách có thể giữ ngon từ 6-8 tháng mà không bị mất hương vị.',
+      'Hút chân không: Cách tốt nhất để bảo quản lâu dài. Bọc kín, hút hết khí, cho vào ngăn đông tủ lạnh.',
+      'Ngăn mát tủ lạnh: Bọc kín bằng túi zip hoặc hộp kín. Dùng trong 2-3 tháng.',
+      'Nhiệt độ phòng: Để nơi khô ráo, thoáng mát, tránh ánh nắng. Dùng trong 1-2 tuần.',
+      'Mẹo: Trước khi ăn, lấy ra rã đông tự nhiên 30 phút. Không ngâm nước nóng vì sẽ mất vị ngọt tự nhiên.',
+    ],
+    category: 'Kinh nghiệm chọn hải sản',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop',
+    readTime: '4 phút', views: 5120, date: '18/03/2024',
+    relatedProductIds: ['muc-kho-loai-1', 'ca-thu-1-nang', 'tom-kho-boc-noi'],
+    metaTitle: 'Cách bảo quản hải sản khô giữ ngon 6-8 tháng | Giang Nguyen Seafood',
+    metaDescription: 'Bảo quản mực khô, cá khô, tôm khô đúng cách để giữ ngon lâu dài.',
   },
   {
-    id: '4', slug: 'mua-muc-sam-son-2024',
-    title: 'Mùa mực Sầm Sơn 2024 – Thời điểm nào mực ngon nhất?',
-    excerpt: 'Tổng hợp lịch mùa vụ hải sản Sầm Sơn theo từng tháng, thời điểm vàng để mua hải sản tươi ngon.',
-    category: 'Tin tức mùa vụ', image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=400&fit=crop',
-    readTime: '6 phút', views: 4210, date: '05/03/2024',
+    id: '5', slug: 'dac-san-muc-kho-sam-son',
+    title: 'Vì sao mực khô Sầm Sơn nổi tiếng nhất Việt Nam?',
+    excerpt: 'Tìm hiểu lý do mực khô Sầm Sơn được coi là đặc sản hàng đầu – từ nguồn nguyên liệu đến cách chế biến truyền thống.',
+    content: [
+      'Mực khô Sầm Sơn nổi tiếng khắp cả nước nhờ 3 yếu tố: nguồn mực tự nhiên, cách phơi truyền thống và vị ngọt đặc trưng.',
+      'Nguồn mực: Mực được đánh bắt ngoài khơi biển Sầm Sơn, vùng nước sạch, giàu dinh dưỡng. Mực ở đây thịt dày, ngọt tự nhiên.',
+      'Cách phơi: Ngư dân Sầm Sơn vẫn giữ cách phơi mực truyền thống – phơi dưới nắng biển tự nhiên, không sấy công nghiệp. Nhờ đó mực giữ được hương vị đặc trưng.',
+      'Không hóa chất: Mực khô Sầm Sơn chính gốc không tẩm hóa chất, không chất bảo quản. Khi nướng lên thơm phức, nhai dai ngọt.',
+      'Đây là lý do khách du lịch luôn chọn mực khô Sầm Sơn làm quà biếu người thân, đối tác.',
+    ],
+    category: 'Đặc sản biển',
+    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=400&fit=crop',
+    readTime: '5 phút', views: 7650, date: '15/03/2024',
+    relatedProductIds: ['muc-kho-loai-1'],
+    metaTitle: 'Mực khô Sầm Sơn nổi tiếng nhất Việt Nam | Giang Nguyen Seafood',
+    metaDescription: 'Vì sao mực khô Sầm Sơn được coi là đặc sản hàng đầu? Tìm hiểu nguồn gốc và cách chế biến truyền thống.',
   },
   {
-    id: '5', slug: 'nuong-muc-kho-ngon',
-    title: '5 cách nướng mực khô ngon nhất – Giòn ngoài mềm trong',
-    excerpt: 'Bí quyết nướng mực khô giòn thơm từ nướng than hoa, nướng lò, nướng bếp gas và chiên giòn.',
-    category: 'Hướng dẫn chế biến', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop',
-    readTime: '4 phút', views: 5680, date: '28/02/2024',
+    id: '6', slug: 'ca-thu-1-nang-dac-san-moi',
+    title: 'Cá thu 1 nắng – Đặc sản mới nổi đang "hot" nhất Sầm Sơn',
+    excerpt: 'Cá thu 1 nắng là gì? Tại sao ai đến Sầm Sơn cũng phải mua? Bí quyết nướng cá thu 1 nắng ngon nhất.',
+    content: [
+      'Cá thu 1 nắng đang trở thành đặc sản được yêu thích nhất Sầm Sơn trong 2 năm gần đây.',
+      '1 nắng nghĩa là cá chỉ phơi 1 nắng duy nhất – giữ được 70% độ tươi của cá sống. Thịt cá vẫn mềm, ngọt, không bị khô cứng.',
+      'Cách chế biến phổ biến nhất: Nướng than hoa hoặc nướng lò. Cá nướng xong da giòn, thịt bên trong mềm tan, chấm muối ớt xanh.',
+      'Giá cá thu 1 nắng dao động 200.000-350.000đ/kg. Nên chọn con 300-500g, thịt dày, mắt trong, mùi tanh nhẹ tự nhiên.',
+      'Tip: Mua cá thu 1 nắng hút chân không mang về, cho ngăn đông, để được 3-4 tháng mà vẫn ngon.',
+    ],
+    category: 'Đặc sản biển',
+    image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop',
+    readTime: '4 phút', views: 5890, date: '12/03/2024',
+    relatedProductIds: ['ca-thu-1-nang'],
+    metaTitle: 'Cá thu 1 nắng Sầm Sơn – Đặc sản hot nhất | Giang Nguyen Seafood',
+    metaDescription: 'Cá thu 1 nắng là gì? Vì sao hot? Bí quyết nướng ngon và cách chọn mua chuẩn.',
   },
   {
-    id: '6', slug: 'nhan-biet-hai-san-tam-hoa-chat',
+    id: '7', slug: 'nhan-biet-hai-san-tam-hoa-chat',
     title: 'Cách nhận biết hải sản khô tẩm hóa chất – Đừng để bị lừa!',
     excerpt: 'Dấu hiệu nhận biết mực khô, cá khô bị tẩm lưu huỳnh, hóa chất tăng trọng qua mắt thường.',
-    category: 'Phân biệt thật giả', image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop',
-    readTime: '5 phút', views: 3890, date: '22/02/2024',
+    content: [
+      'Hải sản khô tẩm hóa chất là vấn nạn lớn trên thị trường. Biết cách phân biệt giúp bạn bảo vệ sức khỏe gia đình.',
+      'Dấu hiệu 1 – Màu sắc: Mực khô tẩm hóa chất thường có màu đỏ cam bắt mắt, bóng đều. Mực sạch có màu nâu hồng tự nhiên, không đều.',
+      'Dấu hiệu 2 – Mùi: Hải sản sạch có mùi tanh nhẹ đặc trưng. Hàng tẩm hóa chất có mùi hắc, mùi lưu huỳnh hoặc không có mùi gì.',
+      'Dấu hiệu 3 – Độ ẩm: Hàng tẩm chất tăng trọng thường nặng hơn bình thường, bề mặt ẩm ướt, dính tay.',
+      'Lời khuyên: Luôn mua từ nguồn uy tín, có cam kết chất lượng. Giang Nguyen Seafood cam kết 100% hải sản sạch, hoàn tiền nếu phát hiện hóa chất.',
+    ],
+    category: 'Kinh nghiệm chọn hải sản',
+    image: 'https://images.unsplash.com/photo-1565680018434-6ce838ebe6f0?w=600&h=400&fit=crop',
+    readTime: '5 phút', views: 9120, date: '08/03/2024',
+    relatedProductIds: ['muc-kho-loai-1', 'tom-kho-boc-noi'],
+    metaTitle: 'Nhận biết hải sản tẩm hóa chất | Giang Nguyen Seafood',
+    metaDescription: 'Cách phân biệt hải sản khô sạch và tẩm hóa chất qua màu sắc, mùi vị, độ ẩm.',
+  },
+  {
+    id: '8', slug: 'tom-kho-sam-son-ngon-nhat',
+    title: 'Tôm khô Sầm Sơn – Loại nào ngon nhất? Bí quyết chọn mua',
+    excerpt: 'So sánh các loại tôm khô, cách phân biệt tôm khô tự nhiên vs tẩm màu, và bí quyết chọn mua chuẩn.',
+    content: [
+      'Tôm khô Sầm Sơn có nhiều loại khác nhau: tôm bóc nõn, tôm nguyên vỏ, tôm sú khô. Mỗi loại phù hợp với mục đích sử dụng khác nhau.',
+      'Tôm bóc nõn: Loại cao cấp nhất, đã bóc vỏ sẵn, thịt tôm nguyên con. Phù hợp ăn trực tiếp, nấu cháo, làm bánh.',
+      'Tôm nguyên vỏ: Giá rẻ hơn, phù hợp nấu nước dùng, xào, rim. Vỏ tôm cho nước ngọt tự nhiên.',
+      'Cách chọn: Tôm sạch có màu hồng tự nhiên, cong đều, mùi thơm nhẹ. Tôm tẩm màu có màu đỏ chót, mùi hắc.',
+      'Mẹo bảo quản: Tôm khô để ngăn đông, dùng được 6 tháng. Mỗi lần lấy ra bao nhiêu dùng bấy nhiêu.',
+    ],
+    category: 'Đặc sản biển',
+    image: 'https://images.unsplash.com/photo-1565680018093-ebb6e46b0bbe?w=600&h=400&fit=crop',
+    readTime: '4 phút', views: 4560, date: '05/03/2024',
+    relatedProductIds: ['tom-kho-boc-noi'],
+    metaTitle: 'Tôm khô Sầm Sơn loại nào ngon nhất | Giang Nguyen Seafood',
+    metaDescription: 'So sánh các loại tôm khô Sầm Sơn. Cách chọn mua tôm khô sạch, không hóa chất.',
   },
 ];
 
 const CATEGORY_ICONS: Record<string, typeof BookOpen> = {
-  'Hướng dẫn chế biến': BookOpen,
-  'Phân biệt thật giả': ShieldCheck,
-  'Kinh nghiệm chọn hải sản': Fish,
-  'Tin tức mùa vụ': Calendar,
+  'Du lịch Sầm Sơn': Compass,
+  'Đặc sản biển': Fish,
+  'Kinh nghiệm chọn hải sản': ShieldCheck,
 };
 
 export default function ContentHub() {
+  const { slug } = useParams();
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
+  const { addItem } = useCart();
 
+  // Article detail view
+  const article = slug ? ARTICLES.find(a => a.slug === slug) : null;
+
+  if (article) {
+    const relatedProducts = products.filter(p => article.relatedProductIds.includes(p.id));
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8 flex-1 max-w-3xl">
+          <Link to="/blog" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">
+            <ArrowLeft className="h-4 w-4" /> Quay lại Blog
+          </Link>
+          <span className="block text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full w-fit mb-3">{article.category}</span>
+          <h1 className="text-2xl md:text-3xl font-black text-foreground mb-3">{article.title}</h1>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground mb-6">
+            <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {article.date}</span>
+            <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.readTime}</span>
+            <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {article.views.toLocaleString()} lượt xem</span>
+          </div>
+          <img src={article.image} alt={article.title} className="w-full rounded-2xl mb-8 aspect-video object-cover" />
+          <div className="prose prose-sm max-w-none space-y-4">
+            {article.content.map((p, i) => (
+              <p key={i} className="text-foreground/90 leading-relaxed">{p}</p>
+            ))}
+          </div>
+
+          {/* Related products CTA */}
+          {relatedProducts.length > 0 && (
+            <div className="mt-10 bg-primary/5 rounded-2xl p-6 border border-primary/20">
+              <h3 className="text-lg font-extrabold text-foreground mb-1">🛒 Sản phẩm liên quan</h3>
+              <p className="text-sm text-muted-foreground mb-4">Mua ngay hải sản chính gốc Sầm Sơn – Ship toàn quốc</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {relatedProducts.map(p => (
+                  <div key={p.id} className="bg-card rounded-xl border border-border p-3 flex items-center gap-3">
+                    <Link to={`/product/${p.slug}`}>
+                      <img src={p.images[0]} alt={p.name} className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/product/${p.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors line-clamp-1">{p.name}</Link>
+                      <p className="text-coral font-extrabold text-sm">{formatPrice(p.price)}/{p.unit}</p>
+                      <button
+                        onClick={() => addItem({ id: p.id, name: p.name, price: p.price, unit: p.unit, image: p.images[0], quantity: 1 })}
+                        className="mt-1 bg-coral text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity flex items-center gap-1"
+                      >
+                        <ShoppingCart className="h-3 w-3" /> Mua ngay
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  // List view
   const filtered = ARTICLES.filter(a => {
     const matchCat = activeCategory === 'Tất cả' || a.category === activeCategory;
     const matchSearch = !searchQuery || a.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -88,13 +256,13 @@ export default function ContentHub() {
       <section className="ocean-gradient py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
           <span className="inline-block bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full mb-3">
-            📚 THƯ VIỆN HẢI SẢN
+            📚 BLOG HẢI SẢN SẦM SƠN
           </span>
           <h1 className="text-3xl md:text-4xl font-black text-primary-foreground mb-3">
-            Ẩm Thực Sầm Sơn
+            Khám phá Sầm Sơn & Đặc sản biển
           </h1>
           <p className="text-primary-foreground/80 max-w-lg mx-auto mb-6">
-            Hướng dẫn chế biến, phân biệt thật giả, kinh nghiệm chọn hải sản và tin tức mùa vụ
+            Du lịch, đặc sản, kinh nghiệm chọn hải sản sạch – Tất cả tại đây
           </p>
           <div className="max-w-md mx-auto relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -113,17 +281,21 @@ export default function ContentHub() {
       <div className="border-b border-border bg-card sticky top-0 z-30">
         <div className="container mx-auto px-4">
           <div className="flex gap-1 overflow-x-auto py-3 scrollbar-hide">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                  activeCategory === cat ? 'ocean-gradient text-primary-foreground shadow-md' : 'bg-muted text-foreground hover:bg-primary/10'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+            {CATEGORIES.map(cat => {
+              const Icon = CATEGORY_ICONS[cat];
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    activeCategory === cat ? 'ocean-gradient text-primary-foreground shadow-md' : 'bg-muted text-foreground hover:bg-primary/10'
+                  }`}
+                >
+                  {Icon && <Icon className="h-3 w-3" />}
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -196,7 +368,7 @@ export default function ContentHub() {
           <p className="text-primary-foreground/80 mb-5 text-sm">
             Xem sản phẩm ngay – Ship toàn quốc – Đổi trả 24h
           </p>
-          <Link to="/" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
+          <Link to="/san-pham" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
             👉 Mua ngay <ChevronRight className="h-4 w-4" />
           </Link>
         </section>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
 
 export default function Header() {

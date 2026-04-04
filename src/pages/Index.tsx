@@ -259,6 +259,9 @@ export default function Index() {
       {/* Newsletter Signup */}
       <NewsletterSignup />
 
+      {/* II. Store Locations */}
+      <StoreLocations onSelectStore={handleSelectStore} />
+
       {/* III. Google Map */}
       <div id="map-section">
         <GoogleMap focusStoreId={focusStoreId} />

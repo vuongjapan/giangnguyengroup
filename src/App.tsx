@@ -26,6 +26,7 @@ import BrandStory from "./pages/BrandStory.tsx";
 import ContentHub from "./pages/ContentHub.tsx";
 import HotelsPage from "./pages/HotelsPage.tsx";
 import HotelDetail from "./pages/HotelDetail.tsx";
+import StoreSystemPage from "./pages/StoreSystemPage.tsx";
 import PromotionsPage from "./pages/PromotionsPage.tsx";
 import RecipesPage from "./pages/RecipesPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";

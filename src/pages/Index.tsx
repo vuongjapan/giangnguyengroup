@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
 import AboutSection from '@/components/AboutSection';
 import StoreLocations from '@/components/StoreLocations';
+import SocialProof from '@/components/SocialProof';
 import GoogleMap from '@/components/GoogleMap';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import { useCart } from '@/contexts/CartContext';
@@ -128,6 +129,9 @@ export default function Index() {
       {/* V. About Section */}
       <AboutSection />
 
+      {/* Social Proof */}
+      <SocialProof />
+
       {/* II. Store Locations */}
       <StoreLocations onSelectStore={handleSelectStore} />
 
@@ -227,28 +231,6 @@ export default function Index() {
           </div>
         </div>
       </main>
-
-      {/* Testimonials */}
-      <section className="bg-secondary/30 py-8 md:py-10">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-6">
-            <h2 className="section-title mx-auto">KHÁCH HÀNG NÓI GÌ?</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className="bg-card rounded-xl border border-border p-5 animate-fade-in">
-                <div className="flex gap-0.5 mb-2">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-accent text-accent" />
-                  ))}
-                </div>
-                <p className="text-sm text-foreground italic mb-3">"{t.text}"</p>
-                <p className="text-xs font-bold text-primary">{t.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* CTA banner */}
       <section className="ocean-gradient py-8">

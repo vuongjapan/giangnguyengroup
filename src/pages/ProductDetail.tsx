@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
+import ProductGradeBadge from '@/components/ProductGradeBadge';
+import QRTraceability from '@/components/QRTraceability';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -88,7 +90,10 @@ export default function ProductDetail() {
           {/* Info */}
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground">{product.category} / {product.grade}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <p className="text-sm text-muted-foreground">{product.category}</p>
+                <ProductGradeBadge grade={product.grade} size="md" />
+              </div>
               <h1 className="text-2xl md:text-3xl font-extrabold text-foreground">{product.name}</h1>
               <div className="flex items-center gap-1 mt-1">
                 {Array.from({ length: product.rating }).map((_, i) => <span key={i} className="text-accent">★</span>)}
@@ -307,6 +312,9 @@ export default function ProductDetail() {
               ))}
             </div>
           </section>
+
+          {/* QR Traceability */}
+          <QRTraceability product={product} />
 
           {/* 12. CTA */}
           <section className="ocean-gradient rounded-2xl p-6 text-center">

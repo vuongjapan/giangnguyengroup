@@ -60,6 +60,7 @@ const App = () => (
                 <Route path="/khach-san" element={<HotelsPage />} />
                 <Route path="/khach-san/:slug" element={<HotelDetail />} />
                 <Route path="/khach-san-tuan-dat" element={<Navigate to="/khach-san/tuan-dat-luxury-hotel" replace />} />
+                <Route path="/he-thong-cua-hang" element={<StoreSystemPage />} />
                 <Route path="/khuyen-mai" element={<PromotionsPage />} />
                 <Route path="/mon-ngon" element={<RecipesPage />} />
                 <Route path="/tin-tuc" element={<NewsPage />} />

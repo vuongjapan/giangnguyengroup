@@ -235,6 +235,12 @@ export default function Index() {
         </div>
       </main>
 
+      {/* Recently Viewed */}
+      <RecentlyViewed />
+
+      {/* Customer Reviews */}
+      <CustomerReviews />
+
       {/* CTA banner */}
       <section className="ocean-gradient py-8">
         <div className="container mx-auto px-4 text-center">
@@ -252,6 +258,9 @@ export default function Index() {
           </a>
         </div>
       </section>
+
+      {/* Newsletter Signup */}
+      <NewsletterSignup />
 
       {/* III. Google Map */}
       <div id="map-section">

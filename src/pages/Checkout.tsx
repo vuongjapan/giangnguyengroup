@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Building2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHotel } from '@/contexts/HotelContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/data/products';
 import Header from '@/components/Header';

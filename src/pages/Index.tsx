@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
 import AboutSection from '@/components/AboutSection';
 import StoreLocations from '@/components/StoreLocations';
+import SocialProof from '@/components/SocialProof';
 import GoogleMap from '@/components/GoogleMap';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import { useCart } from '@/contexts/CartContext';

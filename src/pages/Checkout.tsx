@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Building2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHotel } from '@/contexts/HotelContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatPrice } from '@/data/products';
 import Header from '@/components/Header';
@@ -17,12 +18,16 @@ function generateOrderCode() {
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const { hotelSession } = useHotel();
   const navigate = useNavigate();
   const [step, setStep] = useState<'info' | 'payment' | 'done'>('info');
   const [orderCode, setOrderCode] = useState('');
   const [form, setForm] = useState({ name: '', phone: '', email: '', address: '' });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  const discount = hotelSession ? Math.round(totalPrice * hotelSession.discountPercent / 100) : 0;
+  const finalPrice = totalPrice - discount;
 
   if (items.length === 0 && step !== 'done') {
     return (
@@ -62,7 +67,7 @@ export default function Checkout() {
       customer_email: form.email.trim(),
       customer_address: form.address.trim(),
       items: items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image, unit: i.unit })),
-      total: totalPrice,
+      total: finalPrice,
       status: 'pending',
     };
 
@@ -110,7 +115,7 @@ export default function Checkout() {
     setStep('done');
   };
 
-  const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${totalPrice}&des=${encodeURIComponent(orderCode)}`;
+  const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${finalPrice}&des=${encodeURIComponent(orderCode)}`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -172,8 +177,20 @@ export default function Checkout() {
                 </div>
               ))}
               <div className="flex justify-between pt-3 mt-2 border-t border-border">
+                <span className="font-bold text-foreground">Tạm tính</span>
+                <span className="font-bold text-foreground">{formatPrice(totalPrice)}</span>
+              </div>
+              {hotelSession && discount > 0 && (
+                <div className="flex justify-between items-center pt-1">
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Building2 className="h-3 w-3" /> Giảm giá khách {hotelSession.hotelName} ({hotelSession.discountPercent}%)
+                  </span>
+                  <span className="font-bold text-primary">-{formatPrice(discount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between pt-2 border-t border-border mt-2">
                 <span className="font-extrabold text-foreground">Tổng cộng</span>
-                <span className="text-xl font-extrabold text-primary">{formatPrice(totalPrice)}</span>
+                <span className="text-xl font-extrabold text-primary">{formatPrice(finalPrice)}</span>
               </div>
             </div>
 
@@ -189,7 +206,7 @@ export default function Checkout() {
             <div className="bg-card rounded-xl border border-border p-6 text-center space-y-4">
               <h2 className="font-extrabold text-foreground text-lg">Quét QR để thanh toán</h2>
               <p className="text-sm text-muted-foreground">Mã đơn hàng: <span className="font-bold text-primary">{orderCode}</span></p>
-              <p className="text-2xl font-extrabold text-primary">{formatPrice(totalPrice)}</p>
+              <p className="text-2xl font-extrabold text-primary">{formatPrice(finalPrice)}</p>
               <div className="flex justify-center">
                 <img src={qrUrl} alt="QR thanh toán" className="w-64 h-64 rounded-xl border border-border" width={256} height={256} />
               </div>

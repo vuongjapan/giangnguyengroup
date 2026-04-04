@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      hotels: {
+        Row: {
+          address: string
+          amenities: string[]
+          category: string
+          created_at: string
+          description: string
+          discount_percent: number
+          id: string
+          images: string[]
+          is_active: boolean
+          name: string
+          phone: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string
+          amenities?: string[]
+          category?: string
+          created_at?: string
+          description?: string
+          discount_percent?: number
+          id?: string
+          images?: string[]
+          is_active?: boolean
+          name: string
+          phone?: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          amenities?: string[]
+          category?: string
+          created_at?: string
+          description?: string
+          discount_percent?: number
+          id?: string
+          images?: string[]
+          is_active?: boolean
+          name?: string
+          phone?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string

@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Phone, MapPin, Mail, Clock, Shield, Truck, RotateCcw, Award } from 'lucide-react';
+import { stores } from '@/data/stores';
 
 export default function Footer() {
   return (
-    <footer className="mt-12">
+    <footer>
       {/* Trust strip */}
       <div className="bg-ocean-light border-t border-b border-border py-6">
         <div className="container mx-auto px-4">
@@ -60,15 +61,19 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Policies */}
+          {/* Store locations */}
           <div>
-            <h4 className="font-bold mb-3 text-accent">Chính sách</h4>
-            <div className="space-y-2 text-sm text-primary-foreground/80">
-              <p>✅ Cam kết 100% hải sản sạch</p>
-              <p>🚚 Miễn phí ship đơn từ 500K</p>
-              <p>🔄 Đổi trả trong 24h</p>
-              <p>💳 Thanh toán QR / COD</p>
-              <p>📦 Đóng gói cẩn thận, giữ lạnh</p>
+            <h4 className="font-bold mb-3 text-accent">Cửa hàng</h4>
+            <div className="space-y-3 text-sm text-primary-foreground/80">
+              {stores.map((store, i) => (
+                <div key={store.id} className="flex items-start gap-2">
+                  <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-accent" />
+                  <div>
+                    <p className="font-medium text-primary-foreground text-xs">{store.name}</p>
+                    <p className="text-[11px] text-primary-foreground/70">{store.address}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -82,9 +87,6 @@ export default function Footer() {
               <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
                 <Mail className="h-4 w-4 flex-shrink-0" /> giangnguyendriedseafood@gmail.com
               </a>
-              <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 flex-shrink-0" /> Sầm Sơn, Thanh Hóa
-              </p>
               <p className="flex items-center gap-2">
                 <Clock className="h-4 w-4 flex-shrink-0" /> 7:00 – 21:00 hàng ngày
               </p>

@@ -224,7 +224,7 @@ export default function ContentHub() {
                       <Link to={`/product/${p.slug}`} className="font-bold text-sm text-foreground hover:text-primary transition-colors line-clamp-1">{p.name}</Link>
                       <p className="text-coral font-extrabold text-sm">{formatPrice(p.price)}/{p.unit}</p>
                       <button
-                        onClick={() => addItem({ id: p.id, name: p.name, price: p.price, unit: p.unit, image: p.images[0], quantity: 1 })}
+                        onClick={() => addItem({ productId: p.id, name: p.name, price: p.price, unit: p.unit, image: p.images[0] })}
                         className="mt-1 bg-coral text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full hover:opacity-90 transition-opacity flex items-center gap-1"
                       >
                         <ShoppingCart className="h-3 w-3" /> Mua ngay

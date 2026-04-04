@@ -51,29 +51,23 @@ export default function Footer() {
 
           {/* Quick links */}
           <div>
-            <h4 className="font-bold mb-3 text-accent">Sản phẩm</h4>
+            <h4 className="font-bold mb-3 text-accent">Danh mục</h4>
             <div className="space-y-2 text-sm text-primary-foreground/80">
-              <Link to="/" className="block hover:text-primary-foreground transition-colors">Mực khô Sầm Sơn</Link>
-              <Link to="/" className="block hover:text-primary-foreground transition-colors">Cá khô các loại</Link>
-              <Link to="/" className="block hover:text-primary-foreground transition-colors">Hải sản 1 nắng</Link>
-              <Link to="/" className="block hover:text-primary-foreground transition-colors">Nem chua Thanh Hóa</Link>
-              <Link to="/" className="block hover:text-primary-foreground transition-colors">Combo quà biếu</Link>
+              <Link to="/san-pham" className="block hover:text-primary-foreground transition-colors">Tất cả sản phẩm</Link>
+              <Link to="/san-pham?category=M%E1%BB%B1c+kh%C3%B4" className="block hover:text-primary-foreground transition-colors">Mực khô Sầm Sơn</Link>
+              <Link to="/san-pham?category=H%E1%BA%A3i+s%E1%BA%A3n+1+n%E1%BA%AFng" className="block hover:text-primary-foreground transition-colors">Hải sản 1 nắng</Link>
+              <Link to="/combo" className="block hover:text-primary-foreground transition-colors">Combo quà biếu</Link>
             </div>
           </div>
 
-          {/* Store locations */}
+          {/* Info links */}
           <div>
-            <h4 className="font-bold mb-3 text-accent">Cửa hàng</h4>
-            <div className="space-y-3 text-sm text-primary-foreground/80">
-              {stores.map((store, i) => (
-                <div key={store.id} className="flex items-start gap-2">
-                  <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-1 text-accent" />
-                  <div>
-                    <p className="font-medium text-primary-foreground text-xs">{store.name}</p>
-                    <p className="text-[11px] text-primary-foreground/70">{store.address}</p>
-                  </div>
-                </div>
-              ))}
+            <h4 className="font-bold mb-3 text-accent">Thông tin</h4>
+            <div className="space-y-2 text-sm text-primary-foreground/80">
+              <Link to="/gioi-thieu" className="block hover:text-primary-foreground transition-colors">Giới thiệu</Link>
+              <Link to="/blog" className="block hover:text-primary-foreground transition-colors">Ẩm thực blog</Link>
+              <Link to="/chinh-sach" className="block hover:text-primary-foreground transition-colors">Chính sách bán hàng</Link>
+              <Link to="/auth" className="block hover:text-primary-foreground transition-colors">Đăng ký thành viên</Link>
             </div>
           </div>
 
@@ -89,6 +83,9 @@ export default function Footer() {
               </a>
               <p className="flex items-center gap-2">
                 <Clock className="h-4 w-4 flex-shrink-0" /> 7:00 – 21:00 hàng ngày
+              </p>
+              <p className="flex items-center gap-2">
+                <MapPin className="h-4 w-4 flex-shrink-0" /> Sầm Sơn, Thanh Hóa
               </p>
             </div>
           </div>

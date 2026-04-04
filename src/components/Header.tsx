@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, User, Gift, BookOpen, ShieldCheck, Package } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
+
+const MAIN_MENU = [
+  { label: 'SẢN PHẨM', to: '/san-pham', icon: Package },
+  { label: 'COMBO QUÀ BIẾU', to: '/combo', icon: Gift },
+  { label: 'GIỚI THIỆU', to: '/gioi-thieu', icon: BookOpen },
+  { label: 'ẨM THỰC', to: '/blog', icon: BookOpen },
+  { label: 'CHÍNH SÁCH', to: '/chinh-sach', icon: ShieldCheck },
+];
 
 export default function Header() {
   const { totalItems, totalPrice, setIsOpen } = useCart();
@@ -12,7 +20,9 @@ export default function Header() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -20,9 +30,15 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const suggestions = searchQuery.length > 0
     ? products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
     : [];
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className={`sticky top-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-lg' : 'shadow-sm'}`}>
@@ -138,7 +154,7 @@ export default function Header() {
               <div className="relative">
                 <ShoppingCart className="h-5 w-5 text-foreground group-hover:text-primary transition-colors" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-coral text-primary-foreground text-[10px] font-bold rounded-full h-4.5 w-4.5 min-w-[18px] h-[18px] flex items-center justify-center animate-pulse-soft">
+                  <span className="absolute -top-2 -right-2 bg-coral text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center animate-pulse-soft">
                     {totalItems}
                   </span>
                 )}
@@ -152,40 +168,52 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Category navigation bar - desktop */}
+      {/* Main navigation bar - desktop */}
       <nav className="bg-card border-b border-border hidden md:block">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-1">
-            <Link to="/" className="flex items-center gap-1.5 px-4 py-2.5 ocean-gradient text-primary-foreground text-sm font-bold rounded-t-lg">
-              <Menu className="h-4 w-4" /> DANH MỤC
-            </Link>
-            {categories.map(cat => (
+          <div className="flex items-center">
+            {/* Category dropdown */}
+            <div className="relative"
+              onMouseEnter={() => setShowCategoryDropdown(true)}
+              onMouseLeave={() => setShowCategoryDropdown(false)}
+            >
+              <button className="flex items-center gap-1.5 px-4 py-2.5 ocean-gradient text-primary-foreground text-sm font-bold rounded-t-lg">
+                <Menu className="h-4 w-4" /> DANH MỤC <ChevronDown className="h-3 w-3" />
+              </button>
+              {showCategoryDropdown && (
+                <div className="absolute top-full left-0 w-56 bg-card rounded-b-xl shadow-2xl border border-border border-t-0 z-50">
+                  {categories.map(cat => (
+                    <Link
+                      key={cat}
+                      to={`/san-pham?category=${encodeURIComponent(cat)}`}
+                      className="block px-4 py-2.5 text-sm text-foreground hover:bg-muted hover:text-primary font-medium transition-colors border-b border-border last:border-0"
+                    >
+                      {cat}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Main menu items */}
+            {MAIN_MENU.map(item => (
               <Link
-                key={cat}
-                to={`/?category=${encodeURIComponent(cat)}`}
-                className="px-3 py-2.5 text-sm text-foreground hover:text-primary font-medium transition-colors relative group"
+                key={item.to}
+                to={item.to}
+                className={`px-4 py-2.5 text-sm font-bold transition-colors relative group ${
+                  isActive(item.to) ? 'text-primary' : 'text-foreground hover:text-primary'
+                }`}
               >
-                {cat}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-primary transition-all duration-300" />
+                {item.label}
+                <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 ${
+                  isActive(item.to) ? 'w-full' : 'w-0 group-hover:w-full'
+                }`} />
               </Link>
             ))}
+
             <Link
-              to="/ve-chung-toi"
-              className="px-3 py-2.5 text-sm text-foreground hover:text-primary font-medium transition-colors relative group"
-            >
-              Về chúng tôi
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-primary transition-all duration-300" />
-            </Link>
-            <Link
-              to="/blog"
-              className="px-3 py-2.5 text-sm text-foreground hover:text-primary font-medium transition-colors relative group"
-            >
-              Ẩm thực
-              <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 group-hover:w-full h-0.5 bg-primary transition-all duration-300" />
-            </Link>
-            <Link
-              to="/?status=hot"
-              className="px-3 py-2.5 text-sm text-coral font-bold flex items-center gap-1 animate-pulse-soft"
+              to="/san-pham?status=hot"
+              className="px-3 py-2.5 text-sm text-coral font-bold flex items-center gap-1 animate-pulse-soft ml-auto"
             >
               🔥 Bán chạy
             </Link>
@@ -226,7 +254,7 @@ export default function Header() {
                     <button
                       key={p.id}
                       className="w-full px-3 py-2 text-left hover:bg-muted rounded-lg flex items-center gap-3 text-sm"
-                      onClick={() => { navigate(`/product/${p.slug}`); setMobileMenuOpen(false); setSearchQuery(''); }}
+                      onClick={() => { navigate(`/product/${p.slug}`); setSearchQuery(''); }}
                     >
                       <img src={p.images[0]} alt={p.name} className="w-10 h-10 object-cover rounded-lg" loading="lazy" width={40} height={40} />
                       <div className="flex-1 min-w-0">
@@ -239,22 +267,56 @@ export default function Header() {
               )}
             </div>
 
-            {/* Mobile categories */}
+            {/* Mobile main menu */}
             <div className="p-3">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Danh mục</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Menu chính</p>
+              {MAIN_MENU.map(item => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`w-full flex items-center gap-3 px-3 py-3 text-sm font-bold rounded-lg transition-colors ${
+                    isActive(item.to) ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-muted'
+                  }`}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              ))}
+              <Link
+                to="/san-pham?status=hot"
+                className="w-full flex items-center gap-3 px-3 py-3 text-sm font-bold text-coral rounded-lg hover:bg-muted"
+              >
+                🔥 BÁN CHẠY
+              </Link>
+            </div>
+
+            {/* Mobile categories */}
+            <div className="p-3 border-t border-border">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Danh mục sản phẩm</p>
               {categories.map(cat => (
-                <button
+                <Link
                   key={cat}
-                  className="w-full text-left px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
-                  onClick={() => { navigate(`/?category=${encodeURIComponent(cat)}`); setMobileMenuOpen(false); }}
+                  to={`/san-pham?category=${encodeURIComponent(cat)}`}
+                  className="block px-3 py-2.5 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
                 >
                   {cat}
-                </button>
+                </Link>
               ))}
             </div>
 
+            {/* Mobile account */}
+            <div className="p-3 border-t border-border">
+              <Link
+                to={user ? '/account' : '/auth'}
+                className="w-full flex items-center gap-3 px-3 py-3 text-sm font-bold text-primary rounded-lg hover:bg-muted"
+              >
+                <User className="h-4 w-4" />
+                {user ? 'TÀI KHOẢN CỦA TÔI' : 'ĐĂNG NHẬP / ĐĂNG KÝ'}
+              </Link>
+            </div>
+
             {/* Mobile contact */}
-            <div className="p-3 border-t border-border mt-2">
+            <div className="p-3 border-t border-border">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Liên hệ</p>
               <a href="tel:0123456789" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
                 <Phone className="h-4 w-4" /> 0123.456.789

@@ -67,7 +67,7 @@ interface BrandContent {
   ctaDescription: string;
 }
 
-type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'banner' | 'policy' | 'contact' | 'footer';
+type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer';
 
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);
@@ -154,7 +154,7 @@ export default function ContentManagerV2() {
     { key: 'news', label: '📰 Tin tức', desc: 'Tin tức & sự kiện' },
     { key: 'blog', label: '📚 Blog', desc: 'Bài viết kiến thức' },
     { key: 'brand', label: '📖 Giới thiệu', desc: 'Câu chuyện thương hiệu' },
-    { key: 'banner', label: '🖼️ Banner', desc: 'Banner trang chủ' },
+    { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
     { key: 'policy', label: '📋 Chính sách', desc: 'Chính sách bán hàng' },
     { key: 'contact', label: '📞 Liên hệ', desc: 'Thông tin liên hệ' },
     { key: 'footer', label: '🔻 Footer', desc: 'Chân trang' },
@@ -178,7 +178,8 @@ export default function ContentManagerV2() {
         {section === 'news' && <NewsEditor />}
         {section === 'blog' && <BlogEditor />}
         {section === 'brand' && <BrandEditor />}
-        {(section === 'banner' || section === 'policy' || section === 'contact' || section === 'footer') && <SimpleEditor contentKey={section} />}
+        {section === 'hero' && <HeroEditor />}
+        {(section === 'policy' || section === 'contact' || section === 'footer') && <SimpleEditor contentKey={section} />}
       </div>
     </div>
   );
@@ -782,7 +783,108 @@ function BrandEditor() {
   );
 }
 
-// ============ SIMPLE EDITOR (for banner, policy, contact, footer) ============
+// ============ HERO EDITOR ============
+interface HeroSlide {
+  title: string;
+  subtitle: string;
+  slogan: string;
+}
+interface HeroData {
+  videoUrl: string;
+  slides: HeroSlide[];
+}
+
+function HeroEditor() {
+  const [hero, setHero] = useState<HeroData>({
+    videoUrl: '',
+    slides: [
+      { title: 'Hải Sản Khô Cao Cấp Sầm Sơn', subtitle: '100% hải sản tự nhiên – Không hóa chất', slogan: 'Chọn biển sạch – Chọn Giang Nguyen' },
+    ],
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('hero_banner').then(d => { if (d) setHero(d); setLoading(false); });
+  }, []);
+
+  const save = async () => { setSaving(true); await saveContent('hero_banner', hero); setSaving(false); };
+
+  const updateSlide = (i: number, field: keyof HeroSlide, val: string) => {
+    const slides = [...hero.slides];
+    slides[i] = { ...slides[i], [field]: val };
+    setHero({ ...hero, slides });
+  };
+
+  const addSlide = () => setHero({ ...hero, slides: [...hero.slides, { title: '', subtitle: '', slogan: '' }] });
+  const removeSlide = (i: number) => setHero({ ...hero, slides: hero.slides.filter((_, j) => j !== i) });
+
+  if (loading) return <p className="text-muted-foreground">Đang tải...</p>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-bold text-foreground">🎬 Hero Banner</h3>
+        <button onClick={save} disabled={saving}
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+        </button>
+      </div>
+
+      {/* Video URL */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+        <h4 className="font-bold text-foreground">🎥 Video nền</h4>
+        <p className="text-xs text-muted-foreground">Dán URL video MP4 làm nền hero banner. Để trống sẽ hiển thị gradient.</p>
+        <input value={hero.videoUrl} onChange={e => setHero({ ...hero, videoUrl: e.target.value })}
+          placeholder="https://example.com/video.mp4"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        {hero.videoUrl && (
+          <video src={hero.videoUrl} muted autoPlay loop playsInline className="w-full max-h-40 rounded-lg object-cover border border-border" />
+        )}
+      </div>
+
+      {/* Slides */}
+      <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="font-bold text-foreground">📝 Slide nội dung ({hero.slides.length})</h4>
+          <button onClick={addSlide} className="bg-primary/10 text-primary px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 hover:bg-primary/20">
+            <Plus className="h-3 w-3" /> Thêm slide
+          </button>
+        </div>
+
+        {hero.slides.map((s, i) => (
+          <div key={i} className="border border-border rounded-lg p-4 space-y-2 relative">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-muted-foreground">Slide {i + 1}</span>
+              {hero.slides.length > 1 && (
+                <button onClick={() => removeSlide(i)} className="text-destructive hover:bg-destructive/10 p-1 rounded">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+              <input value={s.title} onChange={e => updateSlide(i, 'title', e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
+              <input value={s.subtitle} onChange={e => updateSlide(i, 'subtitle', e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Slogan</label>
+              <input value={s.slogan} onChange={e => updateSlide(i, 'slogan', e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============ SIMPLE EDITOR (for policy, contact, footer) ============
 function SimpleEditor({ contentKey }: { contentKey: string }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);

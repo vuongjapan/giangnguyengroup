@@ -820,7 +820,180 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
   );
 }
 
-// =================== HOTEL FORM ===================
+// =================== COMBO FORM ===================
+function ComboForm({ combo, products, onSave, onCancel }: { combo: DBCombo | null; products: DBProduct[]; onSave: () => void; onCancel: () => void }) {
+  const [form, setForm] = useState({
+    name: combo?.name || '', slug: combo?.slug || '', tag: combo?.tag || '🔥 HOT',
+    tag_color: combo?.tag_color || 'bg-coral text-primary-foreground',
+    category: combo?.category || 'Quà biếu', description: combo?.description || '',
+    original_price: combo?.original_price || 0, combo_price: combo?.combo_price || 0,
+  });
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(combo?.product_ids || []);
+  const [images, setImages] = useState<string[]>(combo?.images || []);
+  const [mainImage, setMainImage] = useState(combo?.image || '');
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  const COMBO_CATEGORIES = ['Quà Tết', 'Quà biếu sếp', 'Quà gia đình', 'Combo tiết kiệm', 'Quà biếu'];
+  const TAG_COLORS = [
+    { value: 'bg-coral text-primary-foreground', label: 'Đỏ coral' },
+    { value: 'bg-purple-600 text-primary-foreground', label: 'Tím' },
+    { value: 'bg-accent text-accent-foreground', label: 'Vàng' },
+    { value: 'bg-green-600 text-primary-foreground', label: 'Xanh lá' },
+    { value: 'bg-primary text-primary-foreground', label: 'Xanh biển' },
+  ];
+
+  const toggleProduct = (id: string) => {
+    setSelectedProductIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  };
+
+  // Auto-calc original price
+  useEffect(() => {
+    const total = selectedProductIds.reduce((sum, id) => {
+      const p = products.find(pr => pr.id === id);
+      return sum + (p?.price || 0);
+    }, 0);
+    setForm(f => ({ ...f, original_price: total }));
+  }, [selectedProductIds, products]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    let allImages = [...images];
+    for (const file of newFiles) {
+      const ext = file.name.split('.').pop();
+      const path = `combos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from('product-images').upload(path, file);
+      if (!error) {
+        const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+        allImages.push(data.publicUrl);
+      }
+    }
+
+    const payload = {
+      name: form.name,
+      slug: form.slug || form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+      tag: form.tag, tag_color: form.tag_color, category: form.category,
+      description: form.description,
+      product_ids: selectedProductIds,
+      original_price: Number(form.original_price),
+      combo_price: Number(form.combo_price),
+      image: mainImage || allImages[0] || '',
+      images: allImages,
+    };
+
+    if (combo) {
+      const { error } = await supabase.from('combos').update(payload).eq('id', combo.id);
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã cập nhật combo!');
+    } else {
+      const { error } = await supabase.from('combos').insert(payload);
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã thêm combo!');
+    }
+    setSaving(false); onSave();
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-6 space-y-5">
+      <h3 className="font-bold text-foreground text-lg">{combo ? '✏️ Sửa combo' : '➕ Thêm combo mới'}</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold text-foreground mb-1">Tên combo *</label>
+          <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Slug (URL)</label>
+          <input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="tự động"
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Tag</label>
+          <input value={form.tag} onChange={e => setForm(f => ({ ...f, tag: e.target.value }))} placeholder="🔥 HOT"
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Màu tag</label>
+          <select value={form.tag_color} onChange={e => setForm(f => ({ ...f, tag_color: e.target.value }))}
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm">
+            {TAG_COLORS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Danh mục</label>
+          <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm">
+            {COMBO_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Giá combo (₫) *</label>
+          <input type="number" value={form.combo_price} onChange={e => setForm(f => ({ ...f, combo_price: Number(e.target.value) }))}
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
+        <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3}
+          className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm resize-y" />
+      </div>
+
+      {/* Product selection */}
+      <div>
+        <label className="block text-xs font-bold text-foreground mb-2">🛒 Chọn sản phẩm trong combo (giá gốc tự tính: {formatPrice(form.original_price)})</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {products.filter(p => p.is_active).map(p => (
+            <label key={p.id} className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${selectedProductIds.includes(p.id) ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted'}`}>
+              <input type="checkbox" checked={selectedProductIds.includes(p.id)} onChange={() => toggleProduct(p.id)} className="rounded" />
+              {p.images[0] && <img src={p.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover" />}
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">{p.name}</p>
+                <p className="text-xs text-muted-foreground">{formatPrice(p.price)}/{p.unit}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Images */}
+      <div>
+        <label className="block text-xs font-bold text-foreground mb-2">🖼️ Ảnh combo</label>
+        <div className="flex gap-2 flex-wrap mb-3">
+          {images.map((url, i) => (
+            <div key={i} className="relative group">
+              <img src={url} alt="" className="w-20 h-20 object-cover rounded-lg border border-border" />
+              <button type="button" onClick={() => { setImages(prev => prev.filter((_, idx) => idx !== i)); if (mainImage === url) setMainImage(''); }}
+                className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><X className="h-3 w-3" /></button>
+              <button type="button" onClick={() => setMainImage(url)}
+                className={`absolute bottom-0 left-0 right-0 text-[10px] text-center rounded-b-lg ${mainImage === url ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
+                {mainImage === url ? 'Chính' : 'Set chính'}
+              </button>
+            </div>
+          ))}
+        </div>
+        <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors">
+          <Upload className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">Chọn ảnh</span>
+          <input type="file" accept="image/*" multiple onChange={e => { if (e.target.files) setNewFiles(prev => [...prev, ...Array.from(e.target.files!)]); }} className="hidden" />
+        </label>
+      </div>
+
+      <div className="flex gap-2 pt-2">
+        <button type="submit" disabled={saving}
+          className="ocean-gradient text-primary-foreground px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90 flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu combo'}
+        </button>
+        <button type="button" onClick={onCancel} className="px-4 py-2.5 rounded-lg text-sm border border-border hover:bg-muted">Hủy</button>
+      </div>
+    </form>
+  );
+}
+
 function HotelForm({ hotel, onSave, onCancel }: { hotel: DBHotel | null; onSave: () => void; onCancel: () => void }) {
   const [form, setForm] = useState({
     name: hotel?.name || '', slug: hotel?.slug || '', address: hotel?.address || '',

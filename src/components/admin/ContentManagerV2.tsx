@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Plus, Edit, Trash2, Image, X, RefreshCw, Eye, EyeOff, ChevronDown, ChevronUp, Upload, Video } from 'lucide-react';
 import { toast } from 'sonner';
@@ -103,38 +103,91 @@ async function saveContent(key: string, value: any) {
   toast.success('Đã lưu!');
 }
 
-// ============ IMAGE INPUT ============
+// ============ UPLOAD HELPER ============
+async function uploadToStorage(file: File, folder: string): Promise<string | null> {
+  const ext = file.name.split('.').pop() || 'jpg';
+  const path = `${folder}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from('site-media').upload(path, file);
+  if (error) { toast.error('Upload lỗi: ' + error.message); return null; }
+  const { data: pub } = supabase.storage.from('site-media').getPublicUrl(path);
+  return pub.publicUrl;
+}
+
+// ============ IMAGE INPUT (with upload) ============
 function ImageInput({ value, onChange, label }: { value: string; onChange: (v: string) => void; label?: string }) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    const url = await uploadToStorage(file, 'content');
+    if (url) onChange(url);
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
   return (
     <div>
       {label && <label className="block text-xs font-bold text-foreground mb-1">{label}</label>}
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <input value={value} onChange={e => onChange(e.target.value)} placeholder="URL ảnh..."
           className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+        <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+          className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 disabled:opacity-50 flex items-center gap-1">
+          <Upload className="h-3 w-3" /> {uploading ? '...' : 'Upload'}
+        </button>
         {value && <img src={value} alt="" className="w-10 h-10 rounded object-cover border border-border" />}
       </div>
     </div>
   );
 }
 
-// ============ MULTI IMAGE INPUT ============
+// ============ MULTI IMAGE INPUT (with upload) ============
 function MultiImageInput({ images, onChange, label }: { images: string[]; onChange: (v: string[]) => void; label?: string }) {
-  const addImage = () => onChange([...images, '']);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    const urls: string[] = [];
+    for (const file of files) {
+      const url = await uploadToStorage(file, 'content');
+      if (url) urls.push(url);
+    }
+    onChange([...images, ...urls]);
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
   return (
     <div>
       {label && <label className="block text-xs font-bold text-foreground mb-1">{label}</label>}
-      {images.map((img, i) => (
-        <div key={i} className="flex gap-2 mb-1">
-          <input value={img} onChange={e => { const n = [...images]; n[i] = e.target.value; onChange(n); }}
-            placeholder="URL ảnh..." className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" />
-          {img && <img src={img} alt="" className="w-10 h-10 rounded object-cover border border-border" />}
-          <button type="button" onClick={() => onChange(images.filter((_, j) => j !== i))}
-            className="text-destructive hover:bg-destructive/10 p-2 rounded"><X className="h-4 w-4" /></button>
-        </div>
-      ))}
-      <button type="button" onClick={addImage} className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
-        <Plus className="h-3 w-3" /> Thêm ảnh
-      </button>
+      <div className="flex flex-wrap gap-2 mb-2">
+        {images.map((img, i) => (
+          <div key={i} className="relative group">
+            <img src={img} alt="" className="w-20 h-20 rounded-lg object-cover border border-border" />
+            <button type="button" onClick={() => onChange(images.filter((_, j) => j !== i))}
+              className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+              <X className="h-3 w-3" />
+            </button>
+          </div>
+        ))}
+      </div>
+      <input ref={fileRef} type="file" accept="image/*" multiple onChange={handleUpload} className="hidden" />
+      <div className="flex gap-2">
+        <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+          className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-lg font-bold hover:opacity-90 disabled:opacity-50 flex items-center gap-1">
+          <Upload className="h-3 w-3" /> {uploading ? 'Đang tải...' : 'Upload ảnh'}
+        </button>
+        <button type="button" onClick={() => onChange([...images, ''])} className="text-xs text-primary hover:underline flex items-center gap-1">
+          <Plus className="h-3 w-3" /> Dán URL
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Plus, Edit, Trash2, Image, X, RefreshCw, Eye, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
+import { Save, Plus, Edit, Trash2, Image, X, RefreshCw, Eye, EyeOff, ChevronDown, ChevronUp, Upload, Video } from 'lucide-react';
 import { toast } from 'sonner';
 
 // ============ TYPES ============
@@ -30,6 +30,7 @@ interface NewsItem {
   id: string;
   title: string;
   excerpt: string;
+  content?: string[];
   category: string;
   image: string;
   date: string;
@@ -65,6 +66,21 @@ interface BrandContent {
   certifications: { icon: string; title: string; desc: string }[];
   ctaTitle: string;
   ctaDescription: string;
+}
+
+interface PolicySection {
+  title: string;
+  icon: string;
+  intro?: string;
+  items: { label: string; desc: string }[];
+}
+
+interface ContactInfo {
+  hotline: string;
+  zalo: string;
+  email: string;
+  hours: string;
+  address: string;
 }
 
 type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer';
@@ -149,12 +165,12 @@ export default function ContentManagerV2() {
   const [section, setSection] = useState<ContentSection>('promotions');
 
   const sections: { key: ContentSection; label: string; desc: string }[] = [
+    { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
     { key: 'promotions', label: '🎉 Khuyến mãi', desc: 'Flash sale, ưu đãi mua nhiều' },
     { key: 'recipes', label: '🍳 Món ngon', desc: 'Công thức chế biến hải sản' },
     { key: 'news', label: '📰 Tin tức', desc: 'Tin tức & sự kiện' },
     { key: 'blog', label: '📚 Blog', desc: 'Bài viết kiến thức' },
     { key: 'brand', label: '📖 Giới thiệu', desc: 'Câu chuyện thương hiệu' },
-    { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
     { key: 'policy', label: '📋 Chính sách', desc: 'Chính sách bán hàng' },
     { key: 'contact', label: '📞 Liên hệ', desc: 'Thông tin liên hệ' },
     { key: 'footer', label: '🔻 Footer', desc: 'Chân trang' },
@@ -179,7 +195,9 @@ export default function ContentManagerV2() {
         {section === 'blog' && <BlogEditor />}
         {section === 'brand' && <BrandEditor />}
         {section === 'hero' && <HeroEditor />}
-        {(section === 'policy' || section === 'contact' || section === 'footer') && <SimpleEditor contentKey={section} />}
+        {section === 'policy' && <PolicyEditor />}
+        {section === 'contact' && <ContactEditor />}
+        {section === 'footer' && <SimpleEditor contentKey="footer" />}
       </div>
     </div>
   );
@@ -405,7 +423,7 @@ function NewsEditor() {
   };
 
   const emptyNews = (): NewsItem => ({
-    id: genId(), title: '', excerpt: '', category: 'Hàng mới về', image: '',
+    id: genId(), title: '', excerpt: '', content: [''], category: 'Hàng mới về', image: '',
     date: new Date().toLocaleDateString('vi-VN'), tag: '',
   });
 
@@ -465,10 +483,11 @@ function NewsEditor() {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-foreground mb-1">Nội dung ngắn</label>
-            <textarea value={editing.excerpt} onChange={e => setEditing({ ...editing, excerpt: e.target.value })} rows={3}
+            <label className="block text-xs font-bold text-foreground mb-1">Tóm tắt</label>
+            <textarea value={editing.excerpt} onChange={e => setEditing({ ...editing, excerpt: e.target.value })} rows={2}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
           </div>
+          <ListInput items={editing.content || ['']} onChange={v => setEditing({ ...editing, content: v })} label="Nội dung chi tiết (mỗi dòng = 1 đoạn)" placeholder="Đoạn văn..." />
           <ImageInput value={editing.image} onChange={v => setEditing({ ...editing, image: v })} label="Ảnh" />
           <div className="flex gap-2">
             <button onClick={() => handleSave(editing)} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
@@ -488,7 +507,7 @@ function NewsEditor() {
               <p className="text-xs text-muted-foreground">{item.category} • {item.date} {item.tag && <span className="text-coral font-bold">#{item.tag}</span>}</p>
             </div>
             <div className="flex gap-1">
-              <button onClick={() => setEditing(item)} className="p-1.5 hover:bg-muted rounded text-primary"><Edit className="h-4 w-4" /></button>
+              <button onClick={() => setEditing({ ...item, content: item.content || [item.excerpt] })} className="p-1.5 hover:bg-muted rounded text-primary"><Edit className="h-4 w-4" /></button>
               <button onClick={() => handleDelete(item.id)} className="p-1.5 hover:bg-destructive/10 rounded text-destructive"><Trash2 className="h-4 w-4" /></button>
             </div>
           </div>
@@ -669,7 +688,6 @@ function BrandEditor() {
         </button>
       </div>
 
-      {/* Hero */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <h4 className="font-bold text-foreground">🖼️ Hero Banner</h4>
         <ImageInput value={brand.heroImage} onChange={v => setBrand({ ...brand, heroImage: v })} label="Ảnh nền hero" />
@@ -685,7 +703,6 @@ function BrandEditor() {
         </div>
       </div>
 
-      {/* Story */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <h4 className="font-bold text-foreground">📝 Câu chuyện</h4>
         <div>
@@ -702,7 +719,6 @@ function BrandEditor() {
         </div>
       </div>
 
-      {/* Values */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-bold text-foreground">💎 Giá trị cốt lõi</h4>
@@ -723,7 +739,6 @@ function BrandEditor() {
         ))}
       </div>
 
-      {/* Timeline */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-bold text-foreground">📅 Hành trình phát triển</h4>
@@ -744,7 +759,6 @@ function BrandEditor() {
         ))}
       </div>
 
-      {/* Certifications */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h4 className="font-bold text-foreground">🏆 Chứng nhận</h4>
@@ -765,7 +779,6 @@ function BrandEditor() {
         ))}
       </div>
 
-      {/* CTA */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <h4 className="font-bold text-foreground">📢 CTA cuối trang</h4>
         <div>
@@ -783,7 +796,7 @@ function BrandEditor() {
   );
 }
 
-// ============ HERO EDITOR ============
+// ============ HERO EDITOR WITH VIDEO UPLOAD ============
 interface HeroSlide {
   title: string;
   subtitle: string;
@@ -803,12 +816,34 @@ function HeroEditor() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadContent('hero_banner').then(d => { if (d) setHero(d); setLoading(false); });
   }, []);
 
   const save = async () => { setSaving(true); await saveContent('hero_banner', hero); setSaving(false); };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('Video tối đa 50MB');
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split('.').pop();
+    const path = `hero/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('site-media').upload(path, file);
+    if (error) {
+      toast.error('Lỗi upload: ' + error.message);
+    } else {
+      const { data } = supabase.storage.from('site-media').getPublicUrl(path);
+      setHero(h => ({ ...h, videoUrl: data.publicUrl }));
+      toast.success('Upload video thành công!');
+    }
+    setUploading(false);
+  };
 
   const updateSlide = (i: number, field: keyof HeroSlide, val: string) => {
     const slides = [...hero.slides];
@@ -831,15 +866,33 @@ function HeroEditor() {
         </button>
       </div>
 
-      {/* Video URL */}
+      {/* Video */}
       <div className="bg-card rounded-xl border border-border p-5 space-y-3">
         <h4 className="font-bold text-foreground">🎥 Video nền</h4>
-        <p className="text-xs text-muted-foreground">Dán URL video MP4 làm nền hero banner. Để trống sẽ hiển thị gradient.</p>
-        <input value={hero.videoUrl} onChange={e => setHero({ ...hero, videoUrl: e.target.value })}
-          placeholder="https://example.com/video.mp4"
-          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <p className="text-xs text-muted-foreground">Upload video MP4 hoặc dán URL. Để trống sẽ hiển thị gradient.</p>
+        
+        <div className="flex gap-2">
+          <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border-2 border-dashed cursor-pointer transition-colors ${uploading ? 'border-primary bg-primary/5' : 'border-border hover:border-primary'}`}>
+            <Upload className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">{uploading ? 'Đang upload...' : 'Upload video MP4'}</span>
+            <input type="file" accept="video/mp4,video/webm" onChange={handleVideoUpload} className="hidden" disabled={uploading} />
+          </label>
+        </div>
+
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Hoặc dán URL video</label>
+          <input value={hero.videoUrl} onChange={e => setHero({ ...hero, videoUrl: e.target.value })}
+            placeholder="https://example.com/video.mp4"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+
         {hero.videoUrl && (
-          <video src={hero.videoUrl} muted autoPlay loop playsInline className="w-full max-h-40 rounded-lg object-cover border border-border" />
+          <div className="space-y-2">
+            <video src={hero.videoUrl} muted autoPlay loop playsInline className="w-full max-h-40 rounded-lg object-cover border border-border" />
+            <button onClick={() => setHero({ ...hero, videoUrl: '' })} className="text-xs text-destructive hover:underline flex items-center gap-1">
+              <X className="h-3 w-3" /> Xóa video
+            </button>
+          </div>
         )}
       </div>
 
@@ -884,16 +937,182 @@ function HeroEditor() {
   );
 }
 
-// ============ SIMPLE EDITOR (for policy, contact, footer) ============
+// ============ POLICY EDITOR ============
+const DEFAULT_POLICY: PolicySection[] = [
+  { title: 'Chính sách giao hàng', icon: '🚚', items: [
+    { label: 'Khu vực Sầm Sơn – Thanh Hóa', desc: 'Giao nhanh 2–4 giờ' },
+    { label: 'Toàn quốc', desc: '1–3 ngày (tùy khu vực)' },
+    { label: 'Miễn phí vận chuyển', desc: 'Đơn từ 500.000₫' },
+    { label: 'Kiểm tra hàng', desc: 'Trước khi thanh toán' },
+    { label: 'Giao hỏa tốc', desc: 'Theo yêu cầu khách hàng' },
+  ]},
+  { title: 'Chính sách vận chuyển', icon: '📦', items: [
+    { label: 'Đóng gói hút chân không', desc: 'Đảm bảo vệ sinh an toàn thực phẩm' },
+    { label: 'Bảo quản khi vận chuyển', desc: 'Giữ khô, sạch, không ảnh hưởng chất lượng' },
+    { label: 'Đơn vị vận chuyển uy tín', desc: 'Giao hàng nhanh, có tracking' },
+    { label: 'Lỗi vận chuyển', desc: 'Shop chịu 100% trách nhiệm' },
+  ]},
+  { title: 'Chính sách bảo hành', icon: '🛡️', intro: 'GIANG NGUYEN SEAFOOD cam kết: 100% hải sản tự nhiên – Không hóa chất.', items: [
+    { label: 'Đổi 1–1', desc: 'Sản phẩm lỗi, không đúng mô tả' },
+    { label: 'Thời gian hỗ trợ', desc: 'Trong vòng 48h từ khi nhận hàng' },
+    { label: 'Hoàn tiền 100%', desc: 'Nếu khách không hài lòng' },
+    { label: 'Cam kết mạnh', desc: 'Sai hoàn tiền gấp đôi' },
+  ]},
+  { title: 'Chính sách bảo mật', icon: '🔒', items: [
+    { label: 'Không chia sẻ thông tin', desc: 'Cho bất kỳ bên thứ 3 nào' },
+    { label: 'Chỉ sử dụng để', desc: 'Xử lý đơn hàng & chăm sóc khách hàng' },
+    { label: 'Bảo mật tuyệt đối', desc: 'Thông tin cá nhân, SĐT, địa chỉ' },
+  ]},
+  { title: 'Chính sách thanh toán', icon: '💳', items: [
+    { label: 'COD', desc: 'Kiểm tra hàng trước khi trả tiền' },
+    { label: 'Chuyển khoản', desc: 'VietinBank – 104002912582 – VAN THI MINH LINH' },
+    { label: 'QR SePay', desc: 'Nhanh chóng, tiện lợi' },
+    { label: 'Nội dung CK', desc: 'SEVQR + mã đơn hàng' },
+  ]},
+];
+
+function PolicyEditor() {
+  const [sections, setSections] = useState<PolicySection[]>(DEFAULT_POLICY);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('content_policy').then(d => { if (d) setSections(d); setLoading(false); });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('content_policy', sections);
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-foreground text-lg">📋 Chính sách bán hàng</h3>
+        <div className="flex gap-2">
+          <button onClick={() => setSections([...sections, { title: '', icon: '📋', items: [{ label: '', desc: '' }] }])}
+            className="text-xs text-primary hover:underline flex items-center gap-1"><Plus className="h-3 w-3" /> Thêm mục</button>
+          <button onClick={save} disabled={saving}
+            className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+            <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+          </button>
+        </div>
+      </div>
+
+      {sections.map((sec, si) => (
+        <div key={si} className="bg-card rounded-xl border border-border p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <input value={sec.icon} onChange={e => { const n = [...sections]; n[si] = { ...sec, icon: e.target.value }; setSections(n); }}
+              className="w-12 px-2 py-2 rounded-lg border border-border bg-background text-sm text-center" />
+            <input value={sec.title} onChange={e => { const n = [...sections]; n[si] = { ...sec, title: e.target.value }; setSections(n); }}
+              className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm font-bold" placeholder="Tiêu đề mục" />
+            <button onClick={() => setSections(sections.filter((_, j) => j !== si))} className="text-destructive p-2"><Trash2 className="h-4 w-4" /></button>
+          </div>
+          {sec.intro !== undefined && (
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Giới thiệu (tùy chọn)</label>
+              <input value={sec.intro || ''} onChange={e => { const n = [...sections]; n[si] = { ...sec, intro: e.target.value }; setSections(n); }}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          )}
+          {sec.items.map((item, ii) => (
+            <div key={ii} className="flex gap-2 items-start">
+              <span className="text-xs text-muted-foreground pt-2.5 w-5">✔</span>
+              <input value={item.label} onChange={e => { const n = [...sections]; n[si].items[ii] = { ...item, label: e.target.value }; setSections([...n]); }}
+                className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm font-medium" placeholder="Tiêu đề" />
+              <input value={item.desc} onChange={e => { const n = [...sections]; n[si].items[ii] = { ...item, desc: e.target.value }; setSections([...n]); }}
+                className="flex-[2] px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Mô tả chi tiết" />
+              <button onClick={() => { const n = [...sections]; n[si].items = n[si].items.filter((_, j) => j !== ii); setSections(n); }}
+                className="text-destructive p-1"><X className="h-3 w-3" /></button>
+            </div>
+          ))}
+          <button onClick={() => { const n = [...sections]; n[si].items.push({ label: '', desc: '' }); setSections([...n]); }}
+            className="text-xs text-primary hover:underline flex items-center gap-1"><Plus className="h-3 w-3" /> Thêm mục con</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============ CONTACT EDITOR ============
+const DEFAULT_CONTACT: ContactInfo = {
+  hotline: '098.661.7939',
+  zalo: '098.661.7939',
+  email: 'giangnguyendriedseafood@gmail.com',
+  hours: '7h – 17h hàng ngày',
+  address: 'Sầm Sơn, Thanh Hóa',
+};
+
+function ContactEditor() {
+  const [contact, setContact] = useState<ContactInfo>(DEFAULT_CONTACT);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('content_contact').then(d => { if (d) setContact(d); setLoading(false); });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('content_contact', contact);
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-foreground text-lg">📞 Thông tin liên hệ</h3>
+        <button onClick={save} disabled={saving}
+          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">📞 Hotline</label>
+            <input value={contact.hotline} onChange={e => setContact({ ...contact, hotline: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">💬 Zalo</label>
+            <input value={contact.zalo} onChange={e => setContact({ ...contact, zalo: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">📧 Email</label>
+            <input value={contact.email} onChange={e => setContact({ ...contact, email: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">🕐 Giờ mở cửa</label>
+            <input value={contact.hours} onChange={e => setContact({ ...contact, hours: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-xs font-bold text-foreground mb-1">📍 Địa chỉ</label>
+            <input value={contact.address} onChange={e => setContact({ ...contact, address: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============ SIMPLE EDITOR (for footer) ============
 function SimpleEditor({ contentKey }: { contentKey: string }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const labels: Record<string, string> = {
-    banner: '🖼️ Banner trang chủ',
-    policy: '📋 Chính sách bán hàng',
-    contact: '📞 Thông tin liên hệ',
     footer: '🔻 Nội dung Footer',
   };
 

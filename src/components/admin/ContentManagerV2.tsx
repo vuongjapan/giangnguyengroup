@@ -256,94 +256,258 @@ export default function ContentManagerV2() {
   );
 }
 
-// ============ PROMOTIONS EDITOR ============
+// ============ PROMOTIONS EDITOR (Flash Sale + Bulk Deals + Promo Items) ============
+interface FlashSaleConfig {
+  title: string;
+  subtitle: string;
+  maxDiscount: string;
+  productSlugs: string[];
+  isActive: boolean;
+}
+
+interface BulkDeal {
+  id: string;
+  min: number;
+  discount: number;
+  label: string;
+}
+
+interface HotelPromo {
+  title: string;
+  description: string;
+  linkText: string;
+  linkUrl: string;
+  isActive: boolean;
+}
+
 function PromotionsEditor() {
+  const [tab, setTab] = useState<'flash' | 'bulk' | 'hotel' | 'items'>('flash');
+  const [flashSale, setFlashSale] = useState<FlashSaleConfig>({ title: '⚡ FLASH SALE HÔM NAY', subtitle: 'Giảm đến 25% – Chỉ hôm nay – Số lượng có hạn!', maxDiscount: '25', productSlugs: [], isActive: true });
+  const [bulkDeals, setBulkDeals] = useState<BulkDeal[]>([
+    { id: genId(), min: 2, discount: 5, label: 'Mua 2 giảm 5%' },
+    { id: genId(), min: 3, discount: 10, label: 'Mua 3 giảm 10%' },
+    { id: genId(), min: 5, discount: 15, label: 'Mua 5+ giảm 15%' },
+  ]);
+  const [hotelPromo, setHotelPromo] = useState<HotelPromo>({ title: 'Ưu đãi riêng khách TUẤN ĐẠT LUXURY HOTEL', description: 'Khách lưu trú được giảm thêm 5–10% trên tất cả sản phẩm. Giao tận phòng trong 30 phút!', linkText: 'Xem ưu đãi khách sạn →', linkUrl: '/khach-san', isActive: true });
   const [items, setItems] = useState<PromotionItem[]>([]);
   const [editing, setEditing] = useState<PromotionItem | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    loadContent('content_promotions').then(d => { if (d) setItems(d); setLoading(false); });
+    Promise.all([
+      loadContent('promo_flash_sale'),
+      loadContent('promo_bulk_deals'),
+      loadContent('promo_hotel'),
+      loadContent('content_promotions'),
+    ]).then(([fs, bd, hp, pi]) => {
+      if (fs) setFlashSale(fs);
+      if (bd) setBulkDeals(bd);
+      if (hp) setHotelPromo(hp);
+      if (pi) setItems(pi);
+      setLoading(false);
+    });
   }, []);
 
-  const save = async (newItems: PromotionItem[]) => {
-    setSaving(true);
-    await saveContent('content_promotions', newItems);
-    setItems(newItems);
-    setSaving(false);
-  };
+  const saveFlash = () => saveContent('promo_flash_sale', flashSale);
+  const saveBulk = () => saveContent('promo_bulk_deals', bulkDeals);
+  const saveHotel = () => saveContent('promo_hotel', hotelPromo);
+  const saveItems = async (newItems: PromotionItem[]) => { await saveContent('content_promotions', newItems); setItems(newItems); };
 
   const handleSaveItem = (item: PromotionItem) => {
     const exists = items.find(i => i.id === item.id);
-    const newItems = exists ? items.map(i => i.id === item.id ? item : i) : [...items, item];
-    save(newItems);
+    saveItems(exists ? items.map(i => i.id === item.id ? item : i) : [...items, item]);
     setEditing(null);
-  };
-
-  const handleDelete = (id: string) => {
-    if (!confirm('Xóa khuyến mãi này?')) return;
-    save(items.filter(i => i.id !== id));
   };
 
   if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
 
+  const tabs = [
+    { key: 'flash' as const, label: '⚡ Flash Sale' },
+    { key: 'bulk' as const, label: '🏷️ Mua nhiều giảm giá' },
+    { key: 'hotel' as const, label: '🏨 Ưu đãi khách sạn' },
+    { key: 'items' as const, label: '🎁 Khuyến mãi khác' },
+  ];
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-foreground text-lg">🎉 Quản lý khuyến mãi ({items.length})</h3>
-        <button onClick={() => setEditing({ id: genId(), title: '', description: '', image: '', salePercent: 10, isActive: true })}
-          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
-          <Plus className="h-4 w-4" /> Thêm
-        </button>
+      <h3 className="font-bold text-foreground text-lg mb-4">🎉 Quản lý khuyến mãi</h3>
+      <div className="flex gap-1 mb-6 flex-wrap">
+        {tabs.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`px-3 py-2 rounded-lg text-xs font-bold transition-colors ${tab === t.key ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground hover:bg-muted/80'}`}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {editing && (
-        <div className="bg-card rounded-xl border border-border p-6 mb-4 space-y-3">
+      {/* FLASH SALE */}
+      {tab === 'flash' && (
+        <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-2">
+            <label className="text-sm font-bold text-foreground">Bật Flash Sale</label>
+            <button onClick={() => setFlashSale({ ...flashSale, isActive: !flashSale.isActive })}
+              className={`w-10 h-5 rounded-full transition-colors relative ${flashSale.isActive ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+              <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${flashSale.isActive ? 'left-5' : 'left-0.5'}`} />
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề *</label>
-              <input value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })}
+              <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+              <input value={flashSale.title} onChange={e => setFlashSale({ ...flashSale, title: e.target.value })}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-foreground mb-1">% Giảm giá</label>
-              <input type="number" value={editing.salePercent} onChange={e => setEditing({ ...editing, salePercent: Number(e.target.value) })}
+              <label className="block text-xs font-bold text-foreground mb-1">Giảm tối đa (%)</label>
+              <input value={flashSale.maxDiscount} onChange={e => setFlashSale({ ...flashSale, maxDiscount: e.target.value })}
                 className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
             </div>
           </div>
           <div>
-            <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
-            <textarea value={editing.description} onChange={e => setEditing({ ...editing, description: e.target.value })} rows={3}
+            <label className="block text-xs font-bold text-foreground mb-1">Mô tả phụ</label>
+            <input value={flashSale.subtitle} onChange={e => setFlashSale({ ...flashSale, subtitle: e.target.value })}
               className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
           </div>
-          <ImageInput value={editing.image} onChange={v => setEditing({ ...editing, image: v })} label="Ảnh" />
-          <div className="flex gap-2">
-            <button onClick={() => handleSaveItem(editing)} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
-              <Save className="h-4 w-4" /> Lưu
-            </button>
-            <button onClick={() => setEditing(null)} className="px-4 py-2 rounded-lg text-sm border border-border hover:bg-muted">Hủy</button>
-          </div>
+          <ListInput items={flashSale.productSlugs} onChange={v => setFlashSale({ ...flashSale, productSlugs: v })}
+            label="Slug sản phẩm Flash Sale (để trống = lấy 4 SP đầu)" placeholder="vd: muc-kho-loai-1" />
+          <button onClick={saveFlash} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
+            <Save className="h-4 w-4" /> Lưu Flash Sale
+          </button>
         </div>
       )}
 
-      <div className="space-y-2">
-        {items.map(item => (
-          <div key={item.id} className="bg-card rounded-lg border border-border p-3 flex items-center gap-3">
-            {item.image && <img src={item.image} alt="" className="w-14 h-14 rounded object-cover" />}
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-foreground text-sm">{item.title}</p>
-              <p className="text-xs text-muted-foreground truncate">{item.description}</p>
-              <span className="text-xs text-coral font-bold">-{item.salePercent}%</span>
+      {/* BULK DEALS */}
+      {tab === 'bulk' && (
+        <div className="bg-card rounded-xl border border-border p-6 space-y-4">
+          <p className="text-xs text-muted-foreground mb-2">Cấu hình các mức giảm giá khi mua nhiều sản phẩm</p>
+          {bulkDeals.map((deal, i) => (
+            <div key={deal.id} className="flex items-center gap-3 bg-muted/50 p-3 rounded-lg">
+              <div className="flex-1 grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-foreground mb-0.5">Từ (SP)</label>
+                  <input type="number" value={deal.min} onChange={e => { const n = [...bulkDeals]; n[i] = { ...deal, min: Number(e.target.value) }; setBulkDeals(n); }}
+                    className="w-full px-2 py-1.5 rounded border border-border bg-background text-sm" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-foreground mb-0.5">Giảm (%)</label>
+                  <input type="number" value={deal.discount} onChange={e => { const n = [...bulkDeals]; n[i] = { ...deal, discount: Number(e.target.value) }; setBulkDeals(n); }}
+                    className="w-full px-2 py-1.5 rounded border border-border bg-background text-sm" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-foreground mb-0.5">Nhãn</label>
+                  <input value={deal.label} onChange={e => { const n = [...bulkDeals]; n[i] = { ...deal, label: e.target.value }; setBulkDeals(n); }}
+                    className="w-full px-2 py-1.5 rounded border border-border bg-background text-sm" />
+                </div>
+              </div>
+              <button onClick={() => setBulkDeals(bulkDeals.filter((_, j) => j !== i))} className="text-destructive hover:bg-destructive/10 p-1 rounded">
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
-            <div className="flex gap-1">
-              <button onClick={() => setEditing(item)} className="p-1.5 hover:bg-muted rounded text-primary"><Edit className="h-4 w-4" /></button>
-              <button onClick={() => handleDelete(item.id)} className="p-1.5 hover:bg-destructive/10 rounded text-destructive"><Trash2 className="h-4 w-4" /></button>
+          ))}
+          <div className="flex gap-2">
+            <button onClick={() => setBulkDeals([...bulkDeals, { id: genId(), min: bulkDeals.length + 2, discount: (bulkDeals.length + 1) * 5, label: '' }])}
+              className="text-xs text-primary hover:underline flex items-center gap-1"><Plus className="h-3 w-3" /> Thêm mức</button>
+          </div>
+          <button onClick={saveBulk} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
+            <Save className="h-4 w-4" /> Lưu mức giảm giá
+          </button>
+        </div>
+      )}
+
+      {/* HOTEL PROMO */}
+      {tab === 'hotel' && (
+        <div className="bg-card rounded-xl border border-border p-6 space-y-3">
+          <div className="flex items-center gap-3 mb-2">
+            <label className="text-sm font-bold text-foreground">Hiển thị</label>
+            <button onClick={() => setHotelPromo({ ...hotelPromo, isActive: !hotelPromo.isActive })}
+              className={`w-10 h-5 rounded-full transition-colors relative ${hotelPromo.isActive ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+              <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${hotelPromo.isActive ? 'left-5' : 'left-0.5'}`} />
+            </button>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+            <input value={hotelPromo.title} onChange={e => setHotelPromo({ ...hotelPromo, title: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
+            <textarea value={hotelPromo.description} onChange={e => setHotelPromo({ ...hotelPromo, description: e.target.value })} rows={3}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Text nút</label>
+              <input value={hotelPromo.linkText} onChange={e => setHotelPromo({ ...hotelPromo, linkText: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Link</label>
+              <input value={hotelPromo.linkUrl} onChange={e => setHotelPromo({ ...hotelPromo, linkUrl: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
             </div>
           </div>
-        ))}
-        {items.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm">Chưa có khuyến mãi. Bấm "Thêm" để tạo mới.</p>}
-      </div>
+          <button onClick={saveHotel} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
+            <Save className="h-4 w-4" /> Lưu
+          </button>
+        </div>
+      )}
+
+      {/* PROMO ITEMS */}
+      {tab === 'items' && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm text-muted-foreground">Khuyến mãi tùy chỉnh ({items.length})</p>
+            <button onClick={() => setEditing({ id: genId(), title: '', description: '', image: '', salePercent: 10, isActive: true })}
+              className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
+              <Plus className="h-4 w-4" /> Thêm
+            </button>
+          </div>
+          {editing && (
+            <div className="bg-card rounded-xl border border-border p-6 mb-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề *</label>
+                  <input value={editing.title} onChange={e => setEditing({ ...editing, title: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">% Giảm giá</label>
+                  <input type="number" value={editing.salePercent} onChange={e => setEditing({ ...editing, salePercent: Number(e.target.value) })}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
+                <textarea value={editing.description} onChange={e => setEditing({ ...editing, description: e.target.value })} rows={3}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              </div>
+              <ImageInput value={editing.image} onChange={v => setEditing({ ...editing, image: v })} label="Ảnh" />
+              <div className="flex gap-2">
+                <button onClick={() => handleSaveItem(editing)} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5">
+                  <Save className="h-4 w-4" /> Lưu
+                </button>
+                <button onClick={() => setEditing(null)} className="px-4 py-2 rounded-lg text-sm border border-border hover:bg-muted">Hủy</button>
+              </div>
+            </div>
+          )}
+          <div className="space-y-2">
+            {items.map(item => (
+              <div key={item.id} className="bg-card rounded-lg border border-border p-3 flex items-center gap-3">
+                {item.image && <img src={item.image} alt="" className="w-14 h-14 rounded object-cover" />}
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-foreground text-sm">{item.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{item.description}</p>
+                  <span className="text-xs text-coral font-bold">-{item.salePercent}%</span>
+                </div>
+                <div className="flex gap-1">
+                  <button onClick={() => setEditing(item)} className="p-1.5 hover:bg-muted rounded text-primary"><Edit className="h-4 w-4" /></button>
+                  <button onClick={() => { if (confirm('Xóa?')) saveItems(items.filter(i => i.id !== item.id)); }} className="p-1.5 hover:bg-destructive/10 rounded text-destructive"><Trash2 className="h-4 w-4" /></button>
+                </div>
+              </div>
+            ))}
+            {items.length === 0 && <p className="text-center py-8 text-muted-foreground text-sm">Chưa có. Bấm "Thêm" để tạo mới.</p>}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

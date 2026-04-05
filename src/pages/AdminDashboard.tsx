@@ -1365,9 +1365,58 @@ function StoreForm({ store, onSave, onCancel }: { store: DBStore | null; onSave:
         <div className="md:col-span-2"><label className="block text-xs font-bold text-foreground mb-1">Địa chỉ *</label>
           <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required /></div>
         
-        {/* Location search */}
+        {/* Paste iframe embed from Google Maps */}
         <div className="md:col-span-2">
-          <label className="block text-xs font-bold text-foreground mb-1">🔍 Tìm vị trí trên bản đồ</label>
+          <label className="block text-xs font-bold text-foreground mb-1">📋 Dán iframe từ Google Maps</label>
+          <textarea
+            placeholder='Dán mã <iframe src="https://www.google.com/maps/embed?..."></iframe> vào đây'
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono h-20"
+            onChange={e => {
+              const val = e.target.value;
+              // Extract src from iframe
+              const srcMatch = val.match(/src=["']([^"']+)["']/);
+              if (srcMatch) {
+                const url = srcMatch[1];
+                // Try !2d (lng) and !3d (lat) pattern
+                const latMatch = url.match(/!3d(-?\d+\.?\d*)/);
+                const lngMatch = url.match(/!2d(-?\d+\.?\d*)/);
+                if (latMatch && lngMatch) {
+                  setForm(f => ({ ...f, lat: Number(latMatch[1]), lng: Number(lngMatch[1]) }));
+                  toast.success('Đã lấy tọa độ từ iframe!');
+                  return;
+                }
+                // Try q=lat,lng pattern
+                const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                if (qMatch) {
+                  setForm(f => ({ ...f, lat: Number(qMatch[1]), lng: Number(qMatch[2]) }));
+                  toast.success('Đã lấy tọa độ từ iframe!');
+                  return;
+                }
+                // Try pb= pattern with @lat,lng
+                const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+                if (atMatch) {
+                  setForm(f => ({ ...f, lat: Number(atMatch[1]), lng: Number(atMatch[2]) }));
+                  toast.success('Đã lấy tọa độ từ iframe!');
+                  return;
+                }
+              }
+              // Try direct coordinate paste
+              const coordMatch = val.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
+              if (coordMatch) {
+                setForm(f => ({ ...f, lat: Number(coordMatch[1]), lng: Number(coordMatch[2]) }));
+                toast.success('Đã lấy tọa độ!');
+                return;
+              }
+            }}
+          />
+          <p className="text-[10px] text-muted-foreground mt-1">
+            💡 Vào Google Maps → Tìm địa điểm → Chia sẻ → Nhúng bản đồ → Copy iframe → Dán vào đây
+          </p>
+        </div>
+
+        {/* Manual coordinate input */}
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold text-foreground mb-1">🔍 Hoặc nhập tọa độ thủ công</label>
           <div className="flex gap-2">
             <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               placeholder="Nhập tọa độ (VD: 19.758, 105.904) hoặc tên địa điểm"
@@ -1378,9 +1427,6 @@ function StoreForm({ store, onSave, onCancel }: { store: DBStore | null; onSave:
               Tìm
             </button>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">
-            💡 Nhập tọa độ "vĩ_độ, kinh_độ" để cập nhật ngay, hoặc nhập tên để mở Google Maps tìm tọa độ
-          </p>
         </div>
 
         <div><label className="block text-xs font-bold text-foreground mb-1">📍 Vĩ độ (Latitude)</label>

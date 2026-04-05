@@ -49,6 +49,15 @@ interface DBHotel {
   category: string; discount_percent: number; is_active: boolean; sort_order: number;
 }
 
+interface DBCombo {
+  id: string; name: string; slug: string; tag: string; tag_color: string;
+  category: string; description: string; product_ids: string[];
+  original_price: number; combo_price: number; image: string; images: string[];
+  is_active: boolean; sort_order: number;
+}
+  category: string; discount_percent: number; is_active: boolean; sort_order: number;
+}
+
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-800' },
   confirmed: { label: 'Đã xác nhận', color: 'bg-blue-100 text-blue-800' },

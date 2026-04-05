@@ -6,7 +6,7 @@ import {
   Plus, Edit, Trash2, LogOut, Package, Store, Settings, Eye, EyeOff, Save,
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
-  Shield, UserPlus, RefreshCw
+  Shield, UserPlus, RefreshCw, Tag, Percent
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';

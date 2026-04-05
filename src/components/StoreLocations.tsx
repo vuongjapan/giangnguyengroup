@@ -1,17 +1,21 @@
 import { MapPin, Phone, Clock, Navigation } from 'lucide-react';
-import { stores } from '@/data/stores';
+import { useStores } from '@/hooks/useStores';
 
 interface Props {
   onSelectStore?: (storeId: string) => void;
 }
 
 export default function StoreLocations({ onSelectStore }: Props) {
+  const { stores, loading } = useStores();
+
+  if (loading) return null;
+
   return (
     <section className="py-8 md:py-12 bg-card">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h2 className="section-title mx-auto">HỆ THỐNG CỬA HÀNG</h2>
-          <p className="text-muted-foreground text-sm mt-3">3 chi nhánh tại Sầm Sơn, Thanh Hóa</p>
+          <p className="text-muted-foreground text-sm mt-3">{stores.length} chi nhánh tại Sầm Sơn, Thanh Hóa</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {stores.map((store, index) => (

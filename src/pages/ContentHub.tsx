@@ -184,12 +184,20 @@ export default function ContentHub() {
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
   const { addItem } = useCart();
+  const { products: dbProducts } = useProducts();
+  const { data: dbArticles } = useSiteContent<Article[] | null>('content_blog', null);
+
+  const allProducts = dbProducts.length > 0 ? dbProducts : staticProducts;
+  const ARTICLES_LIST = dbArticles && dbArticles.length > 0 ? dbArticles : ARTICLES;
 
   // Article detail view
-  const article = slug ? ARTICLES.find(a => a.slug === slug) : null;
+  const article = slug ? ARTICLES_LIST.find(a => a.slug === slug) : null;
 
   if (article) {
-    const relatedProducts = products.filter(p => article.relatedProductIds.includes(p.id));
+    const relatedProducts = allProducts.filter(p =>
+      (article.relatedProductSlugs && article.relatedProductSlugs.includes(p.slug)) ||
+      (article.relatedProductIds && article.relatedProductIds.includes(p.id))
+    );
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />

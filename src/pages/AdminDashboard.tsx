@@ -96,6 +96,7 @@ export default function AdminDashboard() {
       supabase.channel('admin-products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts()).subscribe(),
       supabase.channel('admin-hotels').on('postgres_changes', { event: '*', schema: 'public', table: 'hotels' }, () => fetchHotels()).subscribe(),
       supabase.channel('admin-stores').on('postgres_changes', { event: '*', schema: 'public', table: 'stores' }, () => fetchStores()).subscribe(),
+      supabase.channel('admin-coupons').on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => fetchCoupons()).subscribe(),
     ];
     return () => { channels.forEach(c => supabase.removeChannel(c)); };
   }, [isAdmin]);

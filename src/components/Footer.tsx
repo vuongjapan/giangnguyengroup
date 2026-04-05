@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Phone, MapPin, Mail, Clock, Shield, Truck, RotateCcw, Award } from 'lucide-react';
-import { stores } from '@/data/stores';
+import { useStores } from '@/hooks/useStores';
+
+const FooterInner = () => {
+  const { stores } = useStores();
 
 export default function Footer() {
   return (

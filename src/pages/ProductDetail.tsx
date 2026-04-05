@@ -156,12 +156,14 @@ export default function ProductDetail() {
             </div>
 
             {/* 1. Hook */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-              <p className="font-bold text-foreground text-lg italic leading-relaxed">{desc.hook}</p>
-            </div>
+            {desc.hook && (
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                <p className="font-bold text-foreground text-lg italic leading-relaxed">{desc.hook}</p>
+              </div>
+            )}
 
             {/* 2. Intro */}
-            <p className="text-sm text-muted-foreground leading-relaxed">{desc.intro}</p>
+            {desc.intro && <p className="text-sm text-muted-foreground leading-relaxed">{desc.intro}</p>}
           </div>
         </div>
 

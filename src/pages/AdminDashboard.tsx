@@ -1324,6 +1324,21 @@ function StoreForm({ store, onSave, onCancel }: { store: DBStore | null; onSave:
     phone: store?.phone || '', hours: store?.hours || '7:00 – 21:00',
   });
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const mapPreviewSrc = `https://maps.google.com/maps?q=${form.lat},${form.lng}&z=16&output=embed`;
+
+  const handleSearchLocation = () => {
+    if (!searchQuery.trim()) return;
+    // Try to parse "lat, lng" format
+    const match = searchQuery.match(/^(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)$/);
+    if (match) {
+      setForm(f => ({ ...f, lat: Number(match[1]), lng: Number(match[2]) }));
+    } else {
+      // Open Google Maps search in new tab for user to find coordinates
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(searchQuery)}`, '_blank');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1349,13 +1364,51 @@ function StoreForm({ store, onSave, onCancel }: { store: DBStore | null; onSave:
           <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required /></div>
         <div className="md:col-span-2"><label className="block text-xs font-bold text-foreground mb-1">Địa chỉ *</label>
           <input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required /></div>
-        <div><label className="block text-xs font-bold text-foreground mb-1">Vĩ độ</label>
+        
+        {/* Location search */}
+        <div className="md:col-span-2">
+          <label className="block text-xs font-bold text-foreground mb-1">🔍 Tìm vị trí trên bản đồ</label>
+          <div className="flex gap-2">
+            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Nhập tọa độ (VD: 19.758, 105.904) hoặc tên địa điểm"
+              className="flex-1 px-3 py-2.5 rounded-lg border border-border bg-background text-sm"
+              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleSearchLocation())} />
+            <button type="button" onClick={handleSearchLocation}
+              className="px-4 py-2.5 rounded-lg text-sm font-bold bg-primary text-primary-foreground hover:opacity-90">
+              Tìm
+            </button>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            💡 Nhập tọa độ "vĩ_độ, kinh_độ" để cập nhật ngay, hoặc nhập tên để mở Google Maps tìm tọa độ
+          </p>
+        </div>
+
+        <div><label className="block text-xs font-bold text-foreground mb-1">📍 Vĩ độ (Latitude)</label>
           <input type="number" step="any" value={form.lat} onChange={e => setForm(f => ({ ...f, lat: Number(e.target.value) }))} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" /></div>
-        <div><label className="block text-xs font-bold text-foreground mb-1">Kinh độ</label>
+        <div><label className="block text-xs font-bold text-foreground mb-1">📍 Kinh độ (Longitude)</label>
           <input type="number" step="any" value={form.lng} onChange={e => setForm(f => ({ ...f, lng: Number(e.target.value) }))} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" /></div>
         <div><label className="block text-xs font-bold text-foreground mb-1">Giờ mở cửa</label>
           <input value={form.hours} onChange={e => setForm(f => ({ ...f, hours: e.target.value }))} className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" /></div>
       </div>
+
+      {/* Map Preview */}
+      <div>
+        <label className="block text-xs font-bold text-foreground mb-2">🗺️ Xem trước vị trí trên bản đồ</label>
+        <div className="rounded-xl overflow-hidden border border-border h-[250px] md:h-[300px]">
+          <iframe
+            src={mapPreviewSrc}
+            className="w-full h-full border-0"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Xem trước vị trí cửa hàng"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-1">
+          Tọa độ hiện tại: <span className="font-mono font-bold">{form.lat}, {form.lng}</span>
+        </p>
+      </div>
+
       <div className="flex gap-2">
         <button type="submit" disabled={saving} className="ocean-gradient text-primary-foreground px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90 flex items-center gap-1.5 disabled:opacity-50">
           <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
@@ -1365,7 +1418,6 @@ function StoreForm({ store, onSave, onCancel }: { store: DBStore | null; onSave:
     </form>
   );
 }
-
 // =================== CONTENT MANAGER ===================
 function ContentManager() {
   const [contentKey, setContentKey] = useState('banner');

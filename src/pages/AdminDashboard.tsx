@@ -593,7 +593,7 @@ export default function AdminDashboard() {
         {tab === 'coupons' && <CouponManager coupons={coupons} fetchCoupons={fetchCoupons} />}
 
         {/* ===== CONTENT ===== */}
-        {tab === 'content' && <ContentManager />}
+        {tab === 'content' && <ContentManagerV2 />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />}

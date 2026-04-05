@@ -4,6 +4,14 @@ import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, Chevr
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
+import { useSiteContent } from '@/hooks/useSiteContent';
+
+const DEFAULT_TICKER = [
+  '🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên',
+  '🚚 FREE SHIP toàn quốc đơn từ 500K',
+  '⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng',
+  '🎁 Mua 2 tặng 1 Nem chua Thanh Hóa',
+];
 
 const BEST_SELLERS = [
   { name: 'Mực khô loại 1', slug: 'muc-kho-loai-1' },

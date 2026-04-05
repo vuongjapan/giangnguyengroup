@@ -29,6 +29,8 @@ import StoreSystemPage from "./pages/StoreSystemPage.tsx";
 import PromotionsPage from "./pages/PromotionsPage.tsx";
 import RecipesPage from "./pages/RecipesPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
+import RecipeDetail from "./pages/RecipeDetail.tsx";
+import NewsDetail from "./pages/NewsDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

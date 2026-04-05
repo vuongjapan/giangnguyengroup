@@ -20,6 +20,15 @@ export default function ProductDetail() {
   const [activeImg, setActiveImg] = useState(0);
   const [zoomed, setZoomed] = useState(false);
 
+  if (productLoading) return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <div className="flex-1 flex items-center justify-center">
+        <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    </div>
+  );
+
   if (!product) return (
     <div className="min-h-screen flex flex-col">
       <Header />

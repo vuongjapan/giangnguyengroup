@@ -43,6 +43,7 @@ export default function Header() {
   const [mobileProductExpanded, setMobileProductExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: tickerItems } = useSiteContent<string[]>('ticker_banner', DEFAULT_TICKER);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);

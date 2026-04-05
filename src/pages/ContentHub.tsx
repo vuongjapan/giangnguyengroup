@@ -253,7 +253,7 @@ export default function ContentHub() {
   }
 
   // List view
-  const filtered = ARTICLES.filter(a => {
+  const filtered = ARTICLES_LIST.filter(a => {
     const matchCat = activeCategory === 'Tất cả' || a.category === activeCategory;
     const matchSearch = !searchQuery || a.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;

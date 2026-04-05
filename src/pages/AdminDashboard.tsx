@@ -610,21 +610,57 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
     stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
     rating: product?.rating || 5,
   });
-  const [description, setDescription] = useState(() => {
-    const d = product?.description;
-    if (!d) return '';
-    if (typeof d === 'string') return d;
-    if (typeof d === 'object') {
-      const obj = d as any;
-      return [obj.hook, obj.intro, obj.benefits, obj.highlight, obj.recipe, obj.tips, obj.storage, obj.cta]
-        .filter(Boolean).map(v => typeof v === 'string' ? v : Array.isArray(v) ? v.join('\n') : JSON.stringify(v)).join('\n\n');
-    }
-    return JSON.stringify(d);
-  });
+
+  // Structured description state
+  const desc = product?.description as any || {};
+  const [hook, setHook] = useState(desc.hook || '');
+  const [intro, setIntro] = useState(desc.intro || '');
+  const [benefits, setBenefits] = useState<string[]>(Array.isArray(desc.benefits) ? desc.benefits : []);
+  const [highlights, setHighlights] = useState({ origin: desc.highlights?.origin || '', process: desc.highlights?.process || '', packaging: desc.highlights?.packaging || '' });
+  const [cookingMethods, setCookingMethods] = useState<{name:string;detail:string}[]>(
+    Array.isArray(desc.cooking?.methods) ? desc.cooking.methods : []
+  );
+  const [cookingSuggestions, setCookingSuggestions] = useState<string[]>(
+    Array.isArray(desc.cooking?.suggestions) ? desc.cooking.suggestions : []
+  );
+  const [choosingTips, setChoosingTips] = useState<string[]>(Array.isArray(desc.choosingTips) ? desc.choosingTips : []);
+  const [realVsFakeReal, setRealVsFakeReal] = useState<string[]>(Array.isArray(desc.realVsFake?.real) ? desc.realVsFake.real : []);
+  const [realVsFakeFake, setRealVsFakeFake] = useState<string[]>(Array.isArray(desc.realVsFake?.fake) ? desc.realVsFake.fake : []);
+  const [storage, setStorage] = useState<string[]>(Array.isArray(desc.storage) ? desc.storage : []);
+  const [suitableFor, setSuitableFor] = useState<string[]>(Array.isArray(desc.suitableFor) ? desc.suitableFor : []);
+  const [specs, setSpecs] = useState({ origin: desc.specs?.origin || 'Sầm Sơn, Thanh Hóa', weight: desc.specs?.weight || '500g – 1kg', expiry: desc.specs?.expiry || '6 tháng' });
+  const [commitment, setCommitment] = useState<string[]>(Array.isArray(desc.commitment) ? desc.commitment : []);
+  const [cta, setCta] = useState(desc.cta || '');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+
   const [images, setImages] = useState<string[]>(product?.images || []);
   const [newFiles, setNewFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+
+  const toggleSection = (s: string) => setExpandedSections(prev => ({ ...prev, [s]: !prev[s] }));
+
+  // Helper for string[] fields
+  const ListEditor = ({ items, setItems, placeholder }: { items: string[]; setItems: (v: string[]) => void; placeholder: string }) => (
+    <div className="space-y-1.5">
+      {items.map((item, i) => (
+        <div key={i} className="flex gap-2">
+          <input value={item} onChange={e => { const n = [...items]; n[i] = e.target.value; setItems(n); }}
+            className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder={placeholder} />
+          <button type="button" onClick={() => setItems(items.filter((_, j) => j !== i))} className="p-2 text-destructive hover:bg-destructive/10 rounded-lg"><X className="h-3.5 w-3.5" /></button>
+        </div>
+      ))}
+      <button type="button" onClick={() => setItems([...items, ''])} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Plus className="h-3 w-3" /> Thêm</button>
+    </div>
+  );
+
+  const SectionHeader = ({ id, title, icon }: { id: string; title: string; icon: string }) => (
+    <button type="button" onClick={() => toggleSection(id)}
+      className="w-full flex items-center justify-between py-2 text-sm font-bold text-foreground hover:text-primary transition-colors">
+      <span>{icon} {title}</span>
+      {expandedSections[id] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+    </button>
+  );
 
   const uploadImages = async (files: File[]): Promise<string[]> => {
     const urls: string[] = [];
@@ -641,11 +677,8 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
   };
 
   const handleAddFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewFiles(prev => [...prev, ...Array.from(e.target.files!)]);
-    }
+    if (e.target.files) setNewFiles(prev => [...prev, ...Array.from(e.target.files!)]);
   };
-
   const removeImage = (idx: number) => setImages(prev => prev.filter((_, i) => i !== idx));
   const removeNewFile = (idx: number) => setNewFiles(prev => prev.filter((_, i) => i !== idx));
 
@@ -661,17 +694,17 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
       setUploading(false);
     }
 
-    // Parse description into structured JSON
-    const descParts = description.split('\n\n').filter(Boolean);
-    const descObj: any = {};
-    if (descParts[0]) descObj.hook = descParts[0];
-    if (descParts[1]) descObj.intro = descParts[1];
-    if (descParts[2]) descObj.benefits = descParts[2];
-    if (descParts[3]) descObj.highlight = descParts[3];
-    if (descParts[4]) descObj.recipe = descParts[4];
-    if (descParts[5]) descObj.tips = descParts[5];
-    if (descParts[6]) descObj.storage = descParts[6];
-    if (descParts[7]) descObj.cta = descParts[7];
+    const descObj = {
+      hook, intro,
+      benefits: benefits.filter(Boolean),
+      highlights,
+      cooking: { methods: cookingMethods.filter(m => m.name), suggestions: cookingSuggestions.filter(Boolean) },
+      choosingTips: choosingTips.filter(Boolean),
+      realVsFake: { real: realVsFakeReal.filter(Boolean), fake: realVsFakeFake.filter(Boolean) },
+      storage: storage.filter(Boolean),
+      suitableFor: suitableFor.filter(Boolean),
+      specs, commitment: commitment.filter(Boolean), cta,
+    };
 
     const payload = {
       name: form.name,
@@ -680,8 +713,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
       stock: Number(form.stock), rating: Number(form.rating),
       badges: form.badges ? form.badges.split(',').map(b => b.trim()).filter(Boolean) : [],
       needs: form.needs ? form.needs.split(',').map(n => n.trim()).filter(Boolean) : [],
-      images: allImages,
-      description: descObj,
+      images: allImages, description: descObj,
     };
 
     if (product) {
@@ -760,19 +792,195 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
         </div>
       </div>
 
-      {/* Description rich text */}
-      <div>
-        <label className="block text-xs font-bold text-foreground mb-1">📝 Mô tả sản phẩm (phân cách bằng dòng trống)</label>
-        <p className="text-xs text-muted-foreground mb-2">Thứ tự: Hook → Giới thiệu → Lợi ích → Điểm nổi bật → Cách chế biến → Cách chọn → Bảo quản → CTA</p>
-        <textarea value={description} onChange={e => setDescription(e.target.value)} rows={12}
-          className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono resize-y"
-          placeholder="🔥 Mực khô Sầm Sơn loại 1 – Thịt dày, ngọt tự nhiên!&#10;&#10;Mực được chọn lọc từ biển Sầm Sơn, phơi nắng tự nhiên...&#10;&#10;✅ Thịt dày, dai, ngọt tự nhiên&#10;✅ 100% không hóa chất..." />
+      {/* ===== STRUCTURED DESCRIPTION ===== */}
+      <div className="border border-border rounded-xl overflow-hidden">
+        <div className="bg-muted px-4 py-2.5">
+          <h4 className="font-bold text-sm text-foreground">📝 Mô tả chi tiết sản phẩm</h4>
+          <p className="text-xs text-muted-foreground">Bấm vào từng mục để chỉnh sửa</p>
+        </div>
+
+        <div className="divide-y divide-border">
+          {/* Hook */}
+          <div className="px-4">
+            <SectionHeader id="hook" title="Câu hook (tiêu đề hấp dẫn)" icon="🔥" />
+            {expandedSections.hook && (
+              <div className="pb-3">
+                <textarea value={hook} onChange={e => setHook(e.target.value)} rows={2}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-y"
+                  placeholder="🔥 Mực khô Sầm Sơn loại 1 – Thịt dày, ngọt tự nhiên!" />
+              </div>
+            )}
+          </div>
+
+          {/* Intro */}
+          <div className="px-4">
+            <SectionHeader id="intro" title="Giới thiệu" icon="📖" />
+            {expandedSections.intro && (
+              <div className="pb-3">
+                <textarea value={intro} onChange={e => setIntro(e.target.value)} rows={3}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-y"
+                  placeholder="Mô tả chi tiết về sản phẩm..." />
+              </div>
+            )}
+          </div>
+
+          {/* Benefits */}
+          <div className="px-4">
+            <SectionHeader id="benefits" title={`Lợi ích nổi bật (${benefits.length})`} icon="💪" />
+            {expandedSections.benefits && (
+              <div className="pb-3">
+                <ListEditor items={benefits} setItems={setBenefits} placeholder="VD: Thịt dày, dai, ngọt tự nhiên" />
+              </div>
+            )}
+          </div>
+
+          {/* Highlights */}
+          <div className="px-4">
+            <SectionHeader id="highlights" title="Điểm nổi bật" icon="✨" />
+            {expandedSections.highlights && (
+              <div className="pb-3 space-y-2">
+                <div>
+                  <label className="text-xs text-muted-foreground">📍 Nguồn gốc</label>
+                  <input value={highlights.origin} onChange={e => setHighlights(h => ({ ...h, origin: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Sầm Sơn, Thanh Hóa" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">🌞 Quy trình</label>
+                  <input value={highlights.process} onChange={e => setHighlights(h => ({ ...h, process: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Phơi nắng tự nhiên 3 ngày" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">📦 Đóng gói</label>
+                  <input value={highlights.packaging} onChange={e => setHighlights(h => ({ ...h, packaging: e.target.value }))}
+                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Hút chân không" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Cooking */}
+          <div className="px-4">
+            <SectionHeader id="cooking" title={`Cách chế biến (${cookingMethods.length} cách)`} icon="🍳" />
+            {expandedSections.cooking && (
+              <div className="pb-3 space-y-3">
+                <p className="text-xs font-medium text-foreground">Cách chế biến:</p>
+                {cookingMethods.map((m, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input value={m.name} onChange={e => { const n = [...cookingMethods]; n[i] = { ...n[i], name: e.target.value }; setCookingMethods(n); }}
+                      className="w-1/3 px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Tên (VD: Nướng)" />
+                    <input value={m.detail} onChange={e => { const n = [...cookingMethods]; n[i] = { ...n[i], detail: e.target.value }; setCookingMethods(n); }}
+                      className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Chi tiết cách làm" />
+                    <button type="button" onClick={() => setCookingMethods(cookingMethods.filter((_, j) => j !== i))} className="p-2 text-destructive hover:bg-destructive/10 rounded-lg"><X className="h-3.5 w-3.5" /></button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => setCookingMethods([...cookingMethods, { name: '', detail: '' }])} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Plus className="h-3 w-3" /> Thêm cách chế biến</button>
+
+                <p className="text-xs font-medium text-foreground mt-3">Gợi ý ăn kèm:</p>
+                <ListEditor items={cookingSuggestions} setItems={setCookingSuggestions} placeholder="VD: Xé khô nhậm bia" />
+              </div>
+            )}
+          </div>
+
+          {/* Choosing Tips */}
+          <div className="px-4">
+            <SectionHeader id="choosing" title={`Cách chọn hàng ngon (${choosingTips.length})`} icon="🔍" />
+            {expandedSections.choosing && (
+              <div className="pb-3">
+                <ListEditor items={choosingTips} setItems={setChoosingTips} placeholder="VD: Thân mực đều, không gãy nát" />
+              </div>
+            )}
+          </div>
+
+          {/* Real vs Fake */}
+          <div className="px-4">
+            <SectionHeader id="realvsfake" title="Phân biệt thật – giả" icon="⚠️" />
+            {expandedSections.realvsfake && (
+              <div className="pb-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs font-bold text-green-700 mb-2">✅ Hàng ngon chuẩn</p>
+                  <ListEditor items={realVsFakeReal} setItems={setRealVsFakeReal} placeholder="VD: Vàng nâu tự nhiên" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-destructive mb-2">⚠️ Hàng kém chất lượng</p>
+                  <ListEditor items={realVsFakeFake} setItems={setRealVsFakeFake} placeholder="VD: Trắng đục bất thường" />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Storage */}
+          <div className="px-4">
+            <SectionHeader id="storage" title={`Cách bảo quản (${storage.length})`} icon="❄️" />
+            {expandedSections.storage && (
+              <div className="pb-3">
+                <ListEditor items={storage} setItems={setStorage} placeholder="VD: Ngăn mát: 45 ngày" />
+              </div>
+            )}
+          </div>
+
+          {/* Suitable For */}
+          <div className="px-4">
+            <SectionHeader id="suitable" title={`Phù hợp với (${suitableFor.length})`} icon="👥" />
+            {expandedSections.suitable && (
+              <div className="pb-3">
+                <ListEditor items={suitableFor} setItems={setSuitableFor} placeholder="VD: Bữa cơm gia đình" />
+              </div>
+            )}
+          </div>
+
+          {/* Specs */}
+          <div className="px-4">
+            <SectionHeader id="specs" title="Thông tin sản phẩm" icon="📋" />
+            {expandedSections.specs && (
+              <div className="pb-3 space-y-2">
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Xuất xứ</label>
+                    <input value={specs.origin} onChange={e => setSpecs(s => ({ ...s, origin: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Quy cách</label>
+                    <input value={specs.weight} onChange={e => setSpecs(s => ({ ...s, weight: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Hạn dùng</label>
+                    <input value={specs.expiry} onChange={e => setSpecs(s => ({ ...s, expiry: e.target.value }))}
+                      className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Commitment */}
+          <div className="px-4">
+            <SectionHeader id="commitment" title={`Cam kết của shop (${commitment.length})`} icon="🛡️" />
+            {expandedSections.commitment && (
+              <div className="pb-3">
+                <ListEditor items={commitment} setItems={setCommitment} placeholder="VD: Mực Sầm Sơn 100%" />
+              </div>
+            )}
+          </div>
+
+          {/* CTA */}
+          <div className="px-4">
+            <SectionHeader id="cta" title="Lời kêu gọi mua hàng (CTA)" icon="🛒" />
+            {expandedSections.cta && (
+              <div className="pb-3">
+                <textarea value={cta} onChange={e => setCta(e.target.value)} rows={2}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-y"
+                  placeholder="Đặt hàng ngay hôm nay để nhận ưu đãi!" />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Images */}
       <div>
-        <label className="block text-xs font-bold text-foreground mb-2">🖼️ Ảnh sản phẩm (không giới hạn)</label>
-        {/* Existing images */}
+        <label className="block text-xs font-bold text-foreground mb-2">🖼️ Ảnh sản phẩm (chọn nhiều ảnh cùng lúc)</label>
         {images.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-3">
             {images.map((url, i) => (
@@ -787,7 +995,6 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
             ))}
           </div>
         )}
-        {/* New files preview */}
         {newFiles.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-3">
             {newFiles.map((f, i) => (
@@ -804,7 +1011,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
         )}
         <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors">
           <Upload className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">Chọn ảnh</span>
+          <span className="text-sm text-muted-foreground">Chọn nhiều ảnh</span>
           <input type="file" accept="image/*" multiple onChange={handleAddFiles} className="hidden" />
         </label>
       </div>

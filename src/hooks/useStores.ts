@@ -29,12 +29,13 @@ export function useStores() {
   useEffect(() => {
     fetchStores();
 
+    const channelName = `stores-realtime-${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel('stores-realtime')
+      .channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'stores' }, () => {
         fetchStores();
-      })
-      .subscribe();
+      });
+    channel.subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, []);

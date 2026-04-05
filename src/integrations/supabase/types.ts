@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      combos: {
+        Row: {
+          category: string
+          combo_price: number
+          created_at: string
+          description: string
+          id: string
+          image: string
+          images: string[]
+          is_active: boolean
+          name: string
+          original_price: number
+          product_ids: string[]
+          slug: string
+          sort_order: number
+          tag: string
+          tag_color: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          combo_price?: number
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          images?: string[]
+          is_active?: boolean
+          name: string
+          original_price?: number
+          product_ids?: string[]
+          slug: string
+          sort_order?: number
+          tag?: string
+          tag_color?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          combo_price?: number
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string
+          images?: string[]
+          is_active?: boolean
+          name?: string
+          original_price?: number
+          product_ids?: string[]
+          slug?: string
+          sort_order?: number
+          tag?: string
+          tag_color?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       coupons: {
         Row: {
           code: string

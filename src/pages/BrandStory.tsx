@@ -1,8 +1,24 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { CheckCircle, Award, Anchor, Sun, Heart, Fish } from 'lucide-react';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
-const TIMELINE = [
+interface BrandContent {
+  heroImage: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  storyTitle: string;
+  storyParagraphs: string[];
+  storyImage: string;
+  yearsExperience: string;
+  values: { icon: string; title: string; desc: string }[];
+  timeline: { year: string; title: string; desc: string }[];
+  certifications: { icon: string; title: string; desc: string }[];
+  ctaTitle: string;
+  ctaDescription: string;
+}
+
+const DEFAULT_TIMELINE = [
   { year: '2014', title: 'Khởi đầu từ biển', desc: 'Gia đình ngư dân Sầm Sơn bắt đầu phơi mực, cá khô bán cho du khách.' },
   { year: '2017', title: 'Thương hiệu đầu tiên', desc: 'Chính thức thành lập GIANG NGUYEN SEAFOOD, mở cửa hàng tại Sầm Sơn.' },
   { year: '2019', title: 'Mở rộng toàn quốc', desc: 'Ship hàng toàn quốc, phục vụ hàng nghìn khách hàng từ Hà Nội đến TP.HCM.' },
@@ -11,11 +27,18 @@ const TIMELINE = [
   { year: '2024', title: 'Chuyển đổi số', desc: 'Ra mắt website bán hàng, AI chatbot tư vấn, QR truy xuất nguồn gốc.' },
 ];
 
-const VALUES = [
-  { icon: Anchor, title: 'Chính gốc Sầm Sơn', desc: 'Mỗi sản phẩm đều từ biển Sầm Sơn, không pha trộn hàng nơi khác.' },
-  { icon: Sun, title: 'Phơi nắng tự nhiên', desc: 'Quy trình phơi nắng truyền thống trên giàn tre, không sấy công nghiệp.' },
-  { icon: Heart, title: 'Tâm huyết gia truyền', desc: 'Bí quyết chế biến được truyền lại qua nhiều thế hệ ngư dân.' },
-  { icon: Fish, title: 'Chọn lọc kỹ lưỡng', desc: 'Chỉ chọn những con hải sản tươi nhất, đạt chuẩn kích thước và chất lượng.' },
+const DEFAULT_VALUES = [
+  { icon: '⚓', title: 'Chính gốc Sầm Sơn', desc: 'Mỗi sản phẩm đều từ biển Sầm Sơn, không pha trộn hàng nơi khác.' },
+  { icon: '☀️', title: 'Phơi nắng tự nhiên', desc: 'Quy trình phơi nắng truyền thống trên giàn tre, không sấy công nghiệp.' },
+  { icon: '❤️', title: 'Tâm huyết gia truyền', desc: 'Bí quyết chế biến được truyền lại qua nhiều thế hệ ngư dân.' },
+  { icon: '🐟', title: 'Chọn lọc kỹ lưỡng', desc: 'Chỉ chọn những con hải sản tươi nhất, đạt chuẩn kích thước và chất lượng.' },
+];
+
+const DEFAULT_CERTS = [
+  { icon: '🏅', title: 'Chứng nhận ATTP', desc: 'An toàn Thực phẩm' },
+  { icon: '⭐', title: 'OCOP 4 sao', desc: 'Sản phẩm đặc trưng' },
+  { icon: '🛡️', title: 'Tem chống giả', desc: 'QR truy xuất nguồn gốc' },
+  { icon: '🏆', title: 'Top Thương hiệu', desc: 'Hải sản Sầm Sơn' },
 ];
 
 export default function BrandStory() {

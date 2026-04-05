@@ -1,12 +1,32 @@
 import { useState, useEffect } from 'react';
 import { X, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 const EXIT_KEY = 'gn-exit-shown';
+
+interface ExitPopupConfig {
+  title: string;
+  subtitle: string;
+  discountText: string;
+  couponCode: string;
+  buttonText: string;
+  isActive: boolean;
+}
+
+const DEFAULT_CONFIG: ExitPopupConfig = {
+  title: 'KHOAN ĐÃ!',
+  subtitle: 'Đừng bỏ lỡ ưu đãi này nhé!',
+  discountText: 'Giảm thêm 5% cho bạn!',
+  couponCode: 'QUAYLAIGIAM5',
+  buttonText: 'XEM SẢN PHẨM NGAY',
+  isActive: true,
+};
 
 export default function ExitIntentPopup() {
   const [show, setShow] = useState(false);
   const { items, totalPrice, setIsOpen } = useCart();
+  const { data: config } = useSiteContent<ExitPopupConfig>('exit_popup', DEFAULT_CONFIG);
 
   useEffect(() => {
     const handleMouseLeave = (e: MouseEvent) => {
@@ -16,7 +36,6 @@ export default function ExitIntentPopup() {
       }
     };
 
-    // Reset every 24h
     const lastShown = localStorage.getItem(EXIT_KEY);
     if (lastShown && Date.now() - parseInt(lastShown) > 86400000) {
       localStorage.removeItem(EXIT_KEY);
@@ -26,7 +45,7 @@ export default function ExitIntentPopup() {
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, []);
 
-  if (!show) return null;
+  if (!show || config.isActive === false) return null;
 
   const hasCartItems = items.length > 0;
 
@@ -39,8 +58,8 @@ export default function ExitIntentPopup() {
 
         <div className="coral-gradient p-6 text-center">
           <p className="text-4xl mb-2">😢</p>
-          <h3 className="text-xl font-black text-primary-foreground">KHOAN ĐÃ!</h3>
-          <p className="text-primary-foreground/80 text-sm mt-1">Đừng bỏ lỡ ưu đãi này nhé!</p>
+          <h3 className="text-xl font-black text-primary-foreground">{config.title || 'KHOAN ĐÃ!'}</h3>
+          <p className="text-primary-foreground/80 text-sm mt-1">{config.subtitle || 'Đừng bỏ lỡ ưu đãi này nhé!'}</p>
         </div>
 
         <div className="p-6 text-center">
@@ -60,14 +79,14 @@ export default function ExitIntentPopup() {
             </>
           ) : (
             <>
-              <p className="text-lg font-bold text-foreground mb-2">Giảm thêm 5% cho bạn!</p>
-              <p className="text-sm text-muted-foreground mb-4">Dùng mã <strong className="text-primary">QUAYLAIGIAM5</strong> khi đặt hàng</p>
+              <p className="text-lg font-bold text-foreground mb-2">{config.discountText || 'Giảm thêm 5% cho bạn!'}</p>
+              <p className="text-sm text-muted-foreground mb-4">Dùng mã <strong className="text-primary">{config.couponCode || 'QUAYLAIGIAM5'}</strong> khi đặt hàng</p>
               <a
-                href="#products"
+                href="/san-pham"
                 onClick={() => setShow(false)}
                 className="inline-block w-full ocean-gradient text-primary-foreground font-bold py-3 rounded-lg text-sm hover:opacity-90 text-center"
               >
-                XEM SẢN PHẨM NGAY
+                {config.buttonText || 'XEM SẢN PHẨM NGAY'}
               </a>
             </>
           )}

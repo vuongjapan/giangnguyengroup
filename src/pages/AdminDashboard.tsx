@@ -76,12 +76,15 @@ export default function AdminDashboard() {
   const [members, setMembers] = useState<DBProfile[]>([]);
   const [hotels, setHotels] = useState<DBHotel[]>([]);
   const [coupons, setCoupons] = useState<DBCoupon[]>([]);
+  const [combos, setCombos] = useState<DBCombo[]>([]);
   const [editingProduct, setEditingProduct] = useState<DBProduct | null>(null);
   const [editingStore, setEditingStore] = useState<DBStore | null>(null);
   const [editingHotel, setEditingHotel] = useState<DBHotel | null>(null);
+  const [editingCombo, setEditingCombo] = useState<DBCombo | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
   const [showStoreForm, setShowStoreForm] = useState(false);
   const [showHotelForm, setShowHotelForm] = useState(false);
+  const [showComboForm, setShowComboForm] = useState(false);
   const [orderFilter, setOrderFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 

@@ -154,7 +154,7 @@ export default function ContentManagerV2() {
     { key: 'news', label: '📰 Tin tức', desc: 'Tin tức & sự kiện' },
     { key: 'blog', label: '📚 Blog', desc: 'Bài viết kiến thức' },
     { key: 'brand', label: '📖 Giới thiệu', desc: 'Câu chuyện thương hiệu' },
-    { key: 'banner', label: '🖼️ Banner', desc: 'Banner trang chủ' },
+    { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
     { key: 'policy', label: '📋 Chính sách', desc: 'Chính sách bán hàng' },
     { key: 'contact', label: '📞 Liên hệ', desc: 'Thông tin liên hệ' },
     { key: 'footer', label: '🔻 Footer', desc: 'Chân trang' },

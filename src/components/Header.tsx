@@ -4,6 +4,14 @@ import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, Chevr
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { products, formatPrice, categories } from '@/data/products';
+import { useSiteContent } from '@/hooks/useSiteContent';
+
+const DEFAULT_TICKER = [
+  '🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên',
+  '🚚 FREE SHIP toàn quốc đơn từ 500K',
+  '⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng',
+  '🎁 Mua 2 tặng 1 Nem chua Thanh Hóa',
+];
 
 const BEST_SELLERS = [
   { name: 'Mực khô loại 1', slug: 'muc-kho-loai-1' },
@@ -35,6 +43,7 @@ export default function Header() {
   const [mobileProductExpanded, setMobileProductExpanded] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: tickerItems } = useSiteContent<string[]>('ticker_banner', DEFAULT_TICKER);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -58,14 +67,12 @@ export default function Header() {
       <div className="bg-coral text-primary-foreground py-1 overflow-hidden">
         <div className="promo-ticker">
           <div className="promo-ticker-content text-xs font-medium">
-            🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên &nbsp;&nbsp;|&nbsp;&nbsp;
-            🚚 FREE SHIP toàn quốc đơn từ 500K &nbsp;&nbsp;|&nbsp;&nbsp;
-            ⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng &nbsp;&nbsp;|&nbsp;&nbsp;
-            🎁 Mua 2 tặng 1 Nem chua Thanh Hóa &nbsp;&nbsp;|&nbsp;&nbsp;
-            🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên &nbsp;&nbsp;|&nbsp;&nbsp;
-            🚚 FREE SHIP toàn quốc đơn từ 500K &nbsp;&nbsp;|&nbsp;&nbsp;
-            ⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng &nbsp;&nbsp;|&nbsp;&nbsp;
-            🎁 Mua 2 tặng 1 Nem chua Thanh Hóa &nbsp;&nbsp;|&nbsp;&nbsp;
+            {(tickerItems || DEFAULT_TICKER).map((t, i) => (
+              <span key={i}>{t} &nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            ))}
+            {(tickerItems || DEFAULT_TICKER).map((t, i) => (
+              <span key={`dup-${i}`}>{t} &nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            ))}
           </div>
         </div>
       </div>

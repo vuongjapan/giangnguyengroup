@@ -252,6 +252,8 @@ export default function ContentManagerV2() {
         {section === 'hero' && <HeroEditor />}
         {section === 'policy' && <PolicyEditor />}
         {section === 'contact' && <ContactEditor />}
+        {section === 'ticker' && <TickerEditor />}
+        {section === 'exit_popup' && <ExitPopupEditor />}
         {section === 'footer' && <SimpleEditor contentKey="footer" />}
       </div>
     </div>

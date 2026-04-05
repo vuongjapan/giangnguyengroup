@@ -42,6 +42,24 @@ const DEFAULT_CERTS = [
 ];
 
 export default function BrandStory() {
+  const { data: dbBrand } = useSiteContent<BrandContent | null>('content_brand', null);
+
+  const heroImage = dbBrand?.heroImage || 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&h=600&fit=crop';
+  const heroTitle = dbBrand?.heroTitle || 'Về Giang Nguyen Seafood';
+  const heroSubtitle = dbBrand?.heroSubtitle || 'Hành trình từ ngư dân Sầm Sơn đến thương hiệu hải sản khô cao cấp số 1';
+  const storyTitle = dbBrand?.storyTitle || 'Từ biển khơi đến bàn ăn';
+  const storyParagraphs = dbBrand?.storyParagraphs?.length ? dbBrand.storyParagraphs : [
+    'Sinh ra và lớn lên bên bờ biển Sầm Sơn, chúng tôi hiểu rõ từng con sóng, từng mùa cá. Mỗi ngày, khi tàu cá cập bến lúc rạng sáng, chúng tôi tự tay chọn lựa những con hải sản tươi ngon nhất – mực căng bóng, cá thu mắt trong, tôm đỏ au.',
+    'Rồi nắng lên, từng mẻ hải sản được phơi trên giàn tre truyền thống, hứng trọn nắng gió biển Sầm Sơn. Không máy sấy, không hóa chất – chỉ có nắng, gió và tâm huyết của người làm nghề.',
+    'Đó là cách mà Giang Nguyen Seafood ra đời – từ tình yêu biển cả, từ sự trân trọng hương vị tự nhiên, và từ mong muốn mang đặc sản biển Sầm Sơn đến mọi gia đình Việt.',
+  ];
+  const storyImage = dbBrand?.storyImage || 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=500&fit=crop';
+  const yearsExp = dbBrand?.yearsExperience || '10+';
+  const VALUES = dbBrand?.values?.length ? dbBrand.values : DEFAULT_VALUES;
+  const TIMELINE = dbBrand?.timeline?.length ? dbBrand.timeline : DEFAULT_TIMELINE;
+  const CERTS = dbBrand?.certifications?.length ? dbBrand.certifications : DEFAULT_CERTS;
+  const ctaTitle = dbBrand?.ctaTitle || 'Trải nghiệm hương vị biển Sầm Sơn';
+  const ctaDesc = dbBrand?.ctaDescription || 'Đặt hàng ngay hôm nay để thưởng thức hải sản khô chính gốc, phơi nắng tự nhiên';
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />

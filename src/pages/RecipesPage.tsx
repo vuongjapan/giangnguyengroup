@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { ChefHat, ShoppingCart, Clock, Users, Flame } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { products, formatPrice } from '@/data/products';
+import { products as staticProducts, formatPrice } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 interface Recipe {
   id: string;

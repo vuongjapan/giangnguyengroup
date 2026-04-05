@@ -66,58 +66,30 @@ export default function BrandStory() {
 
       {/* Hero */}
       <section className="relative h-64 md:h-96 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&h=600&fit=crop"
-          alt="Biển Sầm Sơn"
-          className="w-full h-full object-cover"
-        />
+        <img src={heroImage} alt="Biển Sầm Sơn" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
         <div className="absolute inset-0 flex items-center">
           <div className="container mx-auto px-4">
-            <span className="inline-block bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full mb-3">
-              🏆 CÂU CHUYỆN THƯƠNG HIỆU
-            </span>
-            <h1 className="text-3xl md:text-5xl font-black text-primary-foreground leading-tight mb-2">
-              Về Giang Nguyen Seafood
-            </h1>
-            <p className="text-primary-foreground/80 text-sm md:text-base max-w-lg">
-              Hành trình từ ngư dân Sầm Sơn đến thương hiệu hải sản khô cao cấp số 1
-            </p>
+            <span className="inline-block bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full mb-3">🏆 CÂU CHUYỆN THƯƠNG HIỆU</span>
+            <h1 className="text-3xl md:text-5xl font-black text-primary-foreground leading-tight mb-2">{heroTitle}</h1>
+            <p className="text-primary-foreground/80 text-sm md:text-base max-w-lg">{heroSubtitle}</p>
           </div>
         </div>
       </section>
 
-      {/* Story intro */}
       <section className="py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div>
-              <h2 className="section-title mb-4">Từ biển khơi đến bàn ăn</h2>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Sinh ra và lớn lên bên bờ biển Sầm Sơn, chúng tôi hiểu rõ từng con sóng, từng mùa cá. 
-                Mỗi ngày, khi tàu cá cập bến lúc rạng sáng, chúng tôi tự tay chọn lựa những con hải sản 
-                tươi ngon nhất – mực căng bóng, cá thu mắt trong, tôm đỏ au.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Rồi nắng lên, từng mẻ hải sản được phơi trên giàn tre truyền thống, hứng trọn nắng gió 
-                biển Sầm Sơn. Không máy sấy, không hóa chất – chỉ có nắng, gió và tâm huyết của người 
-                làm nghề.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Đó là cách mà <strong className="text-foreground">Giang Nguyen Seafood</strong> ra đời – 
-                từ tình yêu biển cả, từ sự trân trọng hương vị tự nhiên, và từ mong muốn mang đặc sản 
-                biển Sầm Sơn đến mọi gia đình Việt.
-              </p>
+              <h2 className="section-title mb-4">{storyTitle}</h2>
+              {storyParagraphs.map((p, i) => (
+                <p key={i} className="text-muted-foreground leading-relaxed mb-4">{p}</p>
+              ))}
             </div>
             <div className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=500&fit=crop"
-                alt="Phơi hải sản truyền thống"
-                className="rounded-2xl shadow-xl w-full h-80 object-cover"
-                loading="lazy"
-              />
+              <img src={storyImage} alt="Phơi hải sản truyền thống" className="rounded-2xl shadow-xl w-full h-80 object-cover" loading="lazy" />
               <div className="absolute -bottom-4 -left-4 bg-accent text-accent-foreground rounded-xl px-5 py-3 shadow-lg hidden md:block">
-                <p className="text-3xl font-black">10+</p>
+                <p className="text-3xl font-black">{yearsExp}</p>
                 <p className="text-xs font-bold">Năm kinh nghiệm</p>
               </div>
             </div>

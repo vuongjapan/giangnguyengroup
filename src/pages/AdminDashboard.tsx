@@ -55,8 +55,6 @@ interface DBCombo {
   original_price: number; combo_price: number; image: string; images: string[];
   is_active: boolean; sort_order: number;
 }
-  category: string; discount_percent: number; is_active: boolean; sort_order: number;
-}
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-800' },

@@ -67,14 +67,12 @@ export default function Header() {
       <div className="bg-coral text-primary-foreground py-1 overflow-hidden">
         <div className="promo-ticker">
           <div className="promo-ticker-content text-xs font-medium">
-            🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên &nbsp;&nbsp;|&nbsp;&nbsp;
-            🚚 FREE SHIP toàn quốc đơn từ 500K &nbsp;&nbsp;|&nbsp;&nbsp;
-            ⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng &nbsp;&nbsp;|&nbsp;&nbsp;
-            🎁 Mua 2 tặng 1 Nem chua Thanh Hóa &nbsp;&nbsp;|&nbsp;&nbsp;
-            🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên &nbsp;&nbsp;|&nbsp;&nbsp;
-            🚚 FREE SHIP toàn quốc đơn từ 500K &nbsp;&nbsp;|&nbsp;&nbsp;
-            ⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng &nbsp;&nbsp;|&nbsp;&nbsp;
-            🎁 Mua 2 tặng 1 Nem chua Thanh Hóa &nbsp;&nbsp;|&nbsp;&nbsp;
+            {(tickerItems || DEFAULT_TICKER).map((t, i) => (
+              <span key={i}>{t} &nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            ))}
+            {(tickerItems || DEFAULT_TICKER).map((t, i) => (
+              <span key={`dup-${i}`}>{t} &nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            ))}
           </div>
         </div>
       </div>

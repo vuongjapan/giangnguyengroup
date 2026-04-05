@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Flame, Clock } from 'lucide-react';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 interface TimeLeft {
   hours: number;
@@ -27,13 +28,14 @@ export default function FlashSaleBanner() {
   const [endTime] = useState(getEndOfDay);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(endTime));
   const [dismissed, setDismissed] = useState(false);
+  const { data: flashSale } = useSiteContent('promo_flash_sale', { title: 'FLASH SALE HÔM NAY', maxDiscount: '20', isActive: true });
 
   useEffect(() => {
     const interval = setInterval(() => setTimeLeft(getTimeLeft(endTime)), 1000);
     return () => clearInterval(interval);
   }, [endTime]);
 
-  if (dismissed) return null;
+  if (dismissed || flashSale.isActive === false) return null;
 
   const pad = (n: number) => n.toString().padStart(2, '0');
 
@@ -41,9 +43,9 @@ export default function FlashSaleBanner() {
     <div className="bg-destructive text-destructive-foreground relative overflow-hidden">
       <div className="container mx-auto px-4 py-2 flex items-center justify-center gap-3 text-xs md:text-sm">
         <Flame className="h-4 w-4 animate-pulse-soft flex-shrink-0" />
-        <span className="font-bold">FLASH SALE HÔM NAY</span>
+        <span className="font-bold">{flashSale.title || 'FLASH SALE HÔM NAY'}</span>
         <span className="hidden sm:inline">–</span>
-        <span className="hidden sm:inline">Giảm đến 20%</span>
+        <span className="hidden sm:inline">Giảm đến {flashSale.maxDiscount || '20'}%</span>
         <div className="flex items-center gap-1 font-mono font-bold">
           <Clock className="h-3.5 w-3.5 mr-0.5" />
           <span className="bg-black/20 px-1.5 py-0.5 rounded">{pad(timeLeft.hours)}</span>:

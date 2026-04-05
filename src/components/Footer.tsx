@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Phone, MapPin, Mail, Clock, Shield, Truck, RotateCcw, Award } from 'lucide-react';
-import { stores } from '@/data/stores';
 
 export default function Footer() {
   return (
@@ -32,24 +31,15 @@ export default function Footer() {
       {/* Main footer */}
       <div className="ocean-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
           <div className="md:col-span-1">
             <h3 className="text-xl font-black mb-2">GIANG NGUYEN <span className="text-accent">SEAFOOD</span></h3>
             <p className="text-sm text-primary-foreground/80 mb-4">Chuyên hải sản khô đặc sản biển Sầm Sơn – Cao cấp – Quà biếu – Du lịch</p>
             <div className="flex gap-2">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-sm font-bold transition-colors">
-                FB
-              </a>
-              <a href="https://zalo.me/0123456789" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-sm font-bold transition-colors">
-                Zalo
-              </a>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-sm font-bold transition-colors">
-                TT
-              </a>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-sm font-bold transition-colors">FB</a>
+              <a href="https://zalo.me/0123456789" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-sm font-bold transition-colors">Zalo</a>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-sm font-bold transition-colors">TT</a>
             </div>
           </div>
-
-          {/* Quick links */}
           <div>
             <h4 className="font-bold mb-3 text-accent">Danh mục</h4>
             <div className="space-y-2 text-sm text-primary-foreground/80">
@@ -59,8 +49,6 @@ export default function Footer() {
               <Link to="/combo" className="block hover:text-primary-foreground transition-colors">Combo quà biếu</Link>
             </div>
           </div>
-
-          {/* Info links */}
           <div>
             <h4 className="font-bold mb-3 text-accent">Thông tin</h4>
             <div className="space-y-2 text-sm text-primary-foreground/80">
@@ -70,27 +58,16 @@ export default function Footer() {
               <Link to="/auth" className="block hover:text-primary-foreground transition-colors">Đăng ký thành viên</Link>
             </div>
           </div>
-
-          {/* Contact */}
           <div>
             <h4 className="font-bold mb-3 text-accent">Liên hệ</h4>
             <div className="space-y-2.5 text-sm text-primary-foreground/80">
-              <a href="tel:0123456789" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
-                <Phone className="h-4 w-4 flex-shrink-0" /> 0123.456.789
-              </a>
-              <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors">
-                <Mail className="h-4 w-4 flex-shrink-0" /> giangnguyendriedseafood@gmail.com
-              </a>
-              <p className="flex items-center gap-2">
-                <Clock className="h-4 w-4 flex-shrink-0" /> 7:00 – 21:00 hàng ngày
-              </p>
-              <p className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 flex-shrink-0" /> Sầm Sơn, Thanh Hóa
-              </p>
+              <a href="tel:0123456789" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Phone className="h-4 w-4 flex-shrink-0" /> 0123.456.789</a>
+              <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Mail className="h-4 w-4 flex-shrink-0" /> giangnguyendriedseafood@gmail.com</a>
+              <p className="flex items-center gap-2"><Clock className="h-4 w-4 flex-shrink-0" /> 7:00 – 21:00 hàng ngày</p>
+              <p className="flex items-center gap-2"><MapPin className="h-4 w-4 flex-shrink-0" /> Sầm Sơn, Thanh Hóa</p>
             </div>
           </div>
         </div>
-
         <div className="border-t border-primary-foreground/20 py-4 text-center text-xs text-primary-foreground/60">
           © 2024 Giang Nguyen Seafood. All rights reserved. | Đặc sản biển Sầm Sơn chính gốc.
         </div>

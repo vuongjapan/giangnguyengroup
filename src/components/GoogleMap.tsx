@@ -1,26 +1,23 @@
 import { useState } from 'react';
 import { MapPin, Navigation, X } from 'lucide-react';
-import { stores, Store } from '@/data/stores';
+import { useStores, StoreDB } from '@/hooks/useStores';
 
 interface Props {
   focusStoreId?: string | null;
 }
 
 export default function GoogleMap({ focusStoreId }: Props) {
-  const [selectedStore, setSelectedStore] = useState<Store | null>(
-    focusStoreId ? stores.find(s => s.id === focusStoreId) || null : null
-  );
+  const { stores } = useStores();
+  const [selectedStore, setSelectedStore] = useState<StoreDB | null>(null);
 
-  const center = selectedStore
-    ? { lat: selectedStore.lat, lng: selectedStore.lng }
+  // Sync focusStoreId
+  const active = selectedStore || (focusStoreId ? stores.find(s => s.id === focusStoreId) || null : null);
+
+  const center = active
+    ? { lat: active.lat, lng: active.lng }
     : { lat: 19.755, lng: 105.904 };
 
-  const zoom = selectedStore ? 16 : 14;
-
-  // Build markers query for Google Maps embed
-  const markersQuery = stores
-    .map(s => `${s.lat},${s.lng}`)
-    .join('|');
+  const zoom = active ? 16 : 14;
 
   const mapSrc = `https://maps.google.com/maps?q=${center.lat},${center.lng}&z=${zoom}&output=embed`;
 
@@ -47,15 +44,15 @@ export default function GoogleMap({ focusStoreId }: Props) {
           {stores.map((store, i) => (
             <button
               key={store.id}
-              onClick={() => setSelectedStore(store.id === selectedStore?.id ? null : store)}
+              onClick={() => setSelectedStore(store.id === active?.id ? null : store)}
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium shadow-lg transition-all text-left ${
-                selectedStore?.id === store.id
+                active?.id === store.id
                   ? 'ocean-gradient text-primary-foreground'
                   : 'bg-card text-foreground hover:bg-muted border border-border'
               }`}
             >
               <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold ${
-                selectedStore?.id === store.id ? 'bg-accent text-accent-foreground' : 'ocean-gradient text-primary-foreground'
+                active?.id === store.id ? 'bg-accent text-accent-foreground' : 'ocean-gradient text-primary-foreground'
               }`}>
                 {i + 1}
               </div>
@@ -65,20 +62,20 @@ export default function GoogleMap({ focusStoreId }: Props) {
         </div>
 
         {/* Selected store info popup */}
-        {selectedStore && (
+        {active && (
           <div className="absolute bottom-3 left-3 right-3 md:left-auto md:right-3 md:w-80 bg-card rounded-xl shadow-2xl border border-border p-4 z-10 animate-fade-in">
             <div className="flex items-start justify-between mb-2">
-              <h3 className="font-bold text-foreground text-sm">{selectedStore.name}</h3>
+              <h3 className="font-bold text-foreground text-sm">{active.name}</h3>
               <button onClick={() => setSelectedStore(null)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <p className="text-xs text-muted-foreground flex items-start gap-1.5 mb-3">
               <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-primary" />
-              {selectedStore.address}
+              {active.address}
             </p>
             <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${selectedStore.lat},${selectedStore.lng}`}
+              href={`https://www.google.com/maps/dir/?api=1&destination=${active.lat},${active.lng}`}
               target="_blank"
               rel="noopener noreferrer"
               className="ocean-gradient text-primary-foreground font-bold text-xs px-4 py-2 rounded-full inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity"

@@ -436,6 +436,54 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* ===== COMBOS ===== */}
+        {tab === 'combos' && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-foreground">Quản lý Combo Quà Biếu ({combos.length})</h2>
+              <button onClick={() => { setEditingCombo(null); setShowComboForm(true); }}
+                className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
+                <Plus className="h-4 w-4" /> Thêm Combo
+              </button>
+            </div>
+            {showComboForm && (
+              <ComboForm combo={editingCombo} products={products} onSave={() => { setShowComboForm(false); fetchCombos(); }} onCancel={() => setShowComboForm(false)} />
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {combos.map(c => (
+                <div key={c.id} className={`bg-card rounded-xl border border-border overflow-hidden ${!c.is_active ? 'opacity-50' : ''}`}>
+                  {(c.image || c.images[0]) && <img src={c.image || c.images[0]} alt={c.name} className="w-full h-36 object-cover" />}
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      {c.tag && <span className={`${c.tag_color} px-2 py-0.5 rounded-full text-xs font-bold`}>{c.tag}</span>}
+                      <span className="text-xs text-muted-foreground">{c.category}</span>
+                    </div>
+                    <h3 className="font-bold text-foreground mb-1">{c.name}</h3>
+                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{c.description}</p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs text-muted-foreground line-through">{formatPrice(c.original_price)}</span>
+                      <span className="text-sm font-black text-coral">{formatPrice(c.combo_price)}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => toggleComboActive(c)} className={`text-xs font-medium px-2 py-1 rounded ${c.is_active ? 'bg-green-100 text-green-800' : 'bg-muted text-muted-foreground'}`}>
+                        {c.is_active ? '✅ Hiện' : '⬜ Ẩn'}
+                      </button>
+                      <button onClick={() => { setEditingCombo(c); setShowComboForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
+                      <button onClick={() => deleteCombo(c.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {combos.length === 0 && (
+                <div className="col-span-full text-center py-12 text-muted-foreground">
+                  <Gift className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                  <p>Chưa có combo nào. Bấm "Thêm Combo" để tạo!</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* ===== HOTELS ===== */}
         {tab === 'hotels' && (
           <div>

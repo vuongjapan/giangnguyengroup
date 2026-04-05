@@ -178,7 +178,8 @@ export default function ContentManagerV2() {
         {section === 'news' && <NewsEditor />}
         {section === 'blog' && <BlogEditor />}
         {section === 'brand' && <BrandEditor />}
-        {(section === 'banner' || section === 'policy' || section === 'contact' || section === 'footer') && <SimpleEditor contentKey={section} />}
+        {section === 'hero' && <HeroEditor />}
+        {(section === 'policy' || section === 'contact' || section === 'footer') && <SimpleEditor contentKey={section} />}
       </div>
     </div>
   );

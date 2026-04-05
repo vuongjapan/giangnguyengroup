@@ -68,6 +68,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<DBOrder[]>([]);
   const [members, setMembers] = useState<DBProfile[]>([]);
   const [hotels, setHotels] = useState<DBHotel[]>([]);
+  const [coupons, setCoupons] = useState<DBCoupon[]>([]);
   const [editingProduct, setEditingProduct] = useState<DBProduct | null>(null);
   const [editingStore, setEditingStore] = useState<DBStore | null>(null);
   const [editingHotel, setEditingHotel] = useState<DBHotel | null>(null);

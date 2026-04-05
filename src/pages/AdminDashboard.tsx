@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
+import ContentManagerV2 from '@/components/admin/ContentManagerV2';
 
 type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'content' | 'settings';
 
@@ -593,7 +594,7 @@ export default function AdminDashboard() {
         {tab === 'coupons' && <CouponManager coupons={coupons} fetchCoupons={fetchCoupons} />}
 
         {/* ===== CONTENT ===== */}
-        {tab === 'content' && <ContentManager />}
+        {tab === 'content' && <ContentManagerV2 />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />}

@@ -3,8 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Search, Clock, Eye, ChevronRight, BookOpen, ShieldCheck, Fish, Calendar, Compass, ShoppingCart, ArrowLeft } from 'lucide-react';
-import { products, formatPrice } from '@/data/products';
+import { products as staticProducts, formatPrice } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 interface Article {
   id: string;
@@ -17,7 +19,8 @@ interface Article {
   readTime: string;
   views: number;
   date: string;
-  relatedProductIds: string[];
+  relatedProductIds?: string[];
+  relatedProductSlugs?: string[];
   metaTitle: string;
   metaDescription: string;
 }
@@ -182,12 +185,20 @@ export default function ContentHub() {
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [searchQuery, setSearchQuery] = useState('');
   const { addItem } = useCart();
+  const { products: dbProducts } = useProducts();
+  const { data: dbArticles } = useSiteContent<Article[] | null>('content_blog', null);
+
+  const allProducts = dbProducts.length > 0 ? dbProducts : staticProducts;
+  const ARTICLES_LIST = dbArticles && dbArticles.length > 0 ? dbArticles : ARTICLES;
 
   // Article detail view
-  const article = slug ? ARTICLES.find(a => a.slug === slug) : null;
+  const article = slug ? ARTICLES_LIST.find(a => a.slug === slug) : null;
 
   if (article) {
-    const relatedProducts = products.filter(p => article.relatedProductIds.includes(p.id));
+    const relatedProducts = allProducts.filter(p =>
+      (article.relatedProductSlugs && article.relatedProductSlugs.includes(p.slug)) ||
+      (article.relatedProductIds && article.relatedProductIds.includes(p.id))
+    );
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
@@ -242,7 +253,7 @@ export default function ContentHub() {
   }
 
   // List view
-  const filtered = ARTICLES.filter(a => {
+  const filtered = ARTICLES_LIST.filter(a => {
     const matchCat = activeCategory === 'Tất cả' || a.category === activeCategory;
     const matchSearch = !searchQuery || a.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchCat && matchSearch;

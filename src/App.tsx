@@ -10,7 +10,6 @@ import CartDrawer from "@/components/CartDrawer";
 import ChatBot from "@/components/ChatBot";
 import FloatingButtons from "@/components/FloatingButtons";
 import TrackingPixels from "@/components/TrackingPixels";
-import WelcomePopup from "@/components/WelcomePopup";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Index from "./pages/Index.tsx";
 import ProductsPage from "./pages/ProductsPage.tsx";
@@ -72,7 +71,6 @@ const App = () => (
               <CartDrawer />
               <ChatBot />
               <FloatingButtons />
-              <WelcomePopup />
               <ExitIntentPopup />
             </BrowserRouter>
           </HotelProvider>

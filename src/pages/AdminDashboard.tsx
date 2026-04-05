@@ -121,6 +121,10 @@ export default function AdminDashboard() {
     const { data } = await supabase.from('hotels').select('*').order('sort_order');
     if (data) setHotels(data as unknown as DBHotel[]);
   };
+  const fetchCoupons = async () => {
+    const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+    if (data) setCoupons(data as unknown as DBCoupon[]);
+  };
 
   const deleteProduct = async (id: string) => {
     if (!confirm('Xóa sản phẩm này?')) return;

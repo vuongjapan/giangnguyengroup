@@ -164,6 +164,15 @@ export default function AdminDashboard() {
     await supabase.from('hotels').update({ is_active: !h.is_active }).eq('id', h.id);
     fetchHotels();
   };
+  const deleteCombo = async (id: string) => {
+    if (!confirm('Xóa combo này?')) return;
+    await supabase.from('combos').delete().eq('id', id);
+    toast.success('Đã xóa'); fetchCombos();
+  };
+  const toggleComboActive = async (c: DBCombo) => {
+    await supabase.from('combos').update({ is_active: !c.is_active }).eq('id', c.id);
+    fetchCombos();
+  };
   const updateOrderStatus = async (id: string, status: string) => {
     await supabase.from('orders').update({ status }).eq('id', id);
     toast.success('Đã cập nhật trạng thái'); fetchOrders();

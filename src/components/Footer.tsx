@@ -100,4 +100,8 @@ export default function Footer() {
       </div>
     </footer>
   );
+};
+
+export default function Footer() {
+  return <FooterInner />;
 }

@@ -6,12 +6,18 @@ import {
   Plus, Edit, Trash2, LogOut, Package, Store, Settings, Eye, EyeOff, Save,
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
-  Shield, UserPlus, RefreshCw
+  Shield, UserPlus, RefreshCw, Tag, Percent
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
 
-type Tab = 'dashboard' | 'products' | 'orders' | 'members' | 'stores' | 'hotels' | 'content' | 'settings';
+type Tab = 'dashboard' | 'products' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'content' | 'settings';
+
+interface DBCoupon {
+  id: string; code: string; discount_percent: number; max_uses: number;
+  used_count: number; min_order: number; expires_at: string | null;
+  is_active: boolean; created_at: string;
+}
 
 interface DBProduct {
   id: string; name: string; slug: string; price: number; unit: string;
@@ -62,6 +68,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<DBOrder[]>([]);
   const [members, setMembers] = useState<DBProfile[]>([]);
   const [hotels, setHotels] = useState<DBHotel[]>([]);
+  const [coupons, setCoupons] = useState<DBCoupon[]>([]);
   const [editingProduct, setEditingProduct] = useState<DBProduct | null>(null);
   const [editingStore, setEditingStore] = useState<DBStore | null>(null);
   const [editingHotel, setEditingHotel] = useState<DBHotel | null>(null);
@@ -79,7 +86,7 @@ export default function AdminDashboard() {
     if (isAdmin) { fetchAll(); }
   }, [isAdmin]);
 
-  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); };
+  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); fetchCoupons(); };
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -89,6 +96,7 @@ export default function AdminDashboard() {
       supabase.channel('admin-products').on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts()).subscribe(),
       supabase.channel('admin-hotels').on('postgres_changes', { event: '*', schema: 'public', table: 'hotels' }, () => fetchHotels()).subscribe(),
       supabase.channel('admin-stores').on('postgres_changes', { event: '*', schema: 'public', table: 'stores' }, () => fetchStores()).subscribe(),
+      supabase.channel('admin-coupons').on('postgres_changes', { event: '*', schema: 'public', table: 'coupons' }, () => fetchCoupons()).subscribe(),
     ];
     return () => { channels.forEach(c => supabase.removeChannel(c)); };
   }, [isAdmin]);
@@ -112,6 +120,10 @@ export default function AdminDashboard() {
   const fetchHotels = async () => {
     const { data } = await supabase.from('hotels').select('*').order('sort_order');
     if (data) setHotels(data as unknown as DBHotel[]);
+  };
+  const fetchCoupons = async () => {
+    const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+    if (data) setCoupons(data as unknown as DBCoupon[]);
   };
 
   const deleteProduct = async (id: string) => {
@@ -166,6 +178,7 @@ export default function AdminDashboard() {
     { id: 'hotels' as Tab, label: `Khách sạn (${hotels.length})`, icon: Hotel },
     { id: 'members' as Tab, label: `Thành viên (${members.length})`, icon: Users },
     { id: 'stores' as Tab, label: `Cửa hàng (${stores.length})`, icon: Store },
+    { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
     { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
     { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
@@ -502,6 +515,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* ===== COUPONS ===== */}
+        {tab === 'coupons' && <CouponManager coupons={coupons} fetchCoupons={fetchCoupons} />}
 
         {/* ===== CONTENT ===== */}
         {tab === 'content' && <ContentManager />}
@@ -1071,6 +1087,209 @@ function SettingsTab({ user, products, stores, members, hotels }: any) {
             className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
             <UserPlus className="h-4 w-4" /> {addingAdmin ? 'Đang thêm...' : 'Thêm'}
           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// =================== COUPON MANAGER ===================
+function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCoupons: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<DBCoupon | null>(null);
+  const [form, setForm] = useState({ code: '', discount_percent: 10, max_uses: 100, min_order: 0, expires_at: '' });
+  const [saving, setSaving] = useState(false);
+
+  const openNew = () => {
+    setEditing(null);
+    setForm({ code: '', discount_percent: 10, max_uses: 100, min_order: 0, expires_at: '' });
+    setShowForm(true);
+  };
+
+  const openEdit = (c: DBCoupon) => {
+    setEditing(c);
+    setForm({
+      code: c.code, discount_percent: c.discount_percent, max_uses: c.max_uses,
+      min_order: c.min_order, expires_at: c.expires_at ? c.expires_at.slice(0, 16) : '',
+    });
+    setShowForm(true);
+  };
+
+  const generateCode = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = 'GN';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    setForm(f => ({ ...f, code }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.code.trim()) { toast.error('Nhập mã giảm giá'); return; }
+    setSaving(true);
+
+    const payload: any = {
+      code: form.code.toUpperCase().trim(),
+      discount_percent: Number(form.discount_percent),
+      max_uses: Number(form.max_uses),
+      min_order: Number(form.min_order),
+      expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+    };
+
+    if (editing) {
+      const { error } = await supabase.from('coupons').update(payload).eq('id', editing.id);
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã cập nhật mã!');
+    } else {
+      const { error } = await supabase.from('coupons').insert(payload);
+      if (error) {
+        if (error.message.includes('duplicate')) toast.error('Mã này đã tồn tại!');
+        else toast.error('Lỗi: ' + error.message);
+      } else toast.success('Đã tạo mã giảm giá!');
+    }
+    setSaving(false); setShowForm(false); fetchCoupons();
+  };
+
+  const toggleActive = async (c: DBCoupon) => {
+    await supabase.from('coupons').update({ is_active: !c.is_active }).eq('id', c.id);
+    fetchCoupons();
+  };
+
+  const deleteCoupon = async (id: string) => {
+    if (!confirm('Xóa mã giảm giá này?')) return;
+    await supabase.from('coupons').delete().eq('id', id);
+    toast.success('Đã xóa'); fetchCoupons();
+  };
+
+  const isExpired = (c: DBCoupon) => c.expires_at && new Date(c.expires_at) < new Date();
+  const isUsedUp = (c: DBCoupon) => c.used_count >= c.max_uses;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-bold text-foreground">Quản lý mã giảm giá ({coupons.length})</h2>
+        <button onClick={openNew}
+          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
+          <Plus className="h-4 w-4" /> Tạo mã mới
+        </button>
+      </div>
+
+      {/* Form */}
+      {showForm && (
+        <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-6 space-y-4">
+          <h3 className="font-bold text-foreground text-lg">{editing ? '✏️ Sửa mã giảm giá' : '➕ Tạo mã giảm giá mới'}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Mã giảm giá *</label>
+              <div className="flex gap-2">
+                <input value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+                  placeholder="VD: GNSALE10" className="flex-1 px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono font-bold uppercase" required />
+                <button type="button" onClick={generateCode} className="px-3 py-2 rounded-lg border border-border hover:bg-muted text-xs font-medium">Tự tạo</button>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">% Giảm giá *</label>
+              <div className="relative">
+                <input type="number" min="1" max="100" value={form.discount_percent}
+                  onChange={e => setForm(f => ({ ...f, discount_percent: Number(e.target.value) }))}
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm pr-8" required />
+                <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Số lần dùng tối đa</label>
+              <input type="number" min="1" value={form.max_uses}
+                onChange={e => setForm(f => ({ ...f, max_uses: Number(e.target.value) }))}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Đơn tối thiểu (₫)</label>
+              <input type="number" min="0" value={form.min_order}
+                onChange={e => setForm(f => ({ ...f, min_order: Number(e.target.value) }))}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Hạn sử dụng</label>
+              <input type="datetime-local" value={form.expires_at}
+                onChange={e => setForm(f => ({ ...f, expires_at: e.target.value }))}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button type="submit" disabled={saving}
+              className="ocean-gradient text-primary-foreground px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90 flex items-center gap-1.5 disabled:opacity-50">
+              <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu mã'}
+            </button>
+            <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2.5 rounded-lg text-sm border border-border hover:bg-muted">Hủy</button>
+          </div>
+        </form>
+      )}
+
+      {/* Table */}
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Mã</th>
+                <th className="text-center px-4 py-3 font-medium">Giảm</th>
+                <th className="text-center px-4 py-3 font-medium">Đã dùng</th>
+                <th className="text-right px-4 py-3 font-medium">Đơn tối thiểu</th>
+                <th className="text-center px-4 py-3 font-medium">Hạn dùng</th>
+                <th className="text-center px-4 py-3 font-medium">Trạng thái</th>
+                <th className="text-center px-4 py-3 font-medium">Hành động</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {coupons.map(c => {
+                const expired = isExpired(c);
+                const usedUp = isUsedUp(c);
+                return (
+                  <tr key={c.id} className={`hover:bg-muted/50 ${(!c.is_active || expired || usedUp) ? 'opacity-50' : ''}`}>
+                    <td className="px-4 py-3">
+                      <span className="font-mono font-bold text-primary text-base">{c.code}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-coral font-black text-lg">{c.discount_percent}%</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`font-bold ${c.used_count >= c.max_uses ? 'text-destructive' : 'text-foreground'}`}>
+                        {c.used_count}/{c.max_uses}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">
+                      {c.min_order > 0 ? formatPrice(c.min_order) : 'Không'}
+                    </td>
+                    <td className="px-4 py-3 text-center text-xs text-muted-foreground">
+                      {c.expires_at ? (
+                        <span className={expired ? 'text-destructive font-bold' : ''}>
+                          {expired ? '⏰ Hết hạn' : new Date(c.expires_at).toLocaleDateString('vi-VN')}
+                        </span>
+                      ) : 'Không giới hạn'}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button onClick={() => toggleActive(c)}>
+                        {c.is_active && !expired && !usedUp ? (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-bold">✅ Hoạt động</span>
+                        ) : (
+                          <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-bold">
+                            {expired ? '⏰ Hết hạn' : usedUp ? '🔴 Hết lượt' : '⬜ Tắt'}
+                          </span>
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => openEdit(c)} className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
+                        <button onClick={() => deleteCoupon(c.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {coupons.length === 0 && (
+                <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Chưa có mã giảm giá. Bấm "Tạo mã mới" để bắt đầu!</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

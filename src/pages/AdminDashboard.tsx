@@ -199,6 +199,7 @@ export default function AdminDashboard() {
     { id: 'dashboard' as Tab, label: 'Tổng quan', icon: TrendingUp },
     { id: 'orders' as Tab, label: `Đơn hàng (${pendingOrders > 0 ? pendingOrders + ' mới' : orders.length})`, icon: ShoppingBag },
     { id: 'products' as Tab, label: `Sản phẩm (${products.length})`, icon: Package },
+    { id: 'combos' as Tab, label: `Combo (${combos.length})`, icon: Gift },
     { id: 'hotels' as Tab, label: `Khách sạn (${hotels.length})`, icon: Hotel },
     { id: 'members' as Tab, label: `Thành viên (${members.length})`, icon: Users },
     { id: 'stores' as Tab, label: `Cửa hàng (${stores.length})`, icon: Store },

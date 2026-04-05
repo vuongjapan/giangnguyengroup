@@ -11,7 +11,13 @@ import {
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
 
-type Tab = 'dashboard' | 'products' | 'orders' | 'members' | 'stores' | 'hotels' | 'content' | 'settings';
+type Tab = 'dashboard' | 'products' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'content' | 'settings';
+
+interface DBCoupon {
+  id: string; code: string; discount_percent: number; max_uses: number;
+  used_count: number; min_order: number; expires_at: string | null;
+  is_active: boolean; created_at: string;
+}
 
 interface DBProduct {
   id: string; name: string; slug: string; price: number; unit: string;

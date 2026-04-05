@@ -67,7 +67,7 @@ interface BrandContent {
   ctaDescription: string;
 }
 
-type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'banner' | 'policy' | 'contact' | 'footer';
+type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer';
 
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);

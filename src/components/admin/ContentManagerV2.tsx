@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Plus, Edit, Trash2, Image, X, RefreshCw, Eye, EyeOff, ChevronDown, ChevronUp, Upload, Video } from 'lucide-react';
 import { toast } from 'sonner';

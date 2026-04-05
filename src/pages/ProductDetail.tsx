@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { ArrowLeft, ShoppingCart, Minus, Plus, ChevronLeft, ChevronRight, ShieldCheck, Truck, RotateCcw, CheckCircle2, AlertTriangle, Snowflake, Users, Package, Phone } from 'lucide-react';
-import { products, formatPrice } from '@/data/products';
+import { ArrowLeft, ShoppingCart, Minus, Plus, ChevronLeft, ChevronRight, ShieldCheck, Truck, RotateCcw, CheckCircle2, AlertTriangle, Snowflake, Users, Package, Phone, RefreshCw } from 'lucide-react';
+import { formatPrice } from '@/data/products';
+import { useProduct, useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
@@ -12,11 +13,21 @@ import QRTraceability from '@/components/QRTraceability';
 
 export default function ProductDetail() {
   const { slug } = useParams();
-  const product = products.find(p => p.slug === slug);
+  const { product, loading: productLoading } = useProduct(slug);
+  const { products } = useProducts();
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
   const [zoomed, setZoomed] = useState(false);
+
+  if (productLoading) return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <div className="flex-1 flex items-center justify-center">
+        <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    </div>
+  );
 
   if (!product) return (
     <div className="min-h-screen flex flex-col">
@@ -145,12 +156,14 @@ export default function ProductDetail() {
             </div>
 
             {/* 1. Hook */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-              <p className="font-bold text-foreground text-lg italic leading-relaxed">{desc.hook}</p>
-            </div>
+            {desc.hook && (
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                <p className="font-bold text-foreground text-lg italic leading-relaxed">{desc.hook}</p>
+              </div>
+            )}
 
             {/* 2. Intro */}
-            <p className="text-sm text-muted-foreground leading-relaxed">{desc.intro}</p>
+            {desc.intro && <p className="text-sm text-muted-foreground leading-relaxed">{desc.intro}</p>}
           </div>
         </div>
 
@@ -158,135 +171,114 @@ export default function ProductDetail() {
         <div className="mt-8 space-y-8 max-w-4xl mx-auto">
 
           {/* 3. Benefits */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2">
-              💪 Lợi ích nổi bật
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {desc.benefits.map((b, i) => (
-                <div key={i} className="flex items-start gap-2 bg-secondary/40 rounded-lg p-3">
-                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-foreground">{b}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* 4. Highlights */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3">✨ Điểm nổi bật</h2>
-            <div className="space-y-3">
-              <div className="border border-border rounded-lg p-4">
-                <h3 className="font-bold text-foreground text-sm mb-1">📍 Nguồn gốc</h3>
-                <p className="text-sm text-muted-foreground">{desc.highlights.origin}</p>
-              </div>
-              <div className="border border-border rounded-lg p-4">
-                <h3 className="font-bold text-foreground text-sm mb-1">☀️ Quy trình phơi sấy</h3>
-                <p className="text-sm text-muted-foreground">{desc.highlights.process}</p>
-              </div>
-              <div className="border border-border rounded-lg p-4">
-                <h3 className="font-bold text-foreground text-sm mb-1">📦 Đóng gói</h3>
-                <p className="text-sm text-muted-foreground">{desc.highlights.packaging}</p>
-              </div>
-            </div>
-          </section>
-
-          {/* 5. Cooking methods */}
-          <section className="bg-secondary/30 rounded-2xl p-5">
-            <h2 className="text-lg font-extrabold text-foreground mb-4">🍳 Cách chế biến ngon nhất</h2>
-            <div className="space-y-3">
-              {desc.cooking.methods.map((m, i) => (
-                <div key={i} className="bg-card rounded-xl p-4 border border-border">
-                  <h3 className="font-bold text-foreground mb-1">{m.name}</h3>
-                  <p className="text-sm text-muted-foreground">{m.detail}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4">
-              <h3 className="font-bold text-foreground text-sm mb-2">💡 Gợi ý ăn kèm:</h3>
-              <div className="flex flex-wrap gap-2">
-                {desc.cooking.suggestions.map((s, i) => (
-                  <span key={i} className="bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full">{s}</span>
+          {desc.benefits.length > 0 && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2">
+                💪 Lợi ích nổi bật
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {desc.benefits.map((b, i) => (
+                  <div key={i} className="flex items-start gap-2 bg-secondary/40 rounded-lg p-3">
+                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <span className="text-sm text-foreground">{b}</span>
+                  </div>
                 ))}
               </div>
-            </div>
-          </section>
+            </section>
+          )}
+
+          {/* 4. Highlights */}
+          {(desc.highlights.origin || desc.highlights.process || desc.highlights.packaging) && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3">✨ Điểm nổi bật</h2>
+              <div className="space-y-3">
+                {desc.highlights.origin && <div className="border border-border rounded-lg p-4"><h3 className="font-bold text-foreground text-sm mb-1">📍 Nguồn gốc</h3><p className="text-sm text-muted-foreground">{desc.highlights.origin}</p></div>}
+                {desc.highlights.process && <div className="border border-border rounded-lg p-4"><h3 className="font-bold text-foreground text-sm mb-1">☀️ Quy trình phơi sấy</h3><p className="text-sm text-muted-foreground">{desc.highlights.process}</p></div>}
+                {desc.highlights.packaging && <div className="border border-border rounded-lg p-4"><h3 className="font-bold text-foreground text-sm mb-1">📦 Đóng gói</h3><p className="text-sm text-muted-foreground">{desc.highlights.packaging}</p></div>}
+              </div>
+            </section>
+          )}
+
+          {/* 5. Cooking methods */}
+          {desc.cooking.methods.length > 0 && (
+            <section className="bg-secondary/30 rounded-2xl p-5">
+              <h2 className="text-lg font-extrabold text-foreground mb-4">🍳 Cách chế biến ngon nhất</h2>
+              <div className="space-y-3">
+                {desc.cooking.methods.map((m, i) => (
+                  <div key={i} className="bg-card rounded-xl p-4 border border-border">
+                    <h3 className="font-bold text-foreground mb-1">{m.name}</h3>
+                    <p className="text-sm text-muted-foreground">{m.detail}</p>
+                  </div>
+                ))}
+              </div>
+              {desc.cooking.suggestions.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="font-bold text-foreground text-sm mb-2">💡 Gợi ý ăn kèm:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {desc.cooking.suggestions.map((s, i) => (
+                      <span key={i} className="bg-primary/10 text-primary text-xs font-medium px-3 py-1.5 rounded-full">{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* 6. Choosing tips */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3">🔍 Cách chọn {product.name} ngon</h2>
-            <div className="space-y-2">
-              {desc.choosingTips.map((tip, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <span className="bg-primary text-primary-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
-                  <span className="text-sm text-foreground">{tip}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+          {desc.choosingTips.length > 0 && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3">🔍 Cách chọn {product.name} ngon</h2>
+              <div className="space-y-2">
+                {desc.choosingTips.map((tip, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className="bg-primary text-primary-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                    <span className="text-sm text-foreground">{tip}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* 7. Real vs Fake */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3">⚠️ Phân biệt hàng thật – hàng kém chất lượng</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                <h3 className="font-bold text-primary mb-2 flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4" /> Hàng ngon chuẩn
-                </h3>
-                <ul className="space-y-1.5">
-                  {desc.realVsFake.real.map((r, i) => (
-                    <li key={i} className="text-sm text-foreground flex items-start gap-1.5">
-                      <span className="text-primary mt-0.5">✓</span> {r}
-                    </li>
-                  ))}
-                </ul>
+          {(desc.realVsFake.real.length > 0 || desc.realVsFake.fake.length > 0) && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3">⚠️ Phân biệt hàng thật – hàng kém chất lượng</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                  <h3 className="font-bold text-primary mb-2 flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4" /> Hàng ngon chuẩn</h3>
+                  <ul className="space-y-1.5">{desc.realVsFake.real.map((r, i) => (<li key={i} className="text-sm text-foreground flex items-start gap-1.5"><span className="text-primary mt-0.5">✓</span> {r}</li>))}</ul>
+                </div>
+                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
+                  <h3 className="font-bold text-destructive mb-2 flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" /> Hàng kém chất lượng</h3>
+                  <ul className="space-y-1.5">{desc.realVsFake.fake.map((f, i) => (<li key={i} className="text-sm text-foreground flex items-start gap-1.5"><span className="text-destructive mt-0.5">✗</span> {f}</li>))}</ul>
+                </div>
               </div>
-              <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4">
-                <h3 className="font-bold text-destructive mb-2 flex items-center gap-1.5">
-                  <AlertTriangle className="h-4 w-4" /> Hàng kém chất lượng
-                </h3>
-                <ul className="space-y-1.5">
-                  {desc.realVsFake.fake.map((f, i) => (
-                    <li key={i} className="text-sm text-foreground flex items-start gap-1.5">
-                      <span className="text-destructive mt-0.5">✗</span> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
 
           {/* 8. Storage */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2">
-              <Snowflake className="h-5 w-5 text-primary" /> Cách bảo quản
-            </h2>
-            <div className="bg-secondary/40 rounded-xl p-4 space-y-2">
-              {desc.storage.map((s, i) => (
-                <div key={i} className="flex items-start gap-2 text-sm text-foreground">
-                  <span className="text-primary font-bold">•</span> {s}
-                </div>
-              ))}
-            </div>
-          </section>
+          {desc.storage.length > 0 && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2"><Snowflake className="h-5 w-5 text-primary" /> Cách bảo quản</h2>
+              <div className="bg-secondary/40 rounded-xl p-4 space-y-2">
+                {desc.storage.map((s, i) => (<div key={i} className="flex items-start gap-2 text-sm text-foreground"><span className="text-primary font-bold">•</span> {s}</div>))}
+              </div>
+            </section>
+          )}
 
           {/* 9. Suitable for */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" /> Phù hợp với
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {desc.suitableFor.map((s, i) => (
-                <span key={i} className="bg-accent/10 text-accent-foreground border border-accent/20 text-sm px-4 py-2 rounded-full">{s}</span>
-              ))}
-            </div>
-          </section>
+          {desc.suitableFor.length > 0 && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Phù hợp với</h2>
+              <div className="flex flex-wrap gap-2">
+                {desc.suitableFor.map((s, i) => (<span key={i} className="bg-accent/10 text-accent-foreground border border-accent/20 text-sm px-4 py-2 rounded-full">{s}</span>))}
+              </div>
+            </section>
+          )}
 
           {/* 10. Specs */}
           <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" /> Thông tin sản phẩm
-            </h2>
+            <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2"><Package className="h-5 w-5 text-primary" /> Thông tin sản phẩm</h2>
             <div className="border border-border rounded-xl overflow-hidden">
               <div className="grid grid-cols-[120px_1fr] text-sm">
                 <div className="bg-secondary/60 p-3 font-bold text-foreground border-b border-border">Xuất xứ</div>
@@ -300,40 +292,32 @@ export default function ProductDetail() {
           </section>
 
           {/* 11. Commitment */}
-          <section>
-            <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> Cam kết của shop
-            </h2>
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
-              {desc.commitment.map((c, i) => (
-                <div key={i} className="flex items-start gap-2 text-sm text-foreground">
-                  <ShieldCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" /> {c}
-                </div>
-              ))}
-            </div>
-          </section>
+          {desc.commitment.length > 0 && (
+            <section>
+              <h2 className="text-lg font-extrabold text-foreground mb-3 flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" /> Cam kết của shop</h2>
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
+                {desc.commitment.map((c, i) => (<div key={i} className="flex items-start gap-2 text-sm text-foreground"><ShieldCheck className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" /> {c}</div>))}
+              </div>
+            </section>
+          )}
 
           {/* QR Traceability */}
           <QRTraceability product={product} />
 
           {/* 12. CTA */}
-          <section className="ocean-gradient rounded-2xl p-6 text-center">
-            <p className="text-primary-foreground font-bold text-lg mb-3">{desc.cta}</p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                onClick={handleAddToCart}
-                className="bg-card text-primary font-bold px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-card/90 active:scale-95 transition-all"
-              >
-                <ShoppingCart className="h-5 w-5" /> THÊM VÀO GIỎ HÀNG
-              </button>
-              <a
-                href="tel:0123456789"
-                className="bg-primary-foreground/20 text-primary-foreground font-bold px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-foreground/30 transition-all"
-              >
-                <Phone className="h-5 w-5" /> GỌI NGAY
-              </a>
-            </div>
-          </section>
+          {desc.cta && (
+            <section className="ocean-gradient rounded-2xl p-6 text-center">
+              <p className="text-primary-foreground font-bold text-lg mb-3">{desc.cta}</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button onClick={handleAddToCart} className="bg-card text-primary font-bold px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-card/90 active:scale-95 transition-all">
+                  <ShoppingCart className="h-5 w-5" /> THÊM VÀO GIỎ HÀNG
+                </button>
+                <a href="tel:0986617939" className="bg-primary-foreground/20 text-primary-foreground font-bold px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-foreground/30 transition-all">
+                  <Phone className="h-5 w-5" /> GỌI NGAY
+                </a>
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Related */}

@@ -71,7 +71,6 @@ const App = () => (
               <CartDrawer />
               <ChatBot />
               <FloatingButtons />
-              <WelcomePopup />
               <ExitIntentPopup />
             </BrowserRouter>
           </HotelProvider>

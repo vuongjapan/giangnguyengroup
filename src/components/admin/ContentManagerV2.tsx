@@ -83,7 +83,7 @@ interface ContactInfo {
   address: string;
 }
 
-type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer';
+type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup';
 
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);

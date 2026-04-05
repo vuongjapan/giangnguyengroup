@@ -178,6 +178,7 @@ export default function AdminDashboard() {
     { id: 'hotels' as Tab, label: `Khách sạn (${hotels.length})`, icon: Hotel },
     { id: 'members' as Tab, label: `Thành viên (${members.length})`, icon: Users },
     { id: 'stores' as Tab, label: `Cửa hàng (${stores.length})`, icon: Store },
+    { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
     { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
     { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];

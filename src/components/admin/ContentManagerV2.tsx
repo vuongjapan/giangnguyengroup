@@ -226,6 +226,8 @@ export default function ContentManagerV2() {
     { key: 'brand', label: '📖 Giới thiệu', desc: 'Câu chuyện thương hiệu' },
     { key: 'policy', label: '📋 Chính sách', desc: 'Chính sách bán hàng' },
     { key: 'contact', label: '📞 Liên hệ', desc: 'Thông tin liên hệ' },
+    { key: 'ticker', label: '📢 Dòng chạy', desc: 'Dòng chữ chạy đầu trang' },
+    { key: 'exit_popup', label: '🎯 Popup thoát', desc: 'Popup KHOAN ĐÃ!' },
     { key: 'footer', label: '🔻 Footer', desc: 'Chân trang' },
   ];
 

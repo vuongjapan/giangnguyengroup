@@ -64,7 +64,9 @@ const App = () => (
                 <Route path="/he-thong-cua-hang" element={<StoreSystemPage />} />
                 <Route path="/khuyen-mai" element={<PromotionsPage />} />
                 <Route path="/mon-ngon" element={<RecipesPage />} />
+                <Route path="/mon-ngon/:id" element={<RecipeDetail />} />
                 <Route path="/tin-tuc" element={<NewsPage />} />
+                <Route path="/tin-tuc/:id" element={<NewsDetail />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="*" element={<NotFound />} />

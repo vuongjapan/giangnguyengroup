@@ -1376,38 +1376,42 @@ function StoreForm({ store, onSave, onCancel }: { store: DBStore | null; onSave:
               const val = e.target.value;
               // Extract src from iframe
               const srcMatch = val.match(/src=["']([^"']+)["']/);
-              if (srcMatch) {
-                const url = srcMatch[1];
-                // Try !2d (lng) and !3d (lat) pattern
-                const latMatch = url.match(/!3d(-?\d+\.?\d*)/);
-                const lngMatch = url.match(/!2d(-?\d+\.?\d*)/);
-                if (latMatch && lngMatch) {
-                  setForm(f => ({ ...f, lat: Number(latMatch[1]), lng: Number(lngMatch[1]) }));
-                  toast.success('Đã lấy tọa độ từ iframe!');
-                  return;
-                }
-                // Try q=lat,lng pattern
-                const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-                if (qMatch) {
-                  setForm(f => ({ ...f, lat: Number(qMatch[1]), lng: Number(qMatch[2]) }));
-                  toast.success('Đã lấy tọa độ từ iframe!');
-                  return;
-                }
-                // Try pb= pattern with @lat,lng
-                const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-                if (atMatch) {
-                  setForm(f => ({ ...f, lat: Number(atMatch[1]), lng: Number(atMatch[2]) }));
-                  toast.success('Đã lấy tọa độ từ iframe!');
-                  return;
-                }
+              const urlToParse = srcMatch ? srcMatch[1] : val;
+              
+              // Try !2d (lng) and !3d (lat) pattern from embed URLs
+              const lat3d = urlToParse.match(/!3d(-?\d+\.?\d*)/);
+              const lng2d = urlToParse.match(/!2d(-?\d+\.?\d*)/);
+              if (lat3d && lng2d) {
+                setForm(f => ({ ...f, lat: Number(lat3d[1]), lng: Number(lng2d[1]) }));
+                toast.success('Đã lấy tọa độ từ iframe!');
+                e.target.value = '';
+                return;
+              }
+              // Try place/ pattern: /place/Name/@lat,lng
+              const placeMatch = urlToParse.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+              if (placeMatch) {
+                setForm(f => ({ ...f, lat: Number(placeMatch[1]), lng: Number(placeMatch[2]) }));
+                toast.success('Đã lấy tọa độ từ iframe!');
+                e.target.value = '';
+                return;
+              }
+              // Try q=lat,lng pattern
+              const qMatch = urlToParse.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+              if (qMatch) {
+                setForm(f => ({ ...f, lat: Number(qMatch[1]), lng: Number(qMatch[2]) }));
+                toast.success('Đã lấy tọa độ từ iframe!');
+                e.target.value = '';
+                return;
               }
               // Try direct coordinate paste
               const coordMatch = val.match(/(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)/);
               if (coordMatch) {
                 setForm(f => ({ ...f, lat: Number(coordMatch[1]), lng: Number(coordMatch[2]) }));
                 toast.success('Đã lấy tọa độ!');
+                e.target.value = '';
                 return;
               }
+              toast.error('Không tìm thấy tọa độ. Thử dán lại iframe hoặc nhập tọa độ thủ công.');
             }}
           />
           <p className="text-[10px] text-muted-foreground mt-1">

@@ -36,6 +36,7 @@ const TESTIMONIALS = [
 ];
 
 export default function Index() {
+  const { products } = useProducts();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
   const initialStatus = searchParams.get('status');

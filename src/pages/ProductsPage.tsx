@@ -19,6 +19,7 @@ interface Filters {
 }
 
 export default function ProductsPage() {
+  const { products } = useProducts();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
   const initialStatus = searchParams.get('status');

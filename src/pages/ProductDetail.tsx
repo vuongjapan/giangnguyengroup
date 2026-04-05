@@ -13,7 +13,8 @@ import QRTraceability from '@/components/QRTraceability';
 
 export default function ProductDetail() {
   const { slug } = useParams();
-  const product = products.find(p => p.slug === slug);
+  const { product, loading: productLoading } = useProduct(slug);
+  const { products } = useProducts();
   const { addItem } = useCart();
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);

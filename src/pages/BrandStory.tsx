@@ -152,12 +152,7 @@ export default function BrandStory() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="section-title mx-auto mb-8">Chứng nhận & Giải thưởng</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: '🏅', title: 'Chứng nhận ATTP', desc: 'An toàn Thực phẩm' },
-              { icon: '⭐', title: 'OCOP 4 sao', desc: 'Sản phẩm đặc trưng' },
-              { icon: '🛡️', title: 'Tem chống giả', desc: 'QR truy xuất nguồn gốc' },
-              { icon: '🏆', title: 'Top Thương hiệu', desc: 'Hải sản Sầm Sơn' },
-            ].map((cert) => (
+            {CERTS.map((cert) => (
               <div key={cert.title} className="bg-card rounded-xl p-5 border border-border card-hover">
                 <span className="text-3xl">{cert.icon}</span>
                 <h3 className="font-bold text-foreground mt-2 text-sm">{cert.title}</h3>
@@ -168,15 +163,10 @@ export default function BrandStory() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="ocean-gradient py-10">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-black text-primary-foreground mb-3">
-            Trải nghiệm hương vị biển Sầm Sơn
-          </h2>
-          <p className="text-primary-foreground/80 mb-6 max-w-lg mx-auto">
-            Đặt hàng ngay hôm nay để thưởng thức hải sản khô chính gốc, phơi nắng tự nhiên
-          </p>
+          <h2 className="text-2xl md:text-3xl font-black text-primary-foreground mb-3">{ctaTitle}</h2>
+          <p className="text-primary-foreground/80 mb-6 max-w-lg mx-auto">{ctaDesc}</p>
           <a href="/" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full hover:opacity-90 transition-opacity">
             🛒 Xem sản phẩm
           </a>

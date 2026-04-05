@@ -72,9 +72,9 @@ type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'ba
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);
 
-async function loadContent(key: string) {
+async function loadContent(key: string): Promise<any> {
   const { data } = await supabase.from('site_settings').select('value').eq('key', key).maybeSingle();
-  return data?.value;
+  return data?.value as any;
 }
 
 async function saveContent(key: string, value: any) {

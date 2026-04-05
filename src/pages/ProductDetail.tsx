@@ -1,7 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { ArrowLeft, ShoppingCart, Minus, Plus, ChevronLeft, ChevronRight, ShieldCheck, Truck, RotateCcw, CheckCircle2, AlertTriangle, Snowflake, Users, Package, Phone } from 'lucide-react';
-import { products, formatPrice } from '@/data/products';
+import { ArrowLeft, ShoppingCart, Minus, Plus, ChevronLeft, ChevronRight, ShieldCheck, Truck, RotateCcw, CheckCircle2, AlertTriangle, Snowflake, Users, Package, Phone, RefreshCw } from 'lucide-react';
+import { formatPrice } from '@/data/products';
+import { useProduct, useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import Header from '@/components/Header';

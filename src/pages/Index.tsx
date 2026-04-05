@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Filter, ArrowUpDown, ChevronRight, Star, Flame } from 'lucide-react';
-import { products, priceRanges, categories, formatPrice } from '@/data/products';
+import { priceRanges, categories, formatPrice } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/ProductCard';
 import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';

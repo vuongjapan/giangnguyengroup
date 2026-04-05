@@ -136,6 +136,10 @@ export default function AdminDashboard() {
     const { data } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
     if (data) setCoupons(data as unknown as DBCoupon[]);
   };
+  const fetchCombos = async () => {
+    const { data } = await supabase.from('combos').select('*').order('sort_order');
+    if (data) setCombos(data as unknown as DBCombo[]);
+  };
 
   const deleteProduct = async (id: string) => {
     if (!confirm('Xóa sản phẩm này?')) return;

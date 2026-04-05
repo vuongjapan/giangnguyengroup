@@ -3,8 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Search, Clock, Eye, ChevronRight, BookOpen, ShieldCheck, Fish, Calendar, Compass, ShoppingCart, ArrowLeft } from 'lucide-react';
-import { products, formatPrice } from '@/data/products';
+import { products as staticProducts, formatPrice } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
+import { useSiteContent } from '@/hooks/useSiteContent';
 
 interface Article {
   id: string;

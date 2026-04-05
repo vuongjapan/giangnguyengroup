@@ -19,7 +19,8 @@ interface Article {
   readTime: string;
   views: number;
   date: string;
-  relatedProductIds: string[];
+  relatedProductIds?: string[];
+  relatedProductSlugs?: string[];
   metaTitle: string;
   metaDescription: string;
 }

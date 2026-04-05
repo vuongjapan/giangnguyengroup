@@ -516,6 +516,9 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* ===== COUPONS ===== */}
+        {tab === 'coupons' && <CouponManager coupons={coupons} fetchCoupons={fetchCoupons} />}
+
         {/* ===== CONTENT ===== */}
         {tab === 'content' && <ContentManager />}
 

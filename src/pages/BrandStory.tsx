@@ -135,7 +135,7 @@ export default function BrandStory() {
             {VALUES.map((v) => (
               <div key={v.title} className="bg-card rounded-xl p-6 border border-border text-center card-hover">
                 <div className="w-14 h-14 rounded-full ocean-gradient flex items-center justify-center mx-auto mb-4">
-                  <v.icon className="h-7 w-7 text-primary-foreground" />
+                  <span className="text-2xl">{v.icon}</span>
                 </div>
                 <h3 className="font-bold text-foreground mb-2">{v.title}</h3>
                 <p className="text-sm text-muted-foreground">{v.desc}</p>

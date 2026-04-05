@@ -1327,7 +1327,146 @@ function ContactEditor() {
   );
 }
 
-// ============ SIMPLE EDITOR (for footer) ============
+// ============ TICKER EDITOR ============
+function TickerEditor() {
+  const [items, setItems] = useState<string[]>([
+    '🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên',
+    '🚚 FREE SHIP toàn quốc đơn từ 500K',
+    '⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng',
+    '🎁 Mua 2 tặng 1 Nem chua Thanh Hóa',
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('ticker_banner').then(d => {
+      if (d && Array.isArray(d)) setItems(d);
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('ticker_banner', items.filter(i => i.trim()));
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">📢 Dòng chữ chạy đầu trang</h3>
+        <button onClick={save} disabled={saving}
+          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">Mỗi dòng là một tin nhắn chạy. Có thể thêm emoji 🔥🚚⭐🎁</p>
+      {items.map((item, i) => (
+        <div key={i} className="flex gap-2 mb-2">
+          <span className="text-xs text-muted-foreground pt-2.5 w-5">{i + 1}.</span>
+          <input value={item} onChange={e => { const n = [...items]; n[i] = e.target.value; setItems(n); }}
+            className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" placeholder="Nội dung dòng chạy..." />
+          <button type="button" onClick={() => setItems(items.filter((_, j) => j !== i))}
+            className="text-destructive hover:bg-destructive/10 p-1 rounded"><X className="h-3 w-3" /></button>
+        </div>
+      ))}
+      <button type="button" onClick={() => setItems([...items, ''])} className="text-xs text-primary hover:underline flex items-center gap-1 mt-1">
+        <Plus className="h-3 w-3" /> Thêm dòng
+      </button>
+    </div>
+  );
+}
+
+// ============ EXIT POPUP EDITOR ============
+function ExitPopupEditor() {
+  const [config, setConfig] = useState({
+    title: 'KHOAN ĐÃ!',
+    subtitle: 'Đừng bỏ lỡ ưu đãi này nhé!',
+    discountText: 'Giảm thêm 5% cho bạn!',
+    couponCode: 'QUAYLAIGIAM5',
+    buttonText: 'XEM SẢN PHẨM NGAY',
+    isActive: true,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('exit_popup').then(d => {
+      if (d) setConfig({ ...config, ...d });
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('exit_popup', config);
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">🎯 Popup "KHOAN ĐÃ!"</h3>
+        <button onClick={save} disabled={saving}
+          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={config.isActive} onChange={e => setConfig({ ...config, isActive: e.target.checked })}
+            className="accent-primary" />
+          <span className="text-sm font-bold text-foreground">{config.isActive ? '✅ Đang bật' : '❌ Đang tắt'}</span>
+        </label>
+
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+          <input value={config.title} onChange={e => setConfig({ ...config, title: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Phụ đề</label>
+          <input value={config.subtitle} onChange={e => setConfig({ ...config, subtitle: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Nội dung ưu đãi</label>
+          <input value={config.discountText} onChange={e => setConfig({ ...config, discountText: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Mã giảm giá hiển thị</label>
+          <input value={config.couponCode} onChange={e => setConfig({ ...config, couponCode: e.target.value.toUpperCase() })}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm uppercase" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Text nút bấm</label>
+          <input value={config.buttonText} onChange={e => setConfig({ ...config, buttonText: e.target.value })}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+
+        {/* Preview */}
+        <div className="mt-4 border border-dashed border-primary/30 rounded-xl p-4 bg-primary/5">
+          <p className="text-xs text-muted-foreground mb-2 font-bold">Xem trước:</p>
+          <div className="text-center">
+            <p className="text-2xl mb-1">😢</p>
+            <p className="font-black text-foreground">{config.title}</p>
+            <p className="text-sm text-muted-foreground">{config.subtitle}</p>
+            <p className="text-base font-bold text-foreground mt-2">{config.discountText}</p>
+            <p className="text-sm text-muted-foreground">Dùng mã <strong className="text-primary">{config.couponCode}</strong></p>
+            <div className="mt-2 ocean-gradient text-primary-foreground rounded-lg py-2 text-sm font-bold">{config.buttonText}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SimpleEditor({ contentKey }: { contentKey: string }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);

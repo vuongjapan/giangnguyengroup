@@ -86,7 +86,7 @@ export default function AdminDashboard() {
     if (isAdmin) { fetchAll(); }
   }, [isAdmin]);
 
-  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); };
+  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); fetchCoupons(); };
 
   useEffect(() => {
     if (!isAdmin) return;

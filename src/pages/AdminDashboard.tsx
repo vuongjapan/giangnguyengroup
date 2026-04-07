@@ -6,7 +6,8 @@ import {
   Plus, Edit, Trash2, LogOut, Package, Store, Settings, Eye, EyeOff, Save,
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
-  Shield, UserPlus, RefreshCw, Tag, Percent, Gift
+  Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
+  BarChart3, Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
@@ -59,6 +60,7 @@ interface DBCombo {
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   pending: { label: 'Chờ xác nhận', color: 'bg-yellow-100 text-yellow-800' },
+  deposit_paid: { label: 'Đã cọc 50%', color: 'bg-primary/10 text-primary' },
   confirmed: { label: 'Đã xác nhận', color: 'bg-blue-100 text-blue-800' },
   shipping: { label: 'Đang giao', color: 'bg-purple-100 text-purple-800' },
   delivered: { label: 'Hoàn thành', color: 'bg-green-100 text-green-800' },
@@ -184,8 +186,40 @@ export default function AdminDashboard() {
 
   const todayOrders = orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString());
   const todayRevenue = todayOrders.reduce((s, o) => s + o.total, 0);
-  const totalRevenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
+  const activeOrders = orders.filter(o => o.status !== 'cancelled');
+  const totalRevenue = activeOrders.reduce((s, o) => s + o.total, 0);
   const pendingOrders = orders.filter(o => o.status === 'pending').length;
+  const depositPaidOrders = orders.filter(o => o.status === 'deposit_paid').length;
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const monthlyOrders = activeOrders.filter(o => {
+    const date = new Date(o.created_at);
+    return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+  });
+  const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + order.total, 0);
+  const avgOrderValue = activeOrders.length ? Math.round(totalRevenue / activeOrders.length) : 0;
+  const lowStockProducts = products.filter(p => p.stock <= 10).length;
+  const expiringCoupons = coupons.filter(c => c.is_active && c.expires_at && ((new Date(c.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7 && new Date(c.expires_at) > new Date()).length;
+  const depositCollected = orders.filter(o => o.status === 'deposit_paid').reduce((sum, order) => sum + Math.round(order.total * 0.5), 0);
+  const alerts = [
+    pendingOrders > 0 ? { title: `${pendingOrders} đơn hàng mới`, desc: 'Cần xác nhận nhanh để tăng tỷ lệ chốt đơn.' } : null,
+    lowStockProducts > 0 ? { title: `${lowStockProducts} sản phẩm sắp hết`, desc: 'Bổ sung tồn kho để không mất doanh thu giờ cao điểm.' } : null,
+    expiringCoupons > 0 ? { title: `${expiringCoupons} mã giảm giá sắp hết hạn`, desc: 'Đẩy mạnh Flash Sale phân tầng để tận dụng trước khi hết hạn.' } : null,
+  ].filter(Boolean) as { title: string; desc: string }[];
+  const growthActions = [
+    {
+      title: 'Đẩy combo + ưu đãi phân tầng',
+      desc: 'Thiết lập mã riêng cho mốc 2 / 3 / 5 sản phẩm để kéo giá trị đơn trung bình lên cao hơn.',
+    },
+    {
+      title: 'Chốt đơn nhanh trong 5 phút đầu',
+      desc: 'Ưu tiên xử lý đơn pending và gọi lại ngay để giảm bỏ giỏ, tăng tỷ lệ cọc tự động.',
+    },
+    {
+      title: 'Đẩy sản phẩm lợi nhuận cao lên đầu',
+      desc: 'Ghim các sản phẩm bán tốt, tồn kho khỏe và combo quà biếu vào hero/flash sale để tăng doanh thu tổng.',
+    },
+  ];
 
   const filteredOrders = orders.filter(o => {
     if (orderFilter !== 'all' && o.status !== orderFilter) return false;
@@ -242,12 +276,13 @@ export default function AdminDashboard() {
         {/* ===== DASHBOARD ===== */}
         {tab === 'dashboard' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
               {[
                 { label: 'Đơn hôm nay', value: todayOrders.length, icon: ShoppingBag, color: 'text-primary' },
                 { label: 'Doanh thu hôm nay', value: formatPrice(todayRevenue), icon: DollarSign, color: 'text-coral' },
-                { label: 'Tổng doanh thu', value: formatPrice(totalRevenue), icon: TrendingUp, color: 'text-green-600' },
-                { label: 'Thành viên', value: members.length, icon: Users, color: 'text-purple-600' },
+                { label: 'Doanh thu tháng này', value: formatPrice(monthlyRevenue), icon: BarChart3, color: 'text-primary' },
+                { label: 'Giá trị đơn TB', value: formatPrice(avgOrderValue), icon: TrendingUp, color: 'text-coral' },
+                { label: 'Đơn đã cọc 50%', value: depositPaidOrders, icon: BellRing, color: 'text-primary' },
               ].map(stat => (
                 <div key={stat.label} className="bg-card rounded-xl border border-border p-4">
                   <div className="flex items-center gap-2 mb-2">
@@ -258,6 +293,50 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-4">
+              <div className="bg-card rounded-xl border border-border p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <BellRing className="h-5 w-5 text-primary" />
+                  <h3 className="font-bold text-foreground">Thông báo vận hành</h3>
+                </div>
+                <div className="space-y-3">
+                  {alerts.length > 0 ? alerts.map((alert) => (
+                    <div key={alert.title} className="rounded-xl border border-border bg-muted/40 p-3">
+                      <p className="font-bold text-foreground">{alert.title}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{alert.desc}</p>
+                    </div>
+                  )) : (
+                    <div className="rounded-xl border border-border bg-muted/40 p-3">
+                      <p className="font-bold text-foreground">Hệ thống đang ổn định</p>
+                      <p className="text-sm text-muted-foreground mt-1">Hiện chưa có cảnh báo khẩn cấp nào trong vận hành.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl border border-border p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <AlertTriangle className="h-5 w-5 text-primary" />
+                  <h3 className="font-bold text-foreground">Hiệu suất thanh toán</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-border bg-muted/40 p-3">
+                    <p className="text-sm text-muted-foreground">Tiền cọc đã ghi nhận</p>
+                    <p className="text-2xl font-black text-primary">{formatPrice(depositCollected)}</p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/40 p-3">
+                    <p className="text-sm text-muted-foreground">Khách hàng thành viên</p>
+                    <p className="text-2xl font-black text-foreground">{members.length}</p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-muted/40 p-3">
+                    <p className="text-sm text-muted-foreground">Tổng doanh thu hoạt động</p>
+                    <p className="text-2xl font-black text-coral">{formatPrice(totalRevenue)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Pending orders alert */}
             {pendingOrders > 0 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center gap-3">
@@ -268,6 +347,22 @@ export default function AdminDashboard() {
                 </div>
               </div>
             )}
+
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <h3 className="font-bold text-foreground">Chiến lược tăng doanh thu 5 sao</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {growthActions.map((action) => (
+                  <div key={action.title} className="rounded-xl border border-border bg-muted/40 p-4">
+                    <p className="font-bold text-foreground">{action.title}</p>
+                    <p className="text-sm text-muted-foreground mt-2">{action.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Recent orders */}
             <div className="bg-card rounded-xl border border-border p-4">
               <h3 className="font-bold text-foreground mb-3">Đơn hàng mới nhất</h3>

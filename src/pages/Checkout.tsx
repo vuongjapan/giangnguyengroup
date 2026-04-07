@@ -10,23 +10,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { toast } from 'sonner';
 
-async function generateOrderCode() {
-  // Get last order to auto-increment
-  const { data } = await supabase.from('orders').select('order_code').order('created_at', { ascending: false }).limit(1);
-  let nextNum = 1;
-  if (data && data.length > 0) {
-    const last = data[0].order_code;
-    const match = last.match(/GN(\d{4})(\d+)/);
-    if (match) {
-      nextNum = parseInt(match[2] || '0', 10) + 1;
-    } else {
-      const simpleMatch = last.match(/(\d+)/);
-      if (simpleMatch) nextNum = parseInt(simpleMatch[1], 10) + 1;
-    }
-  }
-  const year = new Date().getFullYear();
-  return `SEVQR GN${year}${String(nextNum).padStart(5, '0')}`;
-}
+const CHECKOUT_SESSION_KEY = 'gn_checkout_pending_order';
 
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
@@ -41,6 +25,7 @@ export default function Checkout() {
   const [orderData, setOrderData] = useState<any>(null);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [copied, setCopied] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
 
   // Coupon state
   const [couponCode, setCouponCode] = useState('');
@@ -53,21 +38,95 @@ export default function Checkout() {
   const finalPrice = afterHotelPrice - couponDiscount;
   const depositAmount = Math.round(finalPrice * 0.5);
   const remainingAmount = finalPrice - depositAmount;
+  const displayItems = Array.isArray(orderData?.items) ? orderData.items : items.map(i => ({ ...i }));
+  const displaySubtotal = Number(orderData?.subtotal ?? totalPrice);
+  const displayHotelDiscount = Number(orderData?.hotel_discount ?? hotelDiscount);
+  const displayCouponDiscount = Number(orderData?.coupon_discount ?? couponDiscount);
+  const displayTotal = Number(orderData?.total ?? finalPrice);
+  const displayDepositAmount = Math.round(displayTotal * 0.5);
+  const displayRemainingAmount = displayTotal - displayDepositAmount;
+  const displayCustomer = {
+    name: orderData?.customer_name ?? form.name,
+    phone: orderData?.customer_phone ?? form.phone,
+    email: orderData?.customer_email ?? form.email,
+    address: orderData?.customer_address ?? form.address,
+  };
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(CHECKOUT_SESSION_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.orderCode && parsed?.orderData) {
+          setOrderCode(parsed.orderCode);
+          setOrderData(parsed.orderData);
+          setPaymentStatus(parsed.orderData.status || 'pending');
+          setStep('payment');
+          if (parsed.form) setForm(parsed.form);
+          if (parsed.appliedCoupon) setAppliedCoupon(parsed.appliedCoupon);
+        }
+      }
+    } catch (error) {
+      console.error('Restore checkout session failed:', error);
+      localStorage.removeItem(CHECKOUT_SESSION_KEY);
+    } finally {
+      setSessionReady(true);
+    }
+  }, []);
 
   // Poll payment status
   useEffect(() => {
     if (step !== 'payment' || !orderCode) return;
-    const interval = setInterval(async () => {
-      const { data } = await supabase.from('orders').select('status').eq('order_code', orderCode).maybeSingle();
-      if (data?.status === 'deposit_paid') {
-        setPaymentStatus('deposit_paid');
-        clearInterval(interval);
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [step, orderCode]);
+    let active = true;
 
-  if (items.length === 0 && step !== 'done') {
+    const checkPaymentStatus = async () => {
+      const { data, error } = await supabase.functions.invoke('order-status', {
+        body: {
+          orderCode,
+          customerPhone: displayCustomer.phone,
+          customerEmail: displayCustomer.email,
+        },
+      });
+
+      if (!active || error || !data?.status) return;
+
+      setPaymentStatus(data.status);
+      setOrderData((prev: any) => prev ? { ...prev, status: data.status } : prev);
+
+      if (data.status === 'deposit_paid') {
+        localStorage.removeItem(CHECKOUT_SESSION_KEY);
+      }
+    };
+
+    checkPaymentStatus();
+    const interval = setInterval(checkPaymentStatus, 5000);
+    return () => clearInterval(interval);
+  }, [step, orderCode, displayCustomer.phone, displayCustomer.email]);
+
+  useEffect(() => {
+    if (step !== 'payment' || paymentStatus !== 'deposit_paid') return;
+
+    const timeout = setTimeout(() => {
+      clearCart();
+      localStorage.removeItem(CHECKOUT_SESSION_KEY);
+      setStep('done');
+    }, 1500);
+
+    return () => clearTimeout(timeout);
+  }, [step, paymentStatus, clearCart]);
+
+  if (!sessionReady) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0 && step === 'info') {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -133,49 +192,50 @@ export default function Checkout() {
   const handleSubmit = async () => {
     if (!validate()) return;
     setSaving(true);
-    const code = await generateOrderCode();
-    setOrderCode(code);
 
     const orderItems = items.map(i => ({ productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image, unit: i.unit }));
-
-    const order: any = {
-      order_code: code,
-      customer_name: form.name.trim(),
-      customer_phone: form.phone.trim(),
-      customer_email: form.email.trim(),
-      customer_address: form.address.trim(),
-      items: orderItems,
-      total: finalPrice,
-      status: 'pending',
-    };
+    let pointsEarned = 0;
 
     if (user) {
-      order.user_id = user.id;
       const { data: profile } = await supabase.from('profiles').select('level').eq('id', user.id).maybeSingle();
       const cashbackRate = profile?.level === 'PRO' ? 0.1 : profile?.level === 'VIP' ? 0.05 : 0.02;
-      order.points_earned = Math.floor(totalPrice * cashbackRate);
+      pointsEarned = Math.floor(finalPrice * cashbackRate);
     }
 
-    const { error } = await supabase.from('orders').insert(order);
-    if (error) {
-      console.error('Order error:', error);
-      toast.error('Lỗi lưu đơn hàng, vui lòng thử lại');
+    const { data, error } = await supabase.functions.invoke('create-order', {
+      body: {
+        customer: form,
+        items: orderItems,
+        totalPrice,
+        hotelDiscount,
+        couponCode: appliedCoupon?.code || null,
+        pointsEarned,
+      },
+    });
+
+    if (error || !data?.order) {
+      console.error('Create order error:', error || data);
+      toast.error(data?.error || 'Lỗi tạo đơn hàng, vui lòng thử lại');
       setSaving(false);
       return;
     }
 
-    // Update coupon used_count
-    if (appliedCoupon) {
-      await supabase.rpc('has_role', { _user_id: '00000000-0000-0000-0000-000000000000', _role: 'admin' }).then(() => {});
-      // Use direct update - admin-only but we track via increment
-    }
+    setOrderCode(data.order.order_code);
+    setPaymentStatus(data.order.status || 'pending');
+    setOrderData(data.order);
+    localStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify({
+      orderCode: data.order.order_code,
+      orderData: data.order,
+      form,
+      appliedCoupon,
+    }));
 
     // Update profile
-    if (user && order.points_earned) {
+    if (user && pointsEarned) {
       const { data: currentProfile } = await supabase.from('profiles').select('total_spent, points, level').eq('id', user.id).maybeSingle();
       if (currentProfile) {
-        const newTotalSpent = (currentProfile.total_spent || 0) + totalPrice;
-        const newPoints = (currentProfile.points || 0) + order.points_earned;
+        const newTotalSpent = (currentProfile.total_spent || 0) + Number(data.order.total || finalPrice);
+        const newPoints = (currentProfile.points || 0) + pointsEarned;
         let newLevel = 'Thường';
         if (newTotalSpent >= 10000000) newLevel = 'PRO';
         else if (newTotalSpent >= 3000000) newLevel = 'VIP';
@@ -183,27 +243,12 @@ export default function Checkout() {
       }
     }
 
-    setOrderData({
-      ...order,
-      coupon_code: appliedCoupon?.code,
-      coupon_discount: couponDiscount,
-    });
-
-    // Send email
-    supabase.functions.invoke('send-order-email', {
-      body: {
-        order: { ...order, coupon_code: appliedCoupon?.code, coupon_discount: couponDiscount },
-        type: 'new_order',
-      },
-    }).catch(console.error);
+    if (!data.emailSent) {
+      toast.warning('Đơn đã tạo nhưng email đang tạm lỗi, shop vẫn đã nhận được đơn hàng.');
+    }
 
     setSaving(false);
     setStep('payment');
-  };
-
-  const handleConfirmPayment = () => {
-    clearCart();
-    setStep('done');
   };
 
   const copyToClipboard = (text: string) => {
@@ -213,7 +258,7 @@ export default function Checkout() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${depositAmount}&des=${encodeURIComponent(orderCode)}`;
+  const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${displayDepositAmount}&des=${encodeURIComponent(orderCode)}`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -294,7 +339,7 @@ export default function Checkout() {
               <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
                 <FileText className="h-4 w-4 text-primary" /> Đơn hàng
               </h3>
-              {items.map(item => (
+                       {displayItems.map((item: any) => (
                 <div key={item.productId} className="flex justify-between text-sm py-1.5 border-b border-border last:border-0">
                   <span className="text-foreground">{item.name} x{item.quantity}</span>
                   <span className="font-bold text-foreground">{formatPrice(item.price * item.quantity)}</span>
@@ -379,10 +424,10 @@ export default function Checkout() {
 
                 {/* Customer Info */}
                 <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
-                  <p className="text-foreground">👤 {form.name}</p>
-                  <p className="text-foreground">📞 {form.phone}</p>
-                  {form.email && <p className="text-foreground">📧 {form.email}</p>}
-                  <p className="text-foreground">📍 {form.address}</p>
+                  <p className="text-foreground">👤 {displayCustomer.name}</p>
+                  <p className="text-foreground">📞 {displayCustomer.phone}</p>
+                  {displayCustomer.email && <p className="text-foreground">📧 {displayCustomer.email}</p>}
+                  <p className="text-foreground">📍 {displayCustomer.address}</p>
                 </div>
 
                 {/* Products */}
@@ -397,7 +442,7 @@ export default function Checkout() {
                       </tr>
                     </thead>
                     <tbody>
-                      {items.map((item, i) => (
+                      {displayItems.map((item: any, i: number) => (
                         <tr key={i} className="border-b border-border">
                           <td className="py-2 px-2 text-foreground">{item.name}</td>
                           <td className="py-2 px-2 text-center text-foreground">{item.quantity}</td>
@@ -413,31 +458,31 @@ export default function Checkout() {
                 <div className="bg-muted/50 rounded-lg p-3 space-y-1.5 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tổng tiền hàng:</span>
-                    <span className="font-bold text-foreground">{formatPrice(totalPrice)}</span>
+                    <span className="font-bold text-foreground">{formatPrice(displaySubtotal)}</span>
                   </div>
-                  {hotelDiscount > 0 && (
+                  {displayHotelDiscount > 0 && (
                     <div className="flex justify-between text-primary">
                       <span>Giảm khách sạn:</span>
-                      <span className="font-bold">-{formatPrice(hotelDiscount)}</span>
+                      <span className="font-bold">-{formatPrice(displayHotelDiscount)}</span>
                     </div>
                   )}
-                  {couponDiscount > 0 && (
+                  {displayCouponDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Giảm mã {appliedCoupon?.code}:</span>
-                      <span className="font-bold">-{formatPrice(couponDiscount)}</span>
+                      <span>Giảm mã {orderData?.coupon_code || appliedCoupon?.code}:</span>
+                      <span className="font-bold">-{formatPrice(displayCouponDiscount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between border-t border-border pt-1.5">
                     <span className="font-bold text-foreground">Tổng thanh toán:</span>
-                    <span className="font-extrabold text-primary text-lg">{formatPrice(finalPrice)}</span>
+                    <span className="font-extrabold text-primary text-lg">{formatPrice(displayTotal)}</span>
                   </div>
                   <div className="flex justify-between text-orange-600 font-semibold">
                     <span>🔸 Cọc 50%:</span>
-                    <span className="text-lg font-extrabold">{formatPrice(depositAmount)}</span>
+                    <span className="text-lg font-extrabold">{formatPrice(displayDepositAmount)}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Còn lại:</span>
-                    <span className="font-bold">{formatPrice(remainingAmount)}</span>
+                    <span className="font-bold">{formatPrice(displayRemainingAmount)}</span>
                   </div>
                 </div>
 
@@ -456,7 +501,7 @@ export default function Checkout() {
                         <Copy className="h-3 w-3 text-amber-600 hover:text-primary" />
                       </button>
                     </p>
-                    <p className="text-amber-800">💰 Số tiền cọc: <strong className="text-destructive">{formatPrice(depositAmount)}</strong></p>
+                    <p className="text-amber-800">💰 Số tiền cọc: <strong className="text-destructive">{formatPrice(displayDepositAmount)}</strong></p>
                   </div>
                 </div>
               </div>
@@ -468,10 +513,15 @@ export default function Checkout() {
               </div>
             </div>
 
-            <button onClick={handleConfirmPayment}
-              className="w-full ocean-gradient text-primary-foreground font-bold py-3 rounded-xl text-base hover:opacity-90 active:scale-95 transition-all">
-              TÔI ĐÃ THANH TOÁN
-            </button>
+            {paymentStatus === 'deposit_paid' ? (
+              <div className="w-full rounded-xl border border-primary/20 bg-primary/10 p-4 text-center">
+                <p className="font-bold text-primary">Thanh toán đã được xác nhận, hệ thống đang hoàn tất đơn hàng...</p>
+              </div>
+            ) : (
+              <div className="w-full rounded-xl border border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">
+                Hệ thống kiểm tra thanh toán tự động mỗi 5 giây. Sau khi chuyển khoản đúng nội dung, hóa đơn sẽ tự cập nhật và gửi email xác nhận cho khách.
+              </div>
+            )}
           </div>
         )}
 
@@ -481,7 +531,7 @@ export default function Checkout() {
             <h2 className="text-2xl font-extrabold text-foreground">Đặt hàng thành công!</h2>
             <p className="text-muted-foreground">Mã đơn: <span className="font-bold text-primary">{orderCode}</span></p>
             <p className="text-sm text-muted-foreground">Chúng tôi sẽ liên hệ xác nhận đơn hàng trong vòng 30 phút.</p>
-            <p className="text-sm text-green-600 font-medium">📧 Hóa đơn đã được gửi qua email</p>
+            <p className="text-sm text-green-600 font-medium">📧 Email hóa đơn sẽ được gửi tự động nếu khách có nhập địa chỉ email</p>
             <div className="flex gap-3 justify-center">
               {user && (
                 <button onClick={() => navigate('/account')}

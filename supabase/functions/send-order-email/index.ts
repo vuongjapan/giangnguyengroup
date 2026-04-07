@@ -3,27 +3,44 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+import nodemailer from 'npm:nodemailer@6.9.16'
+
 const SMTP_EMAIL = Deno.env.get('SMTP_EMAIL') || 'giangnguyendriedseafood@gmail.com'
 const SMTP_PASSWORD = Deno.env.get('SMTP_PASSWORD') || ''
+const SMTP_HOST = 'smtp.gmail.com'
+const SMTP_PORT = 587
 
-async function sendEmail(to: string, subject: string, html: string) {
-  const { SMTPClient } = await import('https://deno.land/x/denomailer@1.6.0/mod.ts')
-  const client = new SMTPClient({
-    connection: {
-      hostname: 'smtp.gmail.com',
-      port: 587,
-      tls: true,
-      auth: { username: SMTP_EMAIL, password: SMTP_PASSWORD },
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: false,
+    requireTLS: true,
+    auth: {
+      user: SMTP_EMAIL,
+      pass: SMTP_PASSWORD,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
   })
-  await client.send({
-    from: SMTP_EMAIL,
+}
+
+async function sendEmail(
+  transporter: nodemailer.Transporter,
+  to: string,
+  subject: string,
+  html: string,
+) {
+  const info = await transporter.sendMail({
+    from: `GIANG NGUYEN SEAFOOD <${SMTP_EMAIL}>`,
     to,
     subject,
-    content: 'auto',
     html,
   })
-  await client.close()
+
+  console.log('Email sent', { to, subject, messageId: info.messageId })
+  return info
 }
 
 function generateInvoiceHtml(order: any) {
@@ -129,23 +146,36 @@ Deno.serve(async (req) => {
     if (!order || !order.order_code) {
       return new Response(JSON.stringify({ error: 'Missing order data' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
+    if (!SMTP_EMAIL || !SMTP_PASSWORD) {
+      throw new Error('SMTP chưa được cấu hình đầy đủ')
+    }
 
     const invoiceHtml = generateInvoiceHtml(order)
-    const emailPromises: Promise<void>[] = []
+    const transporter = createTransporter()
+    await transporter.verify()
+
+    const emailPromises: Promise<unknown>[] = []
 
     if (order.customer_email) {
       const customerSubject = type === 'deposit_paid'
-        ? `✅ Xác nhận cọc ${order.order_code} - Giang Nguyen Seafood`
-        : `🧾 Hóa đơn ${order.order_code} - Chưa thanh toán`
-      emailPromises.push(sendEmail(order.customer_email, customerSubject, invoiceHtml))
+        ? `Hóa đơn ${order.order_code} - Đã cọc 50%`
+        : `Hóa đơn ${order.order_code} - Chưa thanh toán`
+      emailPromises.push(sendEmail(transporter, order.customer_email, customerSubject, invoiceHtml))
     }
 
     const adminSubject = type === 'deposit_paid'
-      ? `✅ Đã cọc: ${order.order_code} - ${order.customer_name}`
-      : `🆕 Đơn mới: ${order.order_code} - ${order.customer_name}`
-    emailPromises.push(sendEmail(SMTP_EMAIL, adminSubject, invoiceHtml))
+      ? `Đã cọc 50% ${order.order_code}`
+      : `Đơn mới ${order.order_code}`
+    emailPromises.push(sendEmail(transporter, SMTP_EMAIL, adminSubject, invoiceHtml))
 
-    await Promise.allSettled(emailPromises)
+    const results = await Promise.allSettled(emailPromises)
+    transporter.close()
+
+    const failures = results.filter((result) => result.status === 'rejected') as PromiseRejectedResult[]
+    if (failures.length > 0) {
+      console.error('Email send failures', failures.map((failure) => String(failure.reason)))
+      throw new Error(failures.map((failure) => String(failure.reason)).join(' | '))
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

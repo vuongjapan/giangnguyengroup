@@ -11,7 +11,8 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json()
-    const { transferAmount, content: description } = body
+    const transferAmount = Number(body.transferAmount ?? body.amount ?? body.creditAmount ?? 0)
+    const description = String(body.content ?? body.description ?? body.transferContent ?? '')
 
     if (!transferAmount || !description) {
       return new Response(JSON.stringify({ success: false, message: 'Missing data' }), {
@@ -51,29 +52,50 @@ Deno.serve(async (req) => {
       })
     }
 
-    const depositAmount = Math.round(matchedOrder.total * 0.5)
+    const depositAmount = Math.round(Number(matchedOrder.total || 0) * 0.5)
 
     if (transferAmount >= depositAmount) {
-      // Update order status
-      await supabase
+      const { data: updatedOrder, error: updateError } = await supabase
         .from('orders')
         .update({ status: 'deposit_paid' })
         .eq('id', matchedOrder.id)
+        .neq('status', 'deposit_paid')
+        .select('*')
+        .maybeSingle()
 
-      // Send confirmation email
+      if (updateError) {
+        throw updateError
+      }
+
+      if (!updatedOrder) {
+        return new Response(JSON.stringify({ success: true, already_processed: true, order_code: matchedOrder.order_code }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-      const updatedOrder = { ...matchedOrder, status: 'deposit_paid' }
+      let emailSent = true
       
-      await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-        },
-        body: JSON.stringify({ order: updatedOrder, type: 'deposit_paid' }),
-      }).catch(console.error)
+      try {
+        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+          },
+          body: JSON.stringify({ order: updatedOrder, type: 'deposit_paid' }),
+        })
 
-      return new Response(JSON.stringify({ success: true, order_code: matchedOrder.order_code }), {
+        if (!emailResponse.ok) {
+          emailSent = false
+          console.error('Deposit email failed:', await emailResponse.text())
+        }
+      } catch (emailError) {
+        emailSent = false
+        console.error('Deposit email failed:', emailError)
+      }
+
+      return new Response(JSON.stringify({ success: true, order_code: matchedOrder.order_code, email_sent: emailSent }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

@@ -487,23 +487,26 @@ export default function Checkout() {
                 </div>
 
                 {/* QR Payment */}
+                {paymentStatus !== 'deposit_paid' && (
                 <div className="text-center space-y-3">
-                  <h4 className="font-bold text-foreground">Quét QR để thanh toán cọc</h4>
+                  <h4 className="font-extrabold text-foreground text-lg">Quét QR để thanh toán cọc</h4>
                   <div className="flex justify-center">
-                    <img src={qrUrl} alt="QR thanh toán" className="w-52 h-52 rounded-xl border-2 border-border" width={208} height={208} />
+                    <img src={qrUrl} alt="QR thanh toán SePay" className="w-56 h-56 rounded-xl border-2 border-primary/30 shadow-lg" width={224} height={224} />
                   </div>
-                  <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs space-y-0.5 max-w-xs mx-auto">
-                    <p className="text-amber-800">🏦 Ngân hàng: <strong>VietinBank</strong></p>
-                    <p className="text-amber-800">👤 Chủ TK: <strong>VAN THI MINH LINH</strong></p>
-                    <p className="text-amber-800">💳 STK: <strong>104002912582</strong></p>
-                    <p className="text-amber-800">📝 Nội dung CK: <strong className="text-destructive">{orderCode}</strong>
+                  <div className="bg-gradient-to-b from-amber-50 to-orange-50 border border-amber-300 rounded-xl p-4 text-sm space-y-1 max-w-sm mx-auto shadow-sm">
+                    <p className="text-amber-900">🏦 Ngân hàng: <strong>VietinBank</strong></p>
+                    <p className="text-amber-900">👤 Chủ TK: <strong>VAN THI MINH LINH</strong></p>
+                    <p className="text-amber-900">💳 STK: <strong>104002912582</strong></p>
+                    <p className="text-amber-900">📝 Nội dung CK: <strong className="text-destructive text-base">{orderCode}</strong>
                       <button onClick={() => copyToClipboard(orderCode)} className="ml-1 inline-flex">
-                        <Copy className="h-3 w-3 text-amber-600 hover:text-primary" />
+                        <Copy className="h-3.5 w-3.5 text-amber-600 hover:text-primary" />
                       </button>
                     </p>
-                    <p className="text-amber-800">💰 Số tiền cọc: <strong className="text-destructive">{formatPrice(displayDepositAmount)}</strong></p>
+                    <p className="text-amber-900">💰 Số tiền cọc: <strong className="text-destructive text-base">{formatPrice(displayDepositAmount)}</strong></p>
                   </div>
+                  <p className="text-xs text-muted-foreground italic">Hệ thống tự xác nhận sau khi nhận tiền qua SePay webhook</p>
                 </div>
+                )}
               </div>
 
               {/* Invoice Footer */}

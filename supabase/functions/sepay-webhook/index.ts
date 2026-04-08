@@ -11,6 +11,8 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json()
+    console.log('SePay webhook received:', JSON.stringify(body))
+
     const transferAmount = Number(body.transferAmount ?? body.amount ?? body.creditAmount ?? 0)
     const description = String(body.content ?? body.description ?? body.transferContent ?? '')
 
@@ -29,13 +31,14 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    // Find order matching description
+    // Find pending orders only
     const { data: orders } = await supabase
       .from('orders')
       .select('*')
-      .neq('status', 'deposit_paid')
+      .eq('status', 'pending')
 
     if (!orders || orders.length === 0) {
+      console.log('No pending orders found')
       return new Response(JSON.stringify({ success: false, message: 'No pending orders' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -47,6 +50,7 @@ Deno.serve(async (req) => {
     })
 
     if (!matchedOrder) {
+      console.log('No matching order for description:', description)
       return new Response(JSON.stringify({ success: false, message: 'No matching order' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -54,53 +58,57 @@ Deno.serve(async (req) => {
 
     const depositAmount = Math.round(Number(matchedOrder.total || 0) * 0.5)
 
-    if (transferAmount >= depositAmount) {
-      const { data: updatedOrder, error: updateError } = await supabase
-        .from('orders')
-        .update({ status: 'deposit_paid' })
-        .eq('id', matchedOrder.id)
-        .neq('status', 'deposit_paid')
-        .select('*')
-        .maybeSingle()
-
-      if (updateError) {
-        throw updateError
-      }
-
-      if (!updatedOrder) {
-        return new Response(JSON.stringify({ success: true, already_processed: true, order_code: matchedOrder.order_code }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
-
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-      let emailSent = true
-      
-      try {
-        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
-          },
-          body: JSON.stringify({ order: updatedOrder, type: 'deposit_paid' }),
-        })
-
-        if (!emailResponse.ok) {
-          emailSent = false
-          console.error('Deposit email failed:', await emailResponse.text())
-        }
-      } catch (emailError) {
-        emailSent = false
-        console.error('Deposit email failed:', emailError)
-      }
-
-      return new Response(JSON.stringify({ success: true, order_code: matchedOrder.order_code, email_sent: emailSent }), {
+    if (transferAmount < depositAmount) {
+      console.log(`Amount ${transferAmount} < deposit ${depositAmount}`)
+      return new Response(JSON.stringify({ success: false, message: 'Amount insufficient' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    return new Response(JSON.stringify({ success: false, message: 'Amount insufficient' }), {
+    // Atomic update: only update if still pending (prevents double processing)
+    const { data: updatedOrder, error: updateError } = await supabase
+      .from('orders')
+      .update({ status: 'deposit_paid' })
+      .eq('id', matchedOrder.id)
+      .eq('status', 'pending')
+      .select('*')
+      .maybeSingle()
+
+    if (updateError) throw updateError
+
+    if (!updatedOrder) {
+      console.log('Order already processed:', matchedOrder.order_code)
+      return new Response(JSON.stringify({ success: true, already_processed: true, order_code: matchedOrder.order_code }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Send deposit confirmation email
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    let emailSent = true
+
+    try {
+      const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`,
+        },
+        body: JSON.stringify({ order: updatedOrder, type: 'deposit_paid' }),
+      })
+
+      if (!emailResponse.ok) {
+        emailSent = false
+        console.error('Deposit email failed:', await emailResponse.text())
+      }
+    } catch (emailError) {
+      emailSent = false
+      console.error('Deposit email error:', emailError)
+    }
+
+    console.log('Order paid:', updatedOrder.order_code, 'email_sent:', emailSent)
+
+    return new Response(JSON.stringify({ success: true, order_code: matchedOrder.order_code, email_sent: emailSent }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (err: any) {

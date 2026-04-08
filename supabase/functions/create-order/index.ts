@@ -10,10 +10,12 @@ const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
 
 function generateOrderCode() {
-  const year = new Date().getFullYear()
-  const stamp = Date.now().toString().slice(-6)
-  const random = String(Math.floor(100 + Math.random() * 900))
-  return `SEVQR GN${year}${stamp}${random}`
+  const now = new Date()
+  const y = now.getFullYear()
+  const m = String(now.getMonth() + 1).padStart(2, '0')
+  const d = String(now.getDate()).padStart(2, '0')
+  const random = String(Math.floor(1000 + Math.random() * 9000))
+  return `SEVQR GN${y}${m}${d}${random}`
 }
 
 async function getAuthenticatedUserId(req: Request) {
@@ -23,11 +25,9 @@ async function getAuthenticatedUserId(req: Request) {
   const authClient = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } },
   })
-  const token = authHeader.replace('Bearer ', '')
-  const { data, error } = await authClient.auth.getClaims(token)
-
-  if (error || !data?.claims?.sub) return null
-  return data.claims.sub
+  const { data: { user }, error } = await authClient.auth.getUser()
+  if (error || !user) return null
+  return user.id
 }
 
 Deno.serve(async (req) => {
@@ -74,30 +74,26 @@ Deno.serve(async (req) => {
         .maybeSingle()
 
       if (!coupon) {
-        return new Response(JSON.stringify({ error: 'Mã giảm giá không hợp lệ hoặc đã ngừng áp dụng' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        return new Response(JSON.stringify({ error: 'Mã giảm giá không hợp lệ' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
 
       if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
         return new Response(JSON.stringify({ error: 'Mã giảm giá đã hết hạn' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
 
       if (coupon.used_count >= coupon.max_uses) {
         return new Response(JSON.stringify({ error: 'Mã giảm giá đã hết lượt sử dụng' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
 
       if (afterHotelPrice < coupon.min_order) {
-        return new Response(JSON.stringify({ error: 'Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã' }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        return new Response(JSON.stringify({ error: `Đơn tối thiểu ${coupon.min_order.toLocaleString('vi-VN')}₫` }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
 
@@ -126,10 +122,9 @@ Deno.serve(async (req) => {
       .select('*')
       .single()
 
-    if (orderError) {
-      throw orderError
-    }
+    if (orderError) throw orderError
 
+    // Update coupon usage (optimistic lock)
     if (appliedCoupon) {
       await supabase
         .from('coupons')
@@ -146,6 +141,7 @@ Deno.serve(async (req) => {
       coupon_discount: couponDiscount,
     }
 
+    // Send email (non-blocking, don't fail order if email fails)
     let emailSent = true
     try {
       const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-order-email`, {
@@ -159,11 +155,12 @@ Deno.serve(async (req) => {
 
       if (!emailResponse.ok) {
         emailSent = false
-        console.error('New order email failed with status', emailResponse.status, await emailResponse.text())
+        const errText = await emailResponse.text()
+        console.error('Email failed:', emailResponse.status, errText)
       }
     } catch (emailError) {
       emailSent = false
-      console.error('New order email failed', emailError)
+      console.error('Email error:', emailError)
     }
 
     return new Response(JSON.stringify({

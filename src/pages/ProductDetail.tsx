@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import ProductGradeBadge from '@/components/ProductGradeBadge';
 import QRTraceability from '@/components/QRTraceability';
+import WhyChooseUs from '@/components/WhyChooseUs';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -319,6 +320,9 @@ export default function ProductDetail() {
             </section>
           )}
         </div>
+
+        {/* Why Choose Us */}
+        <WhyChooseUs />
 
         {/* Related */}
         {related.length > 0 && (

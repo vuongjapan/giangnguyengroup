@@ -219,7 +219,9 @@ export default function ContentManagerV2() {
 
   const sections: { key: ContentSection; label: string; desc: string }[] = [
     { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
+    { key: 'promo_banners', label: '🖼️ Banner QC', desc: 'Ảnh quảng cáo trang chủ' },
     { key: 'promotions', label: '🎉 Khuyến mãi', desc: 'Flash sale, ưu đãi mua nhiều' },
+    { key: 'why_choose', label: '✅ 7 Lý do', desc: '7 lý do chọn Giang Nguyên' },
     { key: 'recipes', label: '🍳 Món ngon', desc: 'Công thức chế biến hải sản' },
     { key: 'news', label: '📰 Tin tức', desc: 'Tin tức & sự kiện' },
     { key: 'blog', label: '📚 Blog', desc: 'Bài viết kiến thức' },
@@ -254,6 +256,8 @@ export default function ContentManagerV2() {
         {section === 'contact' && <ContactEditor />}
         {section === 'ticker' && <TickerEditor />}
         {section === 'exit_popup' && <ExitPopupEditor />}
+        {section === 'why_choose' && <WhyChooseEditor />}
+        {section === 'promo_banners' && <PromoBannersEditor />}
         {section === 'footer' && <SimpleEditor contentKey="footer" />}
       </div>
     </div>

@@ -1471,6 +1471,137 @@ function ExitPopupEditor() {
   );
 }
 
+// ============ WHY CHOOSE US EDITOR ============
+function WhyChooseEditor() {
+  const [heading, setHeading] = useState('7 LÝ DO NÊN CHỌN GIANG NGUYÊN SEAFOOD');
+  const [reasons, setReasons] = useState<{ icon: string; title: string; details: string[] }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('why_choose_us').then(d => {
+      if (d) { setHeading(d.heading || heading); setReasons(d.reasons || []); }
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('why_choose_us', { heading, reasons });
+    setSaving(false);
+  };
+
+  const icons = ['package', 'shield', 'truck', 'award', 'refresh', 'headphones', 'leaf'];
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">✅ 7 Lý do chọn Giang Nguyên</h3>
+        <button onClick={save} disabled={saving} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+          <input value={heading} onChange={e => setHeading(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        {reasons.map((r, i) => (
+          <div key={i} className="border border-border rounded-lg p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-bold text-foreground">Lý do #{i + 1}</span>
+              <button onClick={() => setReasons(reasons.filter((_, j) => j !== i))} className="text-destructive hover:underline text-xs">Xóa</button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-xs font-bold mb-1">Icon</label>
+                <select value={r.icon} onChange={e => { const u = [...reasons]; u[i] = { ...u[i], icon: e.target.value }; setReasons(u); }} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+                  {icons.map(ic => <option key={ic} value={ic}>{ic}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold mb-1">Tiêu đề</label>
+                <input value={r.title} onChange={e => { const u = [...reasons]; u[i] = { ...u[i], title: e.target.value }; setReasons(u); }} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              </div>
+            </div>
+            <ListInput items={r.details} onChange={v => { const u = [...reasons]; u[i] = { ...u[i], details: v }; setReasons(u); }} label="Chi tiết" placeholder="Mô tả..." />
+          </div>
+        ))}
+        <button onClick={() => setReasons([...reasons, { icon: 'package', title: '', details: [''] }])} className="text-sm text-primary font-bold hover:underline flex items-center gap-1">
+          <Plus className="h-4 w-4" /> Thêm lý do
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ PROMO BANNERS EDITOR ============
+function PromoBannersEditor() {
+  const [mainBanners, setMainBanners] = useState<{ image: string; link: string; alt: string }[]>([]);
+  const [sideBanners, setSideBanners] = useState<{ image: string; link: string; alt: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('promo_banners').then(d => {
+      if (d) { setMainBanners(d.mainBanners || []); setSideBanners(d.sideBanners || []); }
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('promo_banners', { mainBanners, sideBanners });
+    setSaving(false);
+  };
+
+  const renderBannerRow = (banner: { image: string; link: string; alt: string }, onChange: (b: any) => void, onRemove: () => void, idx: number) => (
+    <div key={idx} className="border border-border rounded-lg p-3 space-y-2">
+      <ImageInput value={banner.image} onChange={v => onChange({ ...banner, image: v })} label="Ảnh banner" />
+      <input value={banner.link} onChange={e => onChange({ ...banner, link: e.target.value })} placeholder="Link (VD: /san-pham)" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+      <div className="flex justify-between items-center">
+        <input value={banner.alt} onChange={e => onChange({ ...banner, alt: e.target.value })} placeholder="Mô tả ảnh" className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <button onClick={onRemove} className="text-destructive hover:underline text-xs ml-2">Xóa</button>
+      </div>
+    </div>
+  );
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">🖼️ Banner quảng cáo trang chủ</h3>
+        <button onClick={save} disabled={saving} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+      <div className="space-y-6">
+        <div>
+          <h4 className="font-bold text-foreground text-sm mb-2">Banner chính (lớn, carousel)</h4>
+          <div className="space-y-3">
+            {mainBanners.map((b, i) => renderBannerRow(b, v => { const u = [...mainBanners]; u[i] = v; setMainBanners(u); }, () => setMainBanners(mainBanners.filter((_, j) => j !== i)), i))}
+          </div>
+          <button onClick={() => setMainBanners([...mainBanners, { image: '', link: '/san-pham', alt: '' }])} className="text-sm text-primary font-bold hover:underline flex items-center gap-1 mt-2">
+            <Plus className="h-4 w-4" /> Thêm banner chính
+          </button>
+        </div>
+        <div>
+          <h4 className="font-bold text-foreground text-sm mb-2">Banner phụ (bên phải + hàng dưới)</h4>
+          <div className="space-y-3">
+            {sideBanners.map((b, i) => renderBannerRow(b, v => { const u = [...sideBanners]; u[i] = v; setSideBanners(u); }, () => setSideBanners(sideBanners.filter((_, j) => j !== i)), i))}
+          </div>
+          <button onClick={() => setSideBanners([...sideBanners, { image: '', link: '/', alt: '' }])} className="text-sm text-primary font-bold hover:underline flex items-center gap-1 mt-2">
+            <Plus className="h-4 w-4" /> Thêm banner phụ
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SimpleEditor({ contentKey }: { contentKey: string }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);

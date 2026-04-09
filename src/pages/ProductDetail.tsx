@@ -11,6 +11,7 @@ import ProductCard from '@/components/ProductCard';
 import ProductGradeBadge from '@/components/ProductGradeBadge';
 import QRTraceability from '@/components/QRTraceability';
 import WhyChooseUs from '@/components/WhyChooseUs';
+import SuggestedProducts from '@/components/SuggestedProducts';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -324,15 +325,8 @@ export default function ProductDetail() {
         {/* Why Choose Us */}
         <WhyChooseUs />
 
-        {/* Related */}
-        {related.length > 0 && (
-          <section className="mt-12">
-            <h2 className="text-xl font-extrabold text-foreground mb-4">Sản phẩm liên quan</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-              {related.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-          </section>
-        )}
+        {/* Suggested products */}
+        <SuggestedProducts currentProductId={product.id} currentCategory={product.category} />
       </main>
       <Footer />
     </div>

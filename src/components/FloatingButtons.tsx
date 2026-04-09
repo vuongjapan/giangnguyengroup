@@ -1,8 +1,12 @@
 import { Phone, ShoppingCart, MessageCircle } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function FloatingButtons() {
   const { totalItems, setIsOpen } = useCart();
+  const isMobile = useIsMobile();
+
+  if (isMobile) return null;
 
   const buttons = [
     {

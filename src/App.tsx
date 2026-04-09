@@ -9,6 +9,7 @@ import { HotelProvider } from "@/contexts/HotelContext";
 import CartDrawer from "@/components/CartDrawer";
 import ChatBot from "@/components/ChatBot";
 import FloatingButtons from "@/components/FloatingButtons";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import TrackingPixels from "@/components/TrackingPixels";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import Index from "./pages/Index.tsx";
@@ -75,6 +76,7 @@ const App = () => (
               <CartDrawer />
               <ChatBot />
               <FloatingButtons />
+              <MobileBottomNav />
               <ExitIntentPopup />
             </BrowserRouter>
           </HotelProvider>

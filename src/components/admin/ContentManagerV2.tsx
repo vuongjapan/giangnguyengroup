@@ -1478,9 +1478,24 @@ function WhyChooseEditor() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const defaultReasons = [
+    { icon: 'package', title: 'ĐA DẠNG HÀNG HÓA', details: ['Hải sản TƯƠI SỐNG, ĐÔNG LẠNH, KHÔ đa dạng chủng loại', 'Hơn 50+ sản phẩm chính gốc Sầm Sơn'] },
+    { icon: 'shield', title: 'CAM KẾT CHẤT LƯỢNG', details: ['100% hải sản sạch, không hóa chất', 'HOÀN TIỀN NHANH CHÓNG nếu không đạt yêu cầu'] },
+    { icon: 'truck', title: 'THANH TOÁN LINH HOẠT', details: ['COD, chuyển khoản, quét QR tiện lợi', 'Hỗ trợ cọc 50% cho đơn hàng từ xa'] },
+    { icon: 'award', title: 'QUYỀN LỢI KHÁCH HÀNG', details: ['Tích điểm đổi quà', 'Giảm thêm 5% khách thân thiết'] },
+    { icon: 'refresh', title: 'DỄ DÀNG MUA SẮM', details: ['Website thân thiện mọi thiết bị', 'Đặt hàng online 24/7'] },
+    { icon: 'headphones', title: 'GIAO HÀNG NHANH', details: ['Giao HỎA TỐC nội thành 2H', 'MIỄN PHÍ VẬN CHUYỂN đơn từ 500K'] },
+    { icon: 'leaf', title: 'NGUỒN GỐC SẢN PHẨM', details: ['100% NGUỒN GỐC RÕ RÀNG', 'Thu mua trực tiếp từ ngư dân Sầm Sơn'] },
+  ];
+
   useEffect(() => {
     loadContent('why_choose_us').then(d => {
-      if (d) { setHeading(d.heading || heading); setReasons(d.reasons || []); }
+      if (d) {
+        setHeading(d.heading || heading);
+        setReasons(d.reasons?.length ? d.reasons : defaultReasons);
+      } else {
+        setReasons(defaultReasons);
+      }
       setLoading(false);
     });
   }, []);

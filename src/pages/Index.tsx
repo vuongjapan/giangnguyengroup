@@ -12,6 +12,8 @@ import StoreLocations from '@/components/StoreLocations';
 import SocialProof from '@/components/SocialProof';
 import GoogleMap from '@/components/GoogleMap';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
+import PromoBanners from '@/components/PromoBanners';
+import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import CustomerReviews from '@/components/CustomerReviews';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -90,6 +92,9 @@ export default function Index() {
 
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
+
+      {/* Promo Banners - like daohaisan.vn */}
+      <PromoBanners />
 
       {/* USP strip */}
       <div className="bg-card border-b border-border py-4">
@@ -252,6 +257,9 @@ export default function Index() {
           </a>
         </div>
       </section>
+
+      {/* Why Choose Us */}
+      <WhyChooseUs />
 
       {/* Newsletter Signup */}
       <NewsletterSignup />

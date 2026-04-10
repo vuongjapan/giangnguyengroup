@@ -54,7 +54,7 @@ export default function ProductsPage() {
       case 'hot': result.sort((a, b) => (b.badges.includes('hot') ? 1 : 0) - (a.badges.includes('hot') ? 1 : 0)); break;
     }
     return result;
-  }, [filters, sort]);
+  }, [products, filters, sort]);
 
   const hasFilters = Object.values(filters).some(v => v !== null);
 

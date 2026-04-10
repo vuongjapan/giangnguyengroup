@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { Flame, Clock, ShoppingCart, Tag, Zap, Building2 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { products, formatPrice } from '@/data/products';
+import { formatPrice } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
@@ -49,6 +50,7 @@ const DEFAULT_HOTEL = {
 
 export default function PromotionsPage() {
   const { addItem } = useCart();
+  const { products } = useProducts();
   const endDate = new Date();
   endDate.setHours(23, 59, 59, 999);
   const { hours, minutes, seconds } = useCountdown(endDate);

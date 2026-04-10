@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { products, formatPrice, categories } from '@/data/products';
+import { formatPrice, categories } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
 const DEFAULT_TICKER = [

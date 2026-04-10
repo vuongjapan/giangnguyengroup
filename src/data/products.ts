@@ -439,7 +439,7 @@ export const products: Product[] = [
   },
 ];
 
-export const categories = ['Mực khô', 'Cá khô', 'Hải sản 1 nắng', 'Nem chua', 'Combo quà biếu'];
+export const categories = ['Mực khô', 'Cá khô', 'Hải sản 1 nắng', 'Nem chua', 'Tôm khô', 'Đặc sản khác'];
 export const priceRanges = [
   { label: 'Dưới 200k', min: 0, max: 200000 },
   { label: '200k – 500k', min: 200000, max: 500000 },

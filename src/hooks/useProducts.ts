@@ -82,7 +82,7 @@ export function useProducts() {
   useEffect(() => {
     fetchProducts();
     const channel = supabase
-      .channel('public-products')
+      .channel(`public-products-${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, () => fetchProducts())
       .subscribe();
     return () => { supabase.removeChannel(channel); };

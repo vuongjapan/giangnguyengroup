@@ -36,6 +36,7 @@ const MAIN_MENU = [
 export default function Header() {
   const { totalItems, totalPrice, setIsOpen } = useCart();
   const { user } = useAuth();
+  const { products } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

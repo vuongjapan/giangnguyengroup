@@ -7,7 +7,7 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles
+  BarChart3, Sparkles, Printer, PlusCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
@@ -1750,11 +1750,16 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
   const [editing, setEditing] = useState<DBCoupon | null>(null);
   const [form, setForm] = useState({ code: '', discount_percent: 10, max_uses: 100, min_order: 0, expires_at: '' });
   const [saving, setSaving] = useState(false);
+  const [batchMode, setBatchMode] = useState(false);
+  const [batchCount, setBatchCount] = useState(10);
+  const [batchPrefix, setBatchPrefix] = useState('GN');
+  const [selectedForPrint, setSelectedForPrint] = useState<string[]>([]);
 
   const openNew = () => {
     setEditing(null);
     setForm({ code: '', discount_percent: 10, max_uses: 100, min_order: 0, expires_at: '' });
     setShowForm(true);
+    setBatchMode(false);
   };
 
   const openEdit = (c: DBCoupon) => {
@@ -1764,13 +1769,14 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
       min_order: c.min_order, expires_at: c.expires_at ? c.expires_at.slice(0, 16) : '',
     });
     setShowForm(true);
+    setBatchMode(false);
   };
 
-  const generateCode = () => {
+  const generateCode = (prefix = 'GN') => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = 'GN';
+    let code = prefix;
     for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    setForm(f => ({ ...f, code }));
+    return code;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1799,6 +1805,25 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
     setSaving(false); setShowForm(false); fetchCoupons();
   };
 
+  const handleBatchCreate = async () => {
+    setSaving(true);
+    const codes: any[] = [];
+    for (let i = 0; i < batchCount; i++) {
+      codes.push({
+        code: generateCode(batchPrefix),
+        discount_percent: Number(form.discount_percent),
+        max_uses: Number(form.max_uses),
+        min_order: Number(form.min_order),
+        expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
+        is_active: true,
+      });
+    }
+    const { error } = await supabase.from('coupons').insert(codes);
+    if (error) toast.error('Lỗi: ' + error.message);
+    else toast.success(`Đã tạo ${batchCount} mã giảm giá!`);
+    setSaving(false); setShowForm(false); fetchCoupons();
+  };
+
   const toggleActive = async (c: DBCoupon) => {
     await supabase.from('coupons').update({ is_active: !c.is_active }).eq('id', c.id);
     fetchCoupons();
@@ -1813,29 +1838,111 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
   const isExpired = (c: DBCoupon) => c.expires_at && new Date(c.expires_at) < new Date();
   const isUsedUp = (c: DBCoupon) => c.used_count >= c.max_uses;
 
+  const toggleSelect = (id: string) => {
+    setSelectedForPrint(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const selectAll = () => {
+    if (selectedForPrint.length === coupons.length) setSelectedForPrint([]);
+    else setSelectedForPrint(coupons.map(c => c.id));
+  };
+
+  const printCoupons = () => {
+    const toPrint = coupons.filter(c => selectedForPrint.includes(c.id));
+    if (toPrint.length === 0) { toast.error('Chọn ít nhất 1 mã để in'); return; }
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Mã giảm giá - Giang Nguyen Seafood</title>
+    <style>
+      @page { size: A4; margin: 10mm; }
+      body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+      .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .coupon { border: 2px dashed #0369a1; border-radius: 12px; padding: 16px; text-align: center; page-break-inside: avoid; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); }
+      .brand { font-size: 10px; color: #0369a1; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+      .code { font-size: 22px; font-weight: 900; color: #0c4a6e; font-family: monospace; margin: 8px 0; letter-spacing: 2px; }
+      .discount { font-size: 28px; font-weight: 900; color: #dc2626; }
+      .details { font-size: 9px; color: #64748b; margin-top: 6px; }
+      .details span { display: block; }
+      .cut { border-top: 1px dashed #94a3b8; margin-top: 8px; padding-top: 6px; }
+      .qr { font-size: 8px; color: #94a3b8; }
+    </style></head><body>
+    <div class="grid">${toPrint.map(c => `
+      <div class="coupon">
+        <div class="brand">🐟 Giang Nguyen Seafood</div>
+        <div class="discount">GIẢM ${c.discount_percent}%</div>
+        <div class="code">${c.code}</div>
+        <div class="details">
+          <span>${c.min_order > 0 ? 'Đơn tối thiểu: ' + new Intl.NumberFormat('vi-VN').format(c.min_order) + '₫' : 'Không giới hạn đơn tối thiểu'}</span>
+          <span>Số lần dùng: ${c.max_uses}</span>
+          ${c.expires_at ? `<span>HSD: ${new Date(c.expires_at).toLocaleDateString('vi-VN')}</span>` : '<span>Không giới hạn thời gian</span>'}
+        </div>
+        <div class="cut"><div class="qr">Nhập mã khi đặt hàng online tại haisangiangnguyen.lovable.app</div></div>
+      </div>
+    `).join('')}</div></body></html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+      setTimeout(() => win.print(), 500);
+    }
+  };
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h2 className="text-lg font-bold text-foreground">Quản lý mã giảm giá ({coupons.length})</h2>
-        <button onClick={openNew}
-          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
-          <Plus className="h-4 w-4" /> Tạo mã mới
-        </button>
+        <div className="flex gap-2">
+          {selectedForPrint.length > 0 && (
+            <button onClick={printCoupons}
+              className="bg-accent text-accent-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
+              <Printer className="h-4 w-4" /> In {selectedForPrint.length} mã (PDF)
+            </button>
+          )}
+          <button onClick={() => { openNew(); setBatchMode(true); }}
+            className="border border-primary text-primary px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:bg-primary/10">
+            <PlusCircle className="h-4 w-4" /> Tạo hàng loạt
+          </button>
+          <button onClick={openNew}
+            className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
+            <Plus className="h-4 w-4" /> Tạo mã mới
+          </button>
+        </div>
       </div>
 
       {/* Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-6 space-y-4">
-          <h3 className="font-bold text-foreground text-lg">{editing ? '✏️ Sửa mã giảm giá' : '➕ Tạo mã giảm giá mới'}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-foreground mb-1">Mã giảm giá *</label>
-              <div className="flex gap-2">
-                <input value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
-                  placeholder="VD: GNSALE10" className="flex-1 px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono font-bold uppercase" required />
-                <button type="button" onClick={generateCode} className="px-3 py-2 rounded-lg border border-border hover:bg-muted text-xs font-medium">Tự tạo</button>
+        <form onSubmit={batchMode ? (e) => { e.preventDefault(); handleBatchCreate(); } : handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-6 space-y-4">
+          <h3 className="font-bold text-foreground text-lg">
+            {batchMode ? '🎫 Tạo mã hàng loạt' : editing ? '✏️ Sửa mã giảm giá' : '➕ Tạo mã giảm giá mới'}
+          </h3>
+
+          {batchMode && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-primary/5 p-4 rounded-lg border border-primary/20">
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Số lượng mã tạo</label>
+                <input type="number" min="1" max="500" value={batchCount}
+                  onChange={e => setBatchCount(Number(e.target.value))}
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Tiền tố mã (VD: GN, SALE)</label>
+                <input value={batchPrefix} onChange={e => setBatchPrefix(e.target.value.toUpperCase())}
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono uppercase" />
               </div>
             </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {!batchMode && (
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Mã giảm giá *</label>
+                <div className="flex gap-2">
+                  <input value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+                    placeholder="VD: GNSALE10" className="flex-1 px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono font-bold uppercase" required />
+                  <button type="button" onClick={() => setForm(f => ({ ...f, code: generateCode() }))} className="px-3 py-2 rounded-lg border border-border hover:bg-muted text-xs font-medium">Tự tạo</button>
+                </div>
+              </div>
+            )}
             <div>
               <label className="block text-xs font-bold text-foreground mb-1">% Giảm giá *</label>
               <div className="relative">
@@ -1867,7 +1974,7 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
           <div className="flex gap-2">
             <button type="submit" disabled={saving}
               className="ocean-gradient text-primary-foreground px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90 flex items-center gap-1.5 disabled:opacity-50">
-              <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu mã'}
+              <Save className="h-4 w-4" /> {saving ? 'Đang tạo...' : batchMode ? `Tạo ${batchCount} mã` : 'Lưu mã'}
             </button>
             <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2.5 rounded-lg text-sm border border-border hover:bg-muted">Hủy</button>
           </div>
@@ -1880,6 +1987,10 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
           <table className="w-full text-sm">
             <thead className="bg-muted text-muted-foreground">
               <tr>
+                <th className="text-center px-2 py-3 w-10">
+                  <input type="checkbox" checked={selectedForPrint.length === coupons.length && coupons.length > 0}
+                    onChange={selectAll} className="rounded" />
+                </th>
                 <th className="text-left px-4 py-3 font-medium">Mã</th>
                 <th className="text-center px-4 py-3 font-medium">Giảm</th>
                 <th className="text-center px-4 py-3 font-medium">Đã dùng</th>
@@ -1895,6 +2006,10 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
                 const usedUp = isUsedUp(c);
                 return (
                   <tr key={c.id} className={`hover:bg-muted/50 ${(!c.is_active || expired || usedUp) ? 'opacity-50' : ''}`}>
+                    <td className="px-2 py-3 text-center">
+                      <input type="checkbox" checked={selectedForPrint.includes(c.id)}
+                        onChange={() => toggleSelect(c.id)} className="rounded" />
+                    </td>
                     <td className="px-4 py-3">
                       <span className="font-mono font-bold text-primary text-base">{c.code}</span>
                     </td>
@@ -1937,7 +2052,7 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
                 );
               })}
               {coupons.length === 0 && (
-                <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Chưa có mã giảm giá. Bấm "Tạo mã mới" để bắt đầu!</td></tr>
+                <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">Chưa có mã giảm giá. Bấm "Tạo mã mới" để bắt đầu!</td></tr>
               )}
             </tbody>
           </table>

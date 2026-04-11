@@ -83,7 +83,7 @@ interface ContactInfo {
   address: string;
 }
 
-type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup' | 'why_choose' | 'promo_banners';
+type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup' | 'why_choose' | 'promo_banners' | 'video_section';
 
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);
@@ -219,6 +219,7 @@ export default function ContentManagerV2() {
 
   const sections: { key: ContentSection; label: string; desc: string }[] = [
     { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
+    { key: 'video_section', label: '📹 Video phóng sự', desc: 'Video + mô tả dưới hero' },
     { key: 'promo_banners', label: '🖼️ Banner QC', desc: 'Ảnh quảng cáo trang chủ' },
     { key: 'promotions', label: '🎉 Khuyến mãi', desc: 'Flash sale, ưu đãi mua nhiều' },
     { key: 'why_choose', label: '✅ 7 Lý do', desc: '7 lý do chọn Giang Nguyên' },
@@ -258,6 +259,7 @@ export default function ContentManagerV2() {
         {section === 'exit_popup' && <ExitPopupEditor />}
         {section === 'why_choose' && <WhyChooseEditor />}
         {section === 'promo_banners' && <PromoBannersEditor />}
+        {section === 'video_section' && <VideoSectionEditor />}
         {section === 'footer' && <SimpleEditor contentKey="footer" />}
       </div>
     </div>
@@ -1547,6 +1549,99 @@ function WhyChooseEditor() {
         <button onClick={() => setReasons([...reasons, { icon: 'package', title: '', details: [''] }])} className="text-sm text-primary font-bold hover:underline flex items-center gap-1">
           <Plus className="h-4 w-4" /> Thêm lý do
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ============ VIDEO SECTION EDITOR ============
+function VideoSectionEditor() {
+  const [data, setData] = useState({
+    videoUrl: '', title: 'Hành trình hải sản sạch từ biển Sầm Sơn',
+    features: ['Đánh bắt trực tiếp từ biển Sầm Sơn', 'Phơi nắng tự nhiên – Không sấy công nghiệp', 'Không hóa chất – An toàn tuyệt đối'],
+    ctaText: 'Xem sản phẩm ngay', ctaLink: '/san-pham', isActive: true,
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    loadContent('video_section').then(d => {
+      if (d) setData(d);
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => { setSaving(true); await saveContent('video_section', data); setSaving(false); };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) { toast.error('Video tối đa 50MB'); return; }
+    setUploading(true);
+    const ext = file.name.split('.').pop() || 'mp4';
+    const path = `videos/${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from('site-media').upload(path, file);
+    if (error) { toast.error('Upload lỗi: ' + error.message); setUploading(false); return; }
+    const { data: pub } = supabase.storage.from('site-media').getPublicUrl(path);
+    setData(d => ({ ...d, videoUrl: pub.publicUrl }));
+    toast.success('Đã tải video lên!');
+    setUploading(false);
+    if (fileRef.current) fileRef.current.value = '';
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">📹 Video phóng sự</h3>
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-bold text-foreground">Bật</label>
+          <button onClick={() => setData(d => ({ ...d, isActive: !d.isActive }))}
+            className={`w-10 h-5 rounded-full transition-colors relative ${data.isActive ? 'bg-primary' : 'bg-muted-foreground/30'}`}>
+            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${data.isActive ? 'left-5' : 'left-0.5'}`} />
+          </button>
+          <button onClick={save} disabled={saving} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+            <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+          </button>
+        </div>
+      </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Video (URL hoặc Upload)</label>
+          <div className="flex gap-2 items-center">
+            <input value={data.videoUrl} onChange={e => setData(d => ({ ...d, videoUrl: e.target.value }))}
+              placeholder="URL video hoặc upload..." className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            <input ref={fileRef} type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+            <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+              className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1 hover:opacity-90 disabled:opacity-50">
+              <Video className="h-3 w-3" /> {uploading ? 'Đang tải...' : 'Upload video'}
+            </button>
+          </div>
+          {data.videoUrl && (
+            <video src={data.videoUrl} className="w-full max-w-md rounded-lg mt-2 border border-border" controls muted />
+          )}
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+          <input value={data.title} onChange={e => setData(d => ({ ...d, title: e.target.value }))}
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <ListInput items={data.features} onChange={v => setData(d => ({ ...d, features: v }))} label="Điểm nổi bật" placeholder="VD: Đánh bắt trực tiếp..." />
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Nút CTA</label>
+            <input value={data.ctaText} onChange={e => setData(d => ({ ...d, ctaText: e.target.value }))}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-foreground mb-1">Link CTA</label>
+            <input value={data.ctaLink} onChange={e => setData(d => ({ ...d, ctaLink: e.target.value }))}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+        </div>
       </div>
     </div>
   );

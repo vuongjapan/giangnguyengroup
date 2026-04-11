@@ -263,7 +263,7 @@ export default function Checkout() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 py-6 flex-1 max-w-2xl">
+      <main className="container mx-auto px-4 py-6 flex-1 max-w-2xl pb-24 md:pb-6">
         <Link to="/" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">
           <ArrowLeft className="h-4 w-4" /> Tiếp tục mua hàng
         </Link>

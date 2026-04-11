@@ -7,6 +7,7 @@ import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
+import VideoSection from '@/components/VideoSection';
 import AboutSection from '@/components/AboutSection';
 import StoreLocations from '@/components/StoreLocations';
 import SocialProof from '@/components/SocialProof';
@@ -92,6 +93,9 @@ export default function Index() {
 
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
+
+      {/* Video phóng sự */}
+      <VideoSection />
 
       {/* Promo Banners - like daohaisan.vn */}
       <PromoBanners />

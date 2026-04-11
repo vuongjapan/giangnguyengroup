@@ -295,7 +295,68 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-4">
+            {/* Revenue Chart */}
+            {(() => {
+              const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const d = new Date();
+                d.setDate(d.getDate() - (6 - i));
+                const dateStr = d.toDateString();
+                const dayOrders = activeOrders.filter(o => new Date(o.created_at).toDateString() === dateStr);
+                return {
+                  name: d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }),
+                  revenue: dayOrders.reduce((s, o) => s + o.total, 0),
+                  orders: dayOrders.length,
+                };
+              });
+
+              const statusData = Object.entries(STATUS_LABELS).map(([key, val]) => ({
+                name: val.label,
+                value: orders.filter(o => o.status === key).length,
+              })).filter(d => d.value > 0);
+
+              const COLORS = ['hsl(var(--primary))', 'hsl(var(--coral))', 'hsl(45, 90%, 55%)', 'hsl(200, 80%, 40%)', 'hsl(130, 60%, 45%)', 'hsl(0, 70%, 55%)'];
+
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-4">
+                  <div className="bg-card rounded-xl border border-border p-4">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-primary" /> Doanh thu 7 ngày gần nhất
+                    </h3>
+                    <div className="h-[250px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={last7Days}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
+                          <YAxis tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `${(v / 1000000).toFixed(1)}M`} />
+                          <Tooltip
+                            formatter={(value: number) => [formatPrice(value), 'Doanh thu']}
+                            contentStyle={{ borderRadius: 12, border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))' }}
+                          />
+                          <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="bg-card rounded-xl border border-border p-4">
+                    <h3 className="font-bold text-foreground mb-4">Phân bố đơn hàng</h3>
+                    <div className="h-[250px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${name}: ${value}`}>
+                            {statusData.map((_, idx) => (
+                              <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
               <div className="bg-card rounded-xl border border-border p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <BellRing className="h-5 w-5 text-primary" />

@@ -76,7 +76,7 @@ export default function Index() {
       case 'hot': result.sort((a, b) => (b.badges.includes('hot') ? 1 : 0) - (a.badges.includes('hot') ? 1 : 0)); break;
     }
     return result;
-  }, [filters, sort]);
+  }, [filters, sort, products]);
 
   const hasFilters = Object.values(filters).some(v => v !== null);
   const bestSellers = products.filter(p => p.badges.includes('hot'));

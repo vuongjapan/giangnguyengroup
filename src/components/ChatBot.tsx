@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { useProducts } from '@/hooks/useProducts';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -12,6 +13,7 @@ const QUICK_REPLIES = ['Xem giá mực khô', 'Combo quà biếu', 'Tư vấn mu
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
+  const { products } = useProducts();
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'Xin chào 👋 Giang Nguyen Seafood chuyên hải sản khô sạch Sầm Sơn.\nBạn muốn xem giá mực khô, tôm khô hay cá khô hôm nay ạ?' },
   ]);
@@ -23,11 +25,15 @@ export default function ChatBot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Auto-open after 3 seconds
   useEffect(() => {
     const timer = setTimeout(() => setOpen(true), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  // Build product context for AI
+  const productContext = products.map(p => 
+    `- ${p.name}: ${p.price.toLocaleString('vi-VN')}₫/${p.unit} (${p.category}, ${p.grade})`
+  ).join('\n');
 
   const sendMessage = async (text?: string) => {
     const userText = (text || input).trim();
@@ -42,6 +48,9 @@ export default function ChatBot() {
     let assistantSoFar = '';
 
     try {
+      // Include product data as system context
+      const systemContext = productContext ? `\n\nSẢN PHẨM HIỆN CÓ TRÊN WEBSITE:\n${productContext}` : '';
+      
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
@@ -50,12 +59,11 @@ export default function ChatBot() {
         },
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          productContext: systemContext,
         }),
       });
 
-      if (!resp.ok || !resp.body) {
-        throw new Error('Failed to connect');
-      }
+      if (!resp.ok || !resp.body) throw new Error('Failed to connect');
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
@@ -71,17 +79,11 @@ export default function ChatBot() {
         while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
           let line = textBuffer.slice(0, newlineIndex);
           textBuffer = textBuffer.slice(newlineIndex + 1);
-
           if (line.endsWith('\r')) line = line.slice(0, -1);
           if (line.startsWith(':') || line.trim() === '') continue;
           if (!line.startsWith('data: ')) continue;
-
           const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') {
-            streamDone = true;
-            break;
-          }
-
+          if (jsonStr === '[DONE]') { streamDone = true; break; }
           try {
             const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
@@ -95,10 +97,7 @@ export default function ChatBot() {
                 return [...prev, { role: 'assistant', content: assistantSoFar }];
               });
             }
-          } catch {
-            textBuffer = line + '\n' + textBuffer;
-            break;
-          }
+          } catch { textBuffer = line + '\n' + textBuffer; break; }
         }
       }
 
@@ -116,21 +115,21 @@ export default function ChatBot() {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantSoFar += content;
-              setMessages(prev => {
-                return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-              });
+              setMessages(prev => prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m)));
             }
           } catch { /* ignore */ }
         }
       }
-    } catch (e) {
-      // Fallback to simple responses
+    } catch {
       const lower = userText.toLowerCase();
       let reply = 'Cảm ơn bạn! Để em tư vấn thêm, bạn cho em xin tên và số điện thoại nhé ạ? 😊';
       if (lower.includes('mực khô') || lower.includes('giá mực')) {
-        reply = '🦑 Mực khô Sầm Sơn:\n• Loại 1: 1.450.000₫/kg\n• Loại 2: 1.250.000₫/kg\n• Mực 1 nắng: 450.000₫/kg\n• Mực trứng: 500.000₫/kg\n\nAnh/chị muốn em giữ hàng cho mình không ạ?';
+        const mucProducts = products.filter(p => p.name.toLowerCase().includes('mực'));
+        if (mucProducts.length > 0) {
+          reply = '🦑 Mực khô Sầm Sơn:\n' + mucProducts.map(p => `• ${p.name}: ${p.price.toLocaleString('vi-VN')}₫/${p.unit}`).join('\n') + '\n\nAnh/chị muốn em giữ hàng cho mình không ạ?';
+        }
       } else if (lower.includes('combo') || lower.includes('quà')) {
-        reply = '🎁 Combo quà biếu HOT:\n• Combo VIP: Mực khô L1 + Mực trứng\n• Combo Gia đình: Cá thu + Nem chua\n• Combo Du lịch: 3 loại mini\n\nAnh/chị muốn em giữ hàng cho mình không ạ?';
+        reply = '🎁 Combo quà biếu HOT:\nVui lòng xem trang Combo để chọn gói phù hợp ạ!\n\nAnh/chị muốn em tư vấn thêm không ạ?';
       } else if (lower.includes('ship') || lower.includes('giao')) {
         reply = '🚚 Ship toàn quốc!\n• FREE ship đơn từ 500K\n• HN, HCM: 1-2 ngày\n\nAnh/chị ở đâu để em báo phí ship ạ?';
       }
@@ -145,7 +144,7 @@ export default function ChatBot() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-4 z-40 ocean-gradient text-primary-foreground rounded-full p-4 shadow-lg hover:opacity-90 transition-all active:scale-95 animate-bounce-soft"
+          className="fixed bottom-20 md:bottom-6 right-4 z-40 ocean-gradient text-primary-foreground rounded-full p-4 shadow-lg hover:opacity-90 transition-all active:scale-95 animate-bounce-soft"
           aria-label="Mở chat tư vấn"
         >
           <MessageCircle className="h-6 w-6" />
@@ -153,7 +152,7 @@ export default function ChatBot() {
       )}
 
       {open && (
-        <div className="fixed bottom-6 right-4 z-40 w-80 md:w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[500px] animate-fade-in">
+        <div className="fixed bottom-20 md:bottom-6 right-4 z-40 w-[calc(100vw-2rem)] max-w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[60vh] md:max-h-[500px] animate-fade-in">
           <div className="ocean-gradient rounded-t-2xl p-3 flex items-center justify-between">
             <div>
               <p className="font-bold text-primary-foreground text-sm">Giang Nguyen Seafood</p>
@@ -164,12 +163,10 @@ export default function ChatBot() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px]">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[150px]">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-line ${
-                  m.role === 'user' ? 'ocean-gradient text-primary-foreground' : 'bg-muted text-foreground'
-                }`}>
+                <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-line ${m.role === 'user' ? 'ocean-gradient text-primary-foreground' : 'bg-muted text-foreground'}`}>
                   {m.content}
                 </div>
               </div>
@@ -186,30 +183,18 @@ export default function ChatBot() {
 
           <div className="px-3 pb-2 flex flex-wrap gap-1">
             {messages.length <= 2 && QUICK_REPLIES.map(qr => (
-              <button
-                key={qr}
-                onClick={() => sendMessage(qr)}
-                className="text-xs bg-ocean-light text-primary font-medium px-2.5 py-1 rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
-              >
+              <button key={qr} onClick={() => sendMessage(qr)}
+                className="text-xs bg-ocean-light text-primary font-medium px-2.5 py-1 rounded-full hover:bg-primary hover:text-primary-foreground transition-colors">
                 {qr}
               </button>
             ))}
           </div>
 
           <div className="p-3 pt-0 flex gap-2">
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && sendMessage()}
-              placeholder="Nhắn tin..."
-              className="flex-1 border border-border rounded-full px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
-              disabled={isLoading}
-            />
-            <button
-              onClick={() => sendMessage()}
-              disabled={isLoading}
-              className="ocean-gradient text-primary-foreground p-2 rounded-full hover:opacity-90 disabled:opacity-50"
-            >
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendMessage()}
+              placeholder="Nhắn tin..." className="flex-1 border border-border rounded-full px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40" disabled={isLoading} />
+            <button onClick={() => sendMessage()} disabled={isLoading}
+              className="ocean-gradient text-primary-foreground p-2 rounded-full hover:opacity-90 disabled:opacity-50">
               <Send className="h-4 w-4" />
             </button>
           </div>

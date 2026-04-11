@@ -83,7 +83,7 @@ interface ContactInfo {
   address: string;
 }
 
-type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup' | 'why_choose' | 'promo_banners';
+type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup' | 'why_choose' | 'promo_banners' | 'video_section';
 
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);
@@ -219,6 +219,7 @@ export default function ContentManagerV2() {
 
   const sections: { key: ContentSection; label: string; desc: string }[] = [
     { key: 'hero', label: '🎬 Hero Banner', desc: 'Video nền & slide trang chủ' },
+    { key: 'video_section', label: '📹 Video phóng sự', desc: 'Video + mô tả dưới hero' },
     { key: 'promo_banners', label: '🖼️ Banner QC', desc: 'Ảnh quảng cáo trang chủ' },
     { key: 'promotions', label: '🎉 Khuyến mãi', desc: 'Flash sale, ưu đãi mua nhiều' },
     { key: 'why_choose', label: '✅ 7 Lý do', desc: '7 lý do chọn Giang Nguyên' },
@@ -258,6 +259,7 @@ export default function ContentManagerV2() {
         {section === 'exit_popup' && <ExitPopupEditor />}
         {section === 'why_choose' && <WhyChooseEditor />}
         {section === 'promo_banners' && <PromoBannersEditor />}
+        {section === 'video_section' && <VideoSectionEditor />}
         {section === 'footer' && <SimpleEditor contentKey="footer" />}
       </div>
     </div>

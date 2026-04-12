@@ -54,7 +54,7 @@ export default function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <div className="p-4 border-t border-border space-y-3">
+          <div className="p-4 pb-20 md:pb-4 border-t border-border space-y-3">
             <div className="flex justify-between items-center">
               <span className="font-bold text-foreground">Tổng cộng:</span>
               <span className="text-xl font-extrabold text-primary">{formatPrice(totalPrice)}</span>

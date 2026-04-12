@@ -8,7 +8,8 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles, Printer, PlusCircle
+  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare
+} from 'lucide-react';
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
@@ -91,6 +92,7 @@ export default function AdminDashboard() {
   const [showComboForm, setShowComboForm] = useState(false);
   const [orderFilter, setOrderFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) navigate('/admin/login');
@@ -100,7 +102,7 @@ export default function AdminDashboard() {
     if (isAdmin) { fetchAll(); }
   }, [isAdmin]);
 
-  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); fetchCoupons(); fetchCombos(); };
+  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); fetchCoupons(); fetchCombos(); fetchReviews(); };
 
   useEffect(() => {
     if (!isAdmin) return;

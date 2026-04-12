@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingBag, Gift, Truck, Star } from 'lucide-react';
 import { useSiteContent } from '@/hooks/useSiteContent';
+import { Link } from 'react-router-dom';
 
 interface PromoBanner {
   image: string;
@@ -23,6 +24,45 @@ const DEFAULT_DATA: PromoData = {
   ],
 };
 
+const FALLBACK_PROMOS = [
+  {
+    icon: ShoppingBag,
+    title: 'MỰC KHÔ SẦM SƠN',
+    desc: 'Phơi nắng tự nhiên – Loại 1 cao cấp',
+    badge: 'HOT',
+    badgeColor: 'bg-coral',
+    gradient: 'from-[hsl(200,85%,30%)] to-[hsl(200,80%,45%)]',
+    link: '/san-pham?category=M%E1%BB%B1c+kh%C3%B4',
+  },
+  {
+    icon: Gift,
+    title: 'COMBO QUÀ BIẾU',
+    desc: 'Đóng hộp sang trọng – Giảm đến 20%',
+    badge: 'SALE',
+    badgeColor: 'bg-accent text-accent-foreground',
+    gradient: 'from-[hsl(45,90%,45%)] to-[hsl(35,85%,50%)]',
+    link: '/combo',
+  },
+  {
+    icon: Truck,
+    title: 'FREE SHIP TOÀN QUỐC',
+    desc: 'Đơn từ 500K – Giao tận nhà',
+    badge: 'FREE',
+    badgeColor: 'bg-green-500',
+    gradient: 'from-[hsl(142,76%,30%)] to-[hsl(142,60%,45%)]',
+    link: '/san-pham',
+  },
+  {
+    icon: Star,
+    title: 'CÁ CHỈ VÀNG – CÁ THU',
+    desc: '1 nắng tươi ngon – Cam kết chất lượng',
+    badge: 'NEW',
+    badgeColor: 'bg-primary',
+    gradient: 'from-[hsl(15,85%,45%)] to-[hsl(15,85%,55%)]',
+    link: '/san-pham?category=H%E1%BA%A3i+s%E1%BA%A3n+1+n%E1%BA%AFng',
+  },
+];
+
 export default function PromoBanners() {
   const { data } = useSiteContent<PromoData>('promo_banners', DEFAULT_DATA);
   const mainBanners = data.mainBanners?.filter(b => b.image) || [];
@@ -35,21 +75,47 @@ export default function PromoBanners() {
     return () => clearInterval(timer);
   }, [mainBanners.length]);
 
-  if (mainBanners.length === 0 && sideBanners.length === 0) return null;
+  const hasImages = mainBanners.length > 0 || sideBanners.length > 0;
+
+  // If admin hasn't uploaded promo images, show styled fallback cards
+  if (!hasImages) {
+    return (
+      <section className="py-4 md:py-6">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3">
+            {FALLBACK_PROMOS.map((promo, i) => (
+              <Link
+                key={i}
+                to={promo.link}
+                className={`relative bg-gradient-to-br ${promo.gradient} rounded-xl p-4 md:p-5 text-primary-foreground overflow-hidden group hover:shadow-lg transition-shadow`}
+              >
+                <div className="absolute top-2 right-2">
+                  <span className={`${promo.badgeColor} text-primary-foreground text-[10px] font-black px-2 py-0.5 rounded-full`}>
+                    {promo.badge}
+                  </span>
+                </div>
+                <promo.icon className="h-7 w-7 md:h-8 md:h-8 mb-2 opacity-90" />
+                <h3 className="font-black text-xs md:text-sm leading-tight mb-1">{promo.title}</h3>
+                <p className="text-[10px] md:text-xs opacity-80 leading-snug">{promo.desc}</p>
+                <span className="inline-block mt-2 text-[10px] md:text-xs font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+                  Xem ngay →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-4 md:py-6">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Main banner carousel */}
           {mainBanners.length > 0 && (
             <div className="md:col-span-2 relative rounded-xl overflow-hidden group aspect-[2/1] bg-muted">
               {mainBanners.map((b, i) => (
-                <a
-                  key={i}
-                  href={b.link}
-                  className={`absolute inset-0 transition-opacity duration-500 ${i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                >
+                <a key={i} href={b.link} className={`absolute inset-0 transition-opacity duration-500 ${i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                   <img src={b.image} alt={b.alt} className="w-full h-full object-cover" loading="lazy" />
                 </a>
               ))}
@@ -70,8 +136,6 @@ export default function PromoBanners() {
               )}
             </div>
           )}
-
-          {/* Side banners */}
           {sideBanners.length > 0 && (
             <div className="flex flex-row md:flex-col gap-3">
               {sideBanners.slice(0, 2).map((b, i) => (
@@ -82,8 +146,6 @@ export default function PromoBanners() {
             </div>
           )}
         </div>
-
-        {/* Bottom row banners */}
         {sideBanners.length > 2 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
             {sideBanners.slice(2, 6).map((b, i) => (

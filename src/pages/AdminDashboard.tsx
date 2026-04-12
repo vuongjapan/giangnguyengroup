@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
 import ContentManagerV2 from '@/components/admin/ContentManagerV2';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'content' | 'settings';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;

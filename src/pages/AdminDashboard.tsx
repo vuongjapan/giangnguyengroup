@@ -8,13 +8,13 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles, Printer, PlusCircle
+  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
 import ContentManagerV2 from '@/components/admin/ContentManagerV2';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'content' | 'settings';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -91,6 +91,7 @@ export default function AdminDashboard() {
   const [showComboForm, setShowComboForm] = useState(false);
   const [orderFilter, setOrderFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) navigate('/admin/login');
@@ -100,7 +101,7 @@ export default function AdminDashboard() {
     if (isAdmin) { fetchAll(); }
   }, [isAdmin]);
 
-  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); fetchCoupons(); fetchCombos(); };
+  const fetchAll = () => { fetchProducts(); fetchStores(); fetchOrders(); fetchMembers(); fetchHotels(); fetchCoupons(); fetchCombos(); fetchReviews(); };
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -143,6 +144,15 @@ export default function AdminDashboard() {
   const fetchCombos = async () => {
     const { data } = await supabase.from('combos').select('*').order('sort_order');
     if (data) setCombos(data as unknown as DBCombo[]);
+  };
+  const fetchReviews = async () => {
+    const { data } = await supabase.from('product_reviews').select('*').order('created_at', { ascending: false });
+    if (data) setReviews(data as any[]);
+  };
+  const deleteReview = async (id: string) => {
+    if (!confirm('Xóa đánh giá này?')) return;
+    await supabase.from('product_reviews').delete().eq('id', id);
+    toast.success('Đã xóa đánh giá'); fetchReviews();
   };
 
   const deleteProduct = async (id: string) => {
@@ -240,6 +250,7 @@ export default function AdminDashboard() {
     { id: 'members' as Tab, label: `Thành viên (${members.length})`, icon: Users },
     { id: 'stores' as Tab, label: `Cửa hàng (${stores.length})`, icon: Store },
     { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
+    { id: 'reviews' as Tab, label: `Đánh giá (${reviews.length})`, icon: Star },
     { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
     { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
@@ -351,6 +362,64 @@ export default function AdminDashboard() {
                           <Tooltip />
                         </PieChart>
                       </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Top Products & 30-day trend */}
+            {(() => {
+              const productSales: Record<string, { name: string; qty: number; revenue: number }> = {};
+              orders.forEach(o => {
+                if (o.status === 'cancelled') return;
+                (o.items as any[]).forEach((item: any) => {
+                  const key = item.name || item.productId;
+                  if (!productSales[key]) productSales[key] = { name: item.name, qty: 0, revenue: 0 };
+                  productSales[key].qty += item.quantity;
+                  productSales[key].revenue += item.price * item.quantity;
+                });
+              });
+              const topProducts = Object.values(productSales).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+              const last30 = Array.from({ length: 30 }, (_, i) => {
+                const d = new Date(); d.setDate(d.getDate() - (29 - i));
+                const ds = d.toDateString();
+                const dayOrd = activeOrders.filter(o => new Date(o.created_at).toDateString() === ds);
+                return { name: d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }), revenue: dayOrd.reduce((s, o) => s + o.total, 0) };
+              });
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="bg-card rounded-xl border border-border p-4">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-primary" /> Xu hướng doanh thu 30 ngày
+                    </h3>
+                    <div className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={last30}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="name" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" interval={4} />
+                          <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `${(v / 1000000).toFixed(1)}M`} />
+                          <Tooltip formatter={(value: number) => [formatPrice(value), 'Doanh thu']} contentStyle={{ borderRadius: 12, border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))' }} />
+                          <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  <div className="bg-card rounded-xl border border-border p-4">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                      <Star className="h-5 w-5 text-accent" /> Top sản phẩm bán chạy
+                    </h3>
+                    <div className="space-y-3">
+                      {topProducts.length > 0 ? topProducts.map((tp, i) => (
+                        <div key={tp.name} className="flex items-center gap-3">
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${i === 0 ? 'ocean-gradient text-primary-foreground' : i === 1 ? 'gold-gradient text-accent-foreground' : 'bg-muted text-muted-foreground'}`}>{i + 1}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground text-sm truncate">{tp.name}</p>
+                            <p className="text-xs text-muted-foreground">{tp.qty} đã bán</p>
+                          </div>
+                          <span className="font-bold text-primary text-sm">{formatPrice(tp.revenue)}</span>
+                        </div>
+                      )) : <p className="text-sm text-muted-foreground text-center py-4">Chưa có dữ liệu</p>}
                     </div>
                   </div>
                 </div>
@@ -750,6 +819,56 @@ export default function AdminDashboard() {
 
         {/* ===== COUPONS ===== */}
         {tab === 'coupons' && <CouponManager coupons={coupons} fetchCoupons={fetchCoupons} />}
+
+        {/* ===== REVIEWS ===== */}
+        {tab === 'reviews' && (
+          <div>
+            <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+              <Star className="h-5 w-5 text-accent" /> Quản lý đánh giá khách hàng ({reviews.length})
+            </h2>
+            {reviews.length === 0 ? (
+              <div className="bg-card rounded-xl border border-border p-8 text-center text-muted-foreground">
+                <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <p>Chưa có đánh giá nào</p>
+              </div>
+            ) : (
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted text-muted-foreground">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium">Khách hàng</th>
+                        <th className="text-center px-4 py-3 font-medium">Sao</th>
+                        <th className="text-left px-4 py-3 font-medium">Nội dung</th>
+                        <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Sản phẩm ID</th>
+                        <th className="text-center px-4 py-3 font-medium">Ngày</th>
+                        <th className="text-center px-4 py-3 font-medium">Xóa</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {reviews.map((r: any) => (
+                        <tr key={r.id} className="hover:bg-muted/50">
+                          <td className="px-4 py-3 font-medium text-foreground">{r.reviewer_name || 'Ẩn danh'}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="text-accent font-bold">{'⭐'.repeat(r.rating)}</span>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground max-w-[300px] truncate">{r.comment}</td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell font-mono">{r.product_id?.slice(0, 8)}...</td>
+                          <td className="px-4 py-3 text-center text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString('vi-VN')}</td>
+                          <td className="px-4 py-3 text-center">
+                            <button onClick={() => deleteReview(r.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ===== CONTENT ===== */}
         {tab === 'content' && <ContentManagerV2 />}

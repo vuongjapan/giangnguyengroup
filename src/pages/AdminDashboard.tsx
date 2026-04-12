@@ -250,6 +250,7 @@ export default function AdminDashboard() {
     { id: 'members' as Tab, label: `Thành viên (${members.length})`, icon: Users },
     { id: 'stores' as Tab, label: `Cửa hàng (${stores.length})`, icon: Store },
     { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
+    { id: 'reviews' as Tab, label: `Đánh giá (${reviews.length})`, icon: Star },
     { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
     { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
@@ -760,6 +761,56 @@ export default function AdminDashboard() {
 
         {/* ===== COUPONS ===== */}
         {tab === 'coupons' && <CouponManager coupons={coupons} fetchCoupons={fetchCoupons} />}
+
+        {/* ===== REVIEWS ===== */}
+        {tab === 'reviews' && (
+          <div>
+            <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+              <Star className="h-5 w-5 text-accent" /> Quản lý đánh giá khách hàng ({reviews.length})
+            </h2>
+            {reviews.length === 0 ? (
+              <div className="bg-card rounded-xl border border-border p-8 text-center text-muted-foreground">
+                <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-30" />
+                <p>Chưa có đánh giá nào</p>
+              </div>
+            ) : (
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted text-muted-foreground">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium">Khách hàng</th>
+                        <th className="text-center px-4 py-3 font-medium">Sao</th>
+                        <th className="text-left px-4 py-3 font-medium">Nội dung</th>
+                        <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Sản phẩm ID</th>
+                        <th className="text-center px-4 py-3 font-medium">Ngày</th>
+                        <th className="text-center px-4 py-3 font-medium">Xóa</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {reviews.map((r: any) => (
+                        <tr key={r.id} className="hover:bg-muted/50">
+                          <td className="px-4 py-3 font-medium text-foreground">{r.reviewer_name || 'Ẩn danh'}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="text-accent font-bold">{'⭐'.repeat(r.rating)}</span>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground max-w-[300px] truncate">{r.comment}</td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell font-mono">{r.product_id?.slice(0, 8)}...</td>
+                          <td className="px-4 py-3 text-center text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString('vi-VN')}</td>
+                          <td className="px-4 py-3 text-center">
+                            <button onClick={() => deleteReview(r.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ===== CONTENT ===== */}
         {tab === 'content' && <ContentManagerV2 />}

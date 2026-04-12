@@ -155,6 +155,7 @@ export default function AdminDashboard() {
     toast.success('Đã xóa đánh giá'); fetchReviews();
   };
 
+  const deleteProduct = async (id: string) => {
     if (!confirm('Xóa sản phẩm này?')) return;
     await supabase.from('products').delete().eq('id', id);
     toast.success('Đã xóa'); fetchProducts();

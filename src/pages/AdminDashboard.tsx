@@ -426,6 +426,7 @@ export default function AdminDashboard() {
               );
             })()}
 
+            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-4">
               <div className="bg-card rounded-xl border border-border p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <BellRing className="h-5 w-5 text-primary" />

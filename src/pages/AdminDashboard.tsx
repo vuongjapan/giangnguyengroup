@@ -368,7 +368,64 @@ export default function AdminDashboard() {
               );
             })()}
 
-            <div className="grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-4">
+            {/* Top Products & 30-day trend */}
+            {(() => {
+              const productSales: Record<string, { name: string; qty: number; revenue: number }> = {};
+              orders.forEach(o => {
+                if (o.status === 'cancelled') return;
+                (o.items as any[]).forEach((item: any) => {
+                  const key = item.name || item.productId;
+                  if (!productSales[key]) productSales[key] = { name: item.name, qty: 0, revenue: 0 };
+                  productSales[key].qty += item.quantity;
+                  productSales[key].revenue += item.price * item.quantity;
+                });
+              });
+              const topProducts = Object.values(productSales).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+              const last30 = Array.from({ length: 30 }, (_, i) => {
+                const d = new Date(); d.setDate(d.getDate() - (29 - i));
+                const ds = d.toDateString();
+                const dayOrd = activeOrders.filter(o => new Date(o.created_at).toDateString() === ds);
+                return { name: d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' }), revenue: dayOrd.reduce((s, o) => s + o.total, 0) };
+              });
+              return (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="bg-card rounded-xl border border-border p-4">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-primary" /> Xu hướng doanh thu 30 ngày
+                    </h3>
+                    <div className="h-[200px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={last30}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="name" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" interval={4} />
+                          <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" tickFormatter={v => `${(v / 1000000).toFixed(1)}M`} />
+                          <Tooltip formatter={(value: number) => [formatPrice(value), 'Doanh thu']} contentStyle={{ borderRadius: 12, border: '1px solid hsl(var(--border))', background: 'hsl(var(--card))' }} />
+                          <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  <div className="bg-card rounded-xl border border-border p-4">
+                    <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                      <Star className="h-5 w-5 text-accent" /> Top sản phẩm bán chạy
+                    </h3>
+                    <div className="space-y-3">
+                      {topProducts.length > 0 ? topProducts.map((tp, i) => (
+                        <div key={tp.name} className="flex items-center gap-3">
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${i === 0 ? 'ocean-gradient text-primary-foreground' : i === 1 ? 'gold-gradient text-accent-foreground' : 'bg-muted text-muted-foreground'}`}>{i + 1}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-foreground text-sm truncate">{tp.name}</p>
+                            <p className="text-xs text-muted-foreground">{tp.qty} đã bán</p>
+                          </div>
+                          <span className="font-bold text-primary text-sm">{formatPrice(tp.revenue)}</span>
+                        </div>
+                      )) : <p className="text-sm text-muted-foreground text-center py-4">Chưa có dữ liệu</p>}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
               <div className="bg-card rounded-xl border border-border p-4">
                 <div className="flex items-center gap-2 mb-4">
                   <BellRing className="h-5 w-5 text-primary" />

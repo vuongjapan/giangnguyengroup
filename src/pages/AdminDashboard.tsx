@@ -10,7 +10,6 @@ import {
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
   BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare
 } from 'lucide-react';
-} from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
 import ContentManagerV2 from '@/components/admin/ContentManagerV2';

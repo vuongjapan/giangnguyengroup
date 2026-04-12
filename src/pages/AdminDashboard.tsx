@@ -145,8 +145,16 @@ export default function AdminDashboard() {
     const { data } = await supabase.from('combos').select('*').order('sort_order');
     if (data) setCombos(data as unknown as DBCombo[]);
   };
+  const fetchReviews = async () => {
+    const { data } = await supabase.from('product_reviews').select('*').order('created_at', { ascending: false });
+    if (data) setReviews(data as any[]);
+  };
+  const deleteReview = async (id: string) => {
+    if (!confirm('Xóa đánh giá này?')) return;
+    await supabase.from('product_reviews').delete().eq('id', id);
+    toast.success('Đã xóa đánh giá'); fetchReviews();
+  };
 
-  const deleteProduct = async (id: string) => {
     if (!confirm('Xóa sản phẩm này?')) return;
     await supabase.from('products').delete().eq('id', id);
     toast.success('Đã xóa'); fetchProducts();

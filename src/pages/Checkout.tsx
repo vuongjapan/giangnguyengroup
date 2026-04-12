@@ -392,108 +392,134 @@ export default function Checkout() {
               </div>
             )}
 
-            <div className="bg-card rounded-xl border border-border overflow-hidden">
-              {/* Invoice Header */}
-              <div className="ocean-gradient p-5 text-center">
-                <h2 className="text-xl font-extrabold text-primary-foreground">GIANG NGUYEN SEAFOOD</h2>
-                <p className="text-primary-foreground/80 text-xs mt-1">Hải sản khô Sầm Sơn – Chất lượng tận tâm</p>
+            <div className="bg-card rounded-2xl border-2 border-primary/20 overflow-hidden shadow-xl">
+              {/* Invoice Header - Premium 5 Star */}
+              <div className="ocean-gradient p-6 text-center relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url(/images/giang-nguyen-banner.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    <span className="text-accent text-lg">⭐</span>
+                    <h2 className="text-xl md:text-2xl font-black text-primary-foreground tracking-wide">GIANG NGUYÊN SEAFOOD</h2>
+                    <span className="text-accent text-lg">⭐</span>
+                  </div>
+                  <p className="text-primary-foreground/80 text-xs">CÔNG TY TNHH GIANG NGUYÊN GROUP</p>
+                  <p className="text-primary-foreground/70 text-[10px] mt-1">Hải sản khô & 1 nắng cao cấp Sầm Sơn, Thanh Hóa</p>
+                  <div className="flex items-center justify-center gap-4 mt-2 text-[10px] text-primary-foreground/70">
+                    <span>📞 098.661.7939</span>
+                    <span>📍 Sầm Sơn, Thanh Hóa</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-5 space-y-4">
-                <div className="text-center">
-                  <h3 className="text-lg font-extrabold text-foreground">HÓA ĐƠN ĐẶT HÀNG</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Mã đơn: <span className="font-bold text-primary">{orderCode}</span>
-                    <button onClick={() => copyToClipboard(orderCode)} className="ml-2 inline-flex items-center">
-                      {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3 text-muted-foreground hover:text-primary" />}
+              <div className="p-5 md:p-6 space-y-4">
+                {/* Invoice Title */}
+                <div className="text-center border-b-2 border-dashed border-primary/20 pb-4">
+                  <div className="inline-block bg-primary/10 rounded-full px-6 py-1.5 mb-2">
+                    <h3 className="text-base font-black text-primary tracking-wider">HÓA ĐƠN ĐẶT HÀNG</h3>
+                  </div>
+                  <div className="flex items-center justify-center gap-3 text-sm">
+                    <span className="text-muted-foreground">Mã đơn:</span>
+                    <span className="font-black text-primary text-base bg-primary/5 px-3 py-0.5 rounded-lg">{orderCode}</span>
+                    <button onClick={() => copyToClipboard(orderCode)} className="inline-flex items-center">
+                      {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5 text-muted-foreground hover:text-primary" />}
                     </button>
-                  </p>
-                  <p className="text-xs text-muted-foreground">Ngày: {new Date().toLocaleDateString('vi-VN')}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">📅 {new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
 
                 {/* Status Badge */}
                 <div className="text-center">
-                  <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-bold ${
+                  <span className={`inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold shadow-sm ${
                     paymentStatus === 'deposit_paid' 
-                      ? 'bg-green-100 text-green-700 border border-green-300' 
-                      : 'bg-orange-100 text-orange-700 border border-orange-300'
+                      ? 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-300' 
+                      : 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 border border-orange-300'
                   }`}>
-                    {paymentStatus === 'deposit_paid' ? '✅ ĐÃ CỌC 50%' : '⏳ CHƯA THANH TOÁN'}
+                    {paymentStatus === 'deposit_paid' ? '✅ ĐÃ CỌC 50% – XÁC NHẬN' : '⏳ CHỜ THANH TOÁN CỌC'}
                   </span>
                 </div>
 
-                {/* Customer Info */}
-                <div className="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
-                  <p className="text-foreground">👤 {displayCustomer.name}</p>
-                  <p className="text-foreground">📞 {displayCustomer.phone}</p>
-                  {displayCustomer.email && <p className="text-foreground">📧 {displayCustomer.email}</p>}
-                  <p className="text-foreground">📍 {displayCustomer.address}</p>
+                {/* Customer Info - Premium Card */}
+                <div className="bg-gradient-to-br from-muted/60 to-muted/30 rounded-xl p-4 border border-border/50">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Thông tin khách hàng</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <p className="text-foreground flex items-center gap-2"><span className="text-primary">👤</span> <strong>{displayCustomer.name}</strong></p>
+                    <p className="text-foreground flex items-center gap-2"><span className="text-primary">📞</span> {displayCustomer.phone}</p>
+                    {displayCustomer.email && <p className="text-foreground flex items-center gap-2"><span className="text-primary">📧</span> {displayCustomer.email}</p>}
+                    <p className="text-foreground flex items-center gap-2 sm:col-span-2"><span className="text-primary">📍</span> {displayCustomer.address}</p>
+                  </div>
                 </div>
 
-                {/* Products */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-muted/50 text-muted-foreground">
-                        <th className="py-2 px-2 text-left">Sản phẩm</th>
-                        <th className="py-2 px-2 text-center">SL</th>
-                        <th className="py-2 px-2 text-right">Đơn giá</th>
-                        <th className="py-2 px-2 text-right">Thành tiền</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {displayItems.map((item: any, i: number) => (
-                        <tr key={i} className="border-b border-border">
-                          <td className="py-2 px-2 text-foreground">{item.name}</td>
-                          <td className="py-2 px-2 text-center text-foreground">{item.quantity}</td>
-                          <td className="py-2 px-2 text-right text-foreground">{formatPrice(item.price)}</td>
-                          <td className="py-2 px-2 text-right font-bold text-foreground">{formatPrice(item.price * item.quantity)}</td>
+                {/* Products Table - Premium */}
+                <div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Chi tiết đơn hàng</p>
+                  <div className="overflow-x-auto rounded-xl border border-border">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="ocean-gradient text-primary-foreground">
+                          <th className="py-2.5 px-3 text-left font-bold text-xs">Sản phẩm</th>
+                          <th className="py-2.5 px-2 text-center font-bold text-xs">SL</th>
+                          <th className="py-2.5 px-2 text-right font-bold text-xs">Đơn giá</th>
+                          <th className="py-2.5 px-3 text-right font-bold text-xs">Thành tiền</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {displayItems.map((item: any, i: number) => (
+                          <tr key={i} className={`border-b border-border/50 ${i % 2 === 0 ? 'bg-muted/20' : ''}`}>
+                            <td className="py-2.5 px-3 text-foreground font-medium">{item.name}</td>
+                            <td className="py-2.5 px-2 text-center text-foreground">{item.quantity}</td>
+                            <td className="py-2.5 px-2 text-right text-muted-foreground">{formatPrice(item.price)}</td>
+                            <td className="py-2.5 px-3 text-right font-bold text-foreground">{formatPrice(item.price * item.quantity)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
-                {/* Totals */}
-                <div className="bg-muted/50 rounded-lg p-3 space-y-1.5 text-sm">
+                {/* Totals - Premium */}
+                <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-4 border border-primary/10 space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tổng tiền hàng:</span>
                     <span className="font-bold text-foreground">{formatPrice(displaySubtotal)}</span>
                   </div>
                   {displayHotelDiscount > 0 && (
                     <div className="flex justify-between text-primary">
-                      <span>Giảm khách sạn:</span>
+                      <span>🏨 Giảm khách sạn:</span>
                       <span className="font-bold">-{formatPrice(displayHotelDiscount)}</span>
                     </div>
                   )}
                   {displayCouponDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
-                      <span>Giảm mã {orderData?.coupon_code || appliedCoupon?.code}:</span>
+                      <span>🎫 Mã {orderData?.coupon_code || appliedCoupon?.code}:</span>
                       <span className="font-bold">-{formatPrice(displayCouponDiscount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between border-t border-border pt-1.5">
-                    <span className="font-bold text-foreground">Tổng thanh toán:</span>
-                    <span className="font-extrabold text-primary text-lg">{formatPrice(displayTotal)}</span>
+                  <div className="flex justify-between border-t-2 border-primary/20 pt-2">
+                    <span className="font-black text-foreground text-base">TỔNG THANH TOÁN</span>
+                    <span className="font-black text-primary text-xl">{formatPrice(displayTotal)}</span>
                   </div>
-                  <div className="flex justify-between text-orange-600 font-semibold">
-                    <span>🔸 Cọc 50%:</span>
-                    <span className="text-lg font-extrabold">{formatPrice(displayDepositAmount)}</span>
+                  <div className="flex justify-between bg-orange-50 rounded-lg px-3 py-2 border border-orange-200">
+                    <span className="text-orange-700 font-bold">🔸 Cọc 50%:</span>
+                    <span className="font-black text-orange-700 text-lg">{formatPrice(displayDepositAmount)}</span>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Còn lại:</span>
+                  <div className="flex justify-between text-muted-foreground text-xs">
+                    <span>Còn lại khi nhận hàng:</span>
                     <span className="font-bold">{formatPrice(displayRemainingAmount)}</span>
                   </div>
                 </div>
 
                 {/* QR Payment */}
                 {paymentStatus !== 'deposit_paid' && (
-                <div className="text-center space-y-3">
-                  <h4 className="font-extrabold text-foreground text-lg">Quét QR để thanh toán cọc</h4>
+                <div className="text-center space-y-3 border-t-2 border-dashed border-primary/20 pt-4">
+                  <h4 className="font-black text-foreground text-lg flex items-center justify-center gap-2">
+                    <span className="text-primary">💳</span> Quét QR để thanh toán cọc
+                  </h4>
                   <div className="flex justify-center">
-                    <img src={qrUrl} alt="QR thanh toán SePay" className="w-56 h-56 rounded-xl border-2 border-primary/30 shadow-lg" width={224} height={224} />
+                    <div className="p-3 bg-card rounded-2xl border-2 border-primary/20 shadow-lg">
+                      <img src={qrUrl} alt="QR thanh toán SePay" className="w-52 h-52 md:w-56 md:h-56 rounded-xl" width={224} height={224} />
+                    </div>
                   </div>
-                  <div className="bg-gradient-to-b from-amber-50 to-orange-50 border border-amber-300 rounded-xl p-4 text-sm space-y-1 max-w-sm mx-auto shadow-sm">
+                  <div className="bg-gradient-to-b from-amber-50 to-orange-50 border-2 border-amber-300 rounded-xl p-4 text-sm space-y-1.5 max-w-sm mx-auto shadow-sm">
                     <p className="text-amber-900">🏦 Ngân hàng: <strong>VietinBank</strong></p>
                     <p className="text-amber-900">👤 Chủ TK: <strong>VAN THI MINH LINH</strong></p>
                     <p className="text-amber-900">💳 STK: <strong>104002912582</strong></p>
@@ -509,10 +535,17 @@ export default function Checkout() {
                 )}
               </div>
 
-              {/* Invoice Footer */}
-              <div className="bg-muted/50 p-4 text-center border-t border-border">
-                <p className="text-xs text-muted-foreground">Hotline: <strong>098.661.7939</strong> | Zalo: <strong>098.661.7939</strong></p>
-                <p className="text-[10px] text-muted-foreground mt-1">© {new Date().getFullYear()} Giang Nguyen Seafood – Sầm Sơn, Thanh Hóa</p>
+              {/* Invoice Footer - Premium */}
+              <div className="ocean-gradient p-4 text-center">
+                <p className="text-primary-foreground/90 text-xs font-medium">Cảm ơn quý khách đã tin tưởng Giang Nguyên Seafood!</p>
+                <div className="flex items-center justify-center gap-3 mt-1.5 text-[10px] text-primary-foreground/70">
+                  <span>📞 098.661.7939</span>
+                  <span>•</span>
+                  <span>Zalo: 098.661.7939</span>
+                  <span>•</span>
+                  <span>📍 Sầm Sơn, Thanh Hóa</span>
+                </div>
+                <p className="text-[9px] text-primary-foreground/50 mt-1">© {new Date().getFullYear()} CÔNG TY TNHH GIANG NGUYÊN GROUP</p>
               </div>
             </div>
 

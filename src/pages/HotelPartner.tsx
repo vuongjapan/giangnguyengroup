@@ -260,7 +260,7 @@ export default function HotelPartner() {
             <Link to="/san-pham" className="bg-white text-primary font-bold px-8 py-3 rounded-full hover:bg-white/90 transition-colors">
               Xem tất cả sản phẩm
             </Link>
-            <a href="tel:0123456789" className="border-2 border-white text-white font-bold px-8 py-3 rounded-full hover:bg-white/10 transition-colors flex items-center gap-2">
+            <a href="tel:0933562286" className="border-2 border-white text-white font-bold px-8 py-3 rounded-full hover:bg-white/10 transition-colors flex items-center gap-2">
               <Phone className="h-5 w-5" /> Gọi đặt hàng
             </a>
           </div>

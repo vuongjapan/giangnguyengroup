@@ -16,7 +16,7 @@ export const stores: Store[] = [
     address: 'Quầy số 7A7B – Đại lý hải sản khô chợ Cột Đỏ, Sầm Sơn, Thanh Hóa',
     lat: 19.7580,
     lng: 105.9040,
-    phone: '0123456789',
+    phone: '0933562286',
     hours: '7:00 – 21:00',
   },
   {
@@ -25,7 +25,7 @@ export const stores: Store[] = [
     address: 'LK29 – Khu nghỉ dưỡng FLC Sầm Sơn, Thanh Hóa',
     lat: 19.7420,
     lng: 105.8980,
-    phone: '0123456789',
+    phone: '0933562286',
     hours: '7:00 – 21:00',
   },
   {
@@ -34,7 +34,7 @@ export const stores: Store[] = [
     address: 'Số 50 Nguyễn Thị Minh Khai, Trường Sơn, Sầm Sơn, Thanh Hóa',
     lat: 19.7650,
     lng: 105.9100,
-    phone: '0123456789',
+    phone: '0933562286',
     hours: '7:00 – 21:00',
   },
 ];

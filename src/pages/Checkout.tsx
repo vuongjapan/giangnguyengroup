@@ -405,7 +405,7 @@ export default function Checkout() {
                   <p className="text-primary-foreground/80 text-xs">CÔNG TY TNHH GIANG NGUYÊN GROUP</p>
                   <p className="text-primary-foreground/70 text-[10px] mt-1">Hải sản khô & 1 nắng cao cấp Sầm Sơn, Thanh Hóa</p>
                   <div className="flex items-center justify-center gap-4 mt-2 text-[10px] text-primary-foreground/70">
-                    <span>📞 098.661.7939</span>
+                    <span>📞 093.356.2286</span>
                     <span>📍 Sầm Sơn, Thanh Hóa</span>
                   </div>
                 </div>
@@ -539,9 +539,9 @@ export default function Checkout() {
               <div className="ocean-gradient p-4 text-center">
                 <p className="text-primary-foreground/90 text-xs font-medium">Cảm ơn quý khách đã tin tưởng Giang Nguyên Seafood!</p>
                 <div className="flex items-center justify-center gap-3 mt-1.5 text-[10px] text-primary-foreground/70">
-                  <span>📞 098.661.7939</span>
+                  <span>📞 093.356.2286</span>
                   <span>•</span>
-                  <span>Zalo: 098.661.7939</span>
+                  <span>Zalo: 093.356.2286</span>
                   <span>•</span>
                   <span>📍 Sầm Sơn, Thanh Hóa</span>
                 </div>

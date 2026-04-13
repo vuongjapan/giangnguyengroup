@@ -174,7 +174,7 @@ export default function ComboPage() {
         <div className="mt-10 ocean-gradient rounded-2xl p-8 text-center">
           <h3 className="text-xl font-black text-primary-foreground mb-2">Đặt combo ngay – Tiết kiệm đến 20%!</h3>
           <p className="text-primary-foreground/80 text-sm mb-4">Tất cả combo đều được đóng hộp quà sang trọng • Giao hàng toàn quốc</p>
-          <a href="tel:0986617939"
+          <a href="tel:0933562286"
             className="inline-block bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
             📞 GỌI ĐẶT HÀNG NGAY
           </a>

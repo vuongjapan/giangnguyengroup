@@ -72,7 +72,7 @@ export default function AboutSection() {
               <a href="#products" className="ocean-gradient text-primary-foreground font-bold px-6 py-3 rounded-full text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2">
                 <ShoppingCart className="h-4 w-4" /> Xem sản phẩm
               </a>
-              <a href="tel:0986617939" className="border-2 border-primary text-primary font-bold px-6 py-3 rounded-full text-sm hover:bg-primary hover:text-primary-foreground transition-colors inline-flex items-center gap-2">
+              <a href="tel:0933562286" className="border-2 border-primary text-primary font-bold px-6 py-3 rounded-full text-sm hover:bg-primary hover:text-primary-foreground transition-colors inline-flex items-center gap-2">
                 <Phone className="h-4 w-4" /> Liên hệ
               </a>
             </div>

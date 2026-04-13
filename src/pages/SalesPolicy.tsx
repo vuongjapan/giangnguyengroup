@@ -96,7 +96,7 @@ export default function SalesPolicy() {
 
         <div className="mt-10 ocean-gradient rounded-2xl p-8 text-center">
           <h3 className="text-xl font-black text-primary-foreground mb-2">Mua sắm an tâm cùng Giang Nguyên Group</h3>
-          <p className="text-primary-foreground/80 text-sm mb-4">Hotline hỗ trợ: 098.661.7939 • Zalo: 098.661.7939</p>
+          <p className="text-primary-foreground/80 text-sm mb-4">Hotline hỗ trợ: 093.356.2286 • Zalo: 093.356.2286</p>
           <Link to="/"
             className="inline-block bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
             🛒 MUA HÀNG NGAY

@@ -27,7 +27,7 @@ const DEFAULT_HIGHLIGHTS = [
 export default function AboutSection() {
   const { data: brand } = useSiteContent<BrandContent | null>('content_brand', null);
 
-  const title = brand?.storyTitle || 'Giới thiệu Giang Nguyên Seafood';
+  const title = brand?.storyTitle || 'Giới thiệu Giang Nguyên Group';
   const description = brand?.storyParagraphs?.[0] || 
     'Chúng tôi là đơn vị chuyên cung cấp hải sản khô đặc sản biển Sầm Sơn – từ mực khô, cá khô đến các loại hải sản 1 nắng cao cấp. Mỗi sản phẩm đều được lựa chọn kỹ lưỡng, phơi nắng tự nhiên, đảm bảo giữ trọn hương vị biển.';
   const storyImage = brand?.storyImage || 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop';

@@ -20,7 +20,7 @@ interface BrandContent {
 
 const DEFAULT_TIMELINE = [
   { year: '2014', title: 'Khởi đầu từ biển', desc: 'Gia đình ngư dân Sầm Sơn bắt đầu phơi mực, cá khô bán cho du khách.' },
-  { year: '2017', title: 'Thương hiệu đầu tiên', desc: 'Chính thức thành lập GIANG NGUYEN SEAFOOD, mở cửa hàng tại Sầm Sơn.' },
+  { year: '2017', title: 'Thương hiệu đầu tiên', desc: 'Chính thức thành lập Công ty TNHH GIANG NGUYÊN GROUP, mở cửa hàng tại Sầm Sơn.' },
   { year: '2019', title: 'Mở rộng toàn quốc', desc: 'Ship hàng toàn quốc, phục vụ hàng nghìn khách hàng từ Hà Nội đến TP.HCM.' },
   { year: '2021', title: 'Đạt chuẩn ATTP', desc: 'Được cấp chứng nhận An toàn Thực phẩm, quy trình sản xuất chuẩn.' },
   { year: '2023', title: 'Hệ thống 3 chi nhánh', desc: 'Mở thêm 2 chi nhánh tại Sầm Sơn, phục vụ du khách quanh năm.' },
@@ -45,13 +45,13 @@ export default function BrandStory() {
   const { data: dbBrand } = useSiteContent<BrandContent | null>('content_brand', null);
 
   const heroImage = dbBrand?.heroImage || 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1920&h=600&fit=crop';
-  const heroTitle = dbBrand?.heroTitle || 'Về Giang Nguyen Seafood';
+  const heroTitle = dbBrand?.heroTitle || 'Về Giang Nguyên Group';
   const heroSubtitle = dbBrand?.heroSubtitle || 'Hành trình từ ngư dân Sầm Sơn đến thương hiệu hải sản khô cao cấp số 1';
   const storyTitle = dbBrand?.storyTitle || 'Từ biển khơi đến bàn ăn';
   const storyParagraphs = dbBrand?.storyParagraphs?.length ? dbBrand.storyParagraphs : [
     'Sinh ra và lớn lên bên bờ biển Sầm Sơn, chúng tôi hiểu rõ từng con sóng, từng mùa cá. Mỗi ngày, khi tàu cá cập bến lúc rạng sáng, chúng tôi tự tay chọn lựa những con hải sản tươi ngon nhất – mực căng bóng, cá thu mắt trong, tôm đỏ au.',
     'Rồi nắng lên, từng mẻ hải sản được phơi trên giàn tre truyền thống, hứng trọn nắng gió biển Sầm Sơn. Không máy sấy, không hóa chất – chỉ có nắng, gió và tâm huyết của người làm nghề.',
-    'Đó là cách mà Giang Nguyen Seafood ra đời – từ tình yêu biển cả, từ sự trân trọng hương vị tự nhiên, và từ mong muốn mang đặc sản biển Sầm Sơn đến mọi gia đình Việt.',
+    'Đó là cách mà Giang Nguyên Group ra đời – từ tình yêu biển cả, từ sự trân trọng hương vị tự nhiên, và từ mong muốn mang đặc sản biển Sầm Sơn đến mọi gia đình Việt.',
   ];
   const storyImage = dbBrand?.storyImage || 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=500&fit=crop';
   const yearsExp = dbBrand?.yearsExperience || '10+';

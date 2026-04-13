@@ -1,6 +1,11 @@
-import { Star, Quote } from 'lucide-react';
+import { useState } from 'react';
+import { Star, Quote, Send } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-const REVIEWS = [
+const STATIC_REVIEWS = [
   {
     name: 'Chị Hương',
     location: 'Hà Nội',
@@ -49,6 +54,58 @@ const REVIEWS = [
 ];
 
 export default function CustomerReviews() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewName, setReviewName] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch user reviews from DB (general site reviews use a special product_id)
+  const { data: userReviews = [] } = useQuery({
+    queryKey: ['site-reviews'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('product_id', 'site-review')
+        .order('created_at', { ascending: false })
+        .limit(20);
+      return data || [];
+    },
+  });
+
+  const handleSubmitReview = async () => {
+    if (!user) {
+      toast.error('Vui lòng đăng nhập để đánh giá');
+      return;
+    }
+    if (!reviewText.trim() || !reviewName.trim()) {
+      toast.error('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase.from('product_reviews').insert({
+      product_id: 'site-review',
+      user_id: user.id,
+      reviewer_name: reviewName,
+      rating: reviewRating,
+      comment: reviewText,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error('Gửi đánh giá thất bại');
+    } else {
+      toast.success('Cảm ơn bạn đã đánh giá!');
+      setReviewText('');
+      setReviewName('');
+      setReviewRating(5);
+      setShowForm(false);
+      queryClient.invalidateQueries({ queryKey: ['site-reviews'] });
+    }
+  };
+
   return (
     <section className="py-8 md:py-12 bg-card">
       <div className="container mx-auto px-4">
@@ -58,7 +115,7 @@ export default function CustomerReviews() {
         </div>
 
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
-          {REVIEWS.map((review, i) => (
+          {STATIC_REVIEWS.map((review, i) => (
             <div
               key={i}
               className="flex-shrink-0 w-72 md:w-80 bg-background rounded-xl border border-border p-5 snap-start hover:shadow-lg transition-shadow"
@@ -89,6 +146,87 @@ export default function CustomerReviews() {
               </div>
             </div>
           ))}
+
+          {/* User submitted reviews */}
+          {userReviews.map((review: any) => (
+            <div
+              key={review.id}
+              className="flex-shrink-0 w-72 md:w-80 bg-background rounded-xl border border-primary/20 p-5 snap-start hover:shadow-lg transition-shadow"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-lg">
+                  👤
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-foreground text-sm">{review.reviewer_name}</p>
+                  <p className="text-[10px] text-muted-foreground">{new Date(review.created_at).toLocaleDateString('vi-VN')}</p>
+                </div>
+              </div>
+              <div className="flex gap-0.5 mb-2">
+                {Array.from({ length: review.rating }).map((_, j) => (
+                  <Star key={j} className="h-3.5 w-3.5 fill-accent text-accent" />
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">{review.comment}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Submit review */}
+        <div className="mt-6 text-center">
+          {!showForm ? (
+            <button
+              onClick={() => {
+                if (!user) {
+                  toast.error('Vui lòng đăng nhập để đánh giá');
+                  return;
+                }
+                setShowForm(true);
+              }}
+              className="ocean-gradient text-primary-foreground font-bold px-6 py-2.5 rounded-full text-sm hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+            >
+              <Star className="h-4 w-4" /> Viết đánh giá
+            </button>
+          ) : (
+            <div className="max-w-md mx-auto bg-background rounded-xl border border-border p-4 text-left">
+              <h3 className="font-bold text-foreground text-sm mb-3">Đánh giá của bạn</h3>
+              <input
+                value={reviewName}
+                onChange={e => setReviewName(e.target.value)}
+                placeholder="Tên hiển thị..."
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              />
+              <div className="flex gap-1 mb-2">
+                {[1, 2, 3, 4, 5].map(s => (
+                  <button key={s} onClick={() => setReviewRating(s)}>
+                    <Star className={`h-5 w-5 ${s <= reviewRating ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
+                  </button>
+                ))}
+              </div>
+              <textarea
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+                placeholder="Chia sẻ trải nghiệm của bạn..."
+                rows={3}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+              />
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={submitting}
+                  className="ocean-gradient text-primary-foreground font-bold px-5 py-2 rounded-full text-sm hover:opacity-90 disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  <Send className="h-3.5 w-3.5" /> Gửi đánh giá
+                </button>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="border border-border text-foreground font-medium px-4 py-2 rounded-full text-sm hover:bg-muted"
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Trust stats */}

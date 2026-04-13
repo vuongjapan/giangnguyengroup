@@ -56,7 +56,7 @@ export default function MobileBottomNav() {
             <span className="text-[10px] font-medium text-foreground">Danh mục</span>
           </button>
 
-          <a href="tel:0986617939" className="flex flex-col items-center gap-0.5 min-w-[56px]">
+          <a href="tel:0933562286" className="flex flex-col items-center gap-0.5 min-w-[56px]">
             <div className="relative">
               <Phone className="h-5 w-5 text-[#FF6B35]" />
               <span className="absolute -top-1 -right-2 bg-[#FF6B35] text-[7px] text-white px-1 rounded-full font-bold">8-21h</span>
@@ -64,12 +64,12 @@ export default function MobileBottomNav() {
             <span className="text-[10px] font-medium text-foreground">Hotline</span>
           </a>
 
-          <a href="https://m.me/giangnguyenseafood" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 min-w-[56px]">
+          <a href="https://m.me/giangnguyengroup" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 min-w-[56px]">
             <MessageCircle className="h-5 w-5 text-[#0084FF]" />
             <span className="text-[10px] font-medium text-foreground">Messenger</span>
           </a>
 
-          <a href="https://zalo.me/0986617939" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 min-w-[56px]">
+          <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-0.5 min-w-[56px]">
             <div className="w-5 h-5 bg-[#0068FF] rounded-full flex items-center justify-center">
               <span className="text-[8px] font-black text-white">Zalo</span>
             </div>

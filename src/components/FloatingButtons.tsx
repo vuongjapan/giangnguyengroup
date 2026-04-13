@@ -10,14 +10,14 @@ export default function FloatingButtons() {
 
   const buttons = [
     {
-      href: 'tel:0123456789',
+      href: 'tel:0933562286',
       label: 'Gọi điện',
       icon: <Phone className="h-5 w-5" />,
       className: 'bg-success text-primary-foreground animate-pulse-soft',
       tooltip: '📞 Gọi điện',
     },
     {
-      href: 'https://zalo.me/0123456789',
+      href: 'https://zalo.me/0933562286',
       label: 'Zalo',
       icon: <span className="text-xs font-black">Zalo</span>,
       className: 'bg-primary text-primary-foreground',

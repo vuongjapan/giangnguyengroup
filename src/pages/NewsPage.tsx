@@ -50,7 +50,7 @@ export default function NewsPage() {
       <section className="ocean-gradient py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
           <span className="inline-block bg-accent text-accent-foreground text-xs font-bold px-3 py-1 rounded-full mb-3">📰 TIN TỨC & SỰ KIỆN</span>
-          <h1 className="text-3xl md:text-4xl font-black text-primary-foreground mb-3">Tin tức Sầm Sơn & Giang Nguyen Seafood</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-primary-foreground mb-3">Tin tức Sầm Sơn & Giang Nguyên Group</h1>
           <p className="text-primary-foreground/80 max-w-lg mx-auto">Hàng mới về, tin biển, khuyến mãi và feedback khách hàng</p>
         </div>
       </section>

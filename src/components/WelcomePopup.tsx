@@ -53,7 +53,7 @@ export default function WelcomePopup() {
             <Gift className="h-8 w-8 text-primary-foreground" />
           </div>
           <h3 className="text-xl font-black text-primary-foreground">CHÀO MỪNG BẠN MỚI!</h3>
-          <p className="text-primary-foreground/80 text-sm mt-1">Giang Nguyen Seafood tặng bạn</p>
+          <p className="text-primary-foreground/80 text-sm mt-1">Giang Nguyên Group tặng bạn</p>
         </div>
 
         <div className="p-6">

@@ -97,7 +97,7 @@ export default function HotelPartner() {
           </h1>
           <p className="text-lg md:text-xl opacity-90 mb-2">Khách sạn cao cấp bên bờ biển Sầm Sơn</p>
           <p className="text-base opacity-80 max-w-2xl mx-auto mb-8">
-            Khách lưu trú được <span className="font-black text-xl text-yellow-300">GIẢM 5–10%</span> khi mua hải sản GIANG NGUYEN SEAFOOD – Giao tận phòng trong 30 phút
+            Khách lưu trú được <span className="font-black text-xl text-yellow-300">GIẢM 5–10%</span> khi mua hải sản GIANG NGUYÊN GROUP – Giao tận phòng trong 30 phút
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <a href="#verify" className="bg-white text-primary font-bold px-8 py-3 rounded-full hover:bg-white/90 transition-colors">

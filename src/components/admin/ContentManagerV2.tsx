@@ -882,7 +882,7 @@ function BlogEditor() {
 // ============ BRAND EDITOR ============
 function BrandEditor() {
   const [brand, setBrand] = useState<BrandContent>({
-    heroImage: '', heroTitle: 'Về Giang Nguyen Seafood',
+    heroImage: '', heroTitle: 'Về Giang Nguyên Group',
     heroSubtitle: 'Hành trình từ ngư dân Sầm Sơn đến thương hiệu hải sản khô cao cấp số 1',
     storyTitle: 'Từ biển khơi đến bàn ăn',
     storyParagraphs: [''],
@@ -1179,7 +1179,7 @@ const DEFAULT_POLICY: PolicySection[] = [
     { label: 'Đơn vị vận chuyển uy tín', desc: 'Giao hàng nhanh, có tracking' },
     { label: 'Lỗi vận chuyển', desc: 'Shop chịu 100% trách nhiệm' },
   ]},
-  { title: 'Chính sách bảo hành', icon: '🛡️', intro: 'GIANG NGUYEN SEAFOOD cam kết: 100% hải sản tự nhiên – Không hóa chất.', items: [
+  { title: 'Chính sách bảo hành', icon: '🛡️', intro: 'GIANG NGUYÊN GROUP cam kết: 100% hải sản tự nhiên – Không hóa chất.', items: [
     { label: 'Đổi 1–1', desc: 'Sản phẩm lỗi, không đúng mô tả' },
     { label: 'Thời gian hỗ trợ', desc: 'Trong vòng 48h từ khi nhận hàng' },
     { label: 'Hoàn tiền 100%', desc: 'Nếu khách không hài lòng' },
@@ -1268,7 +1268,7 @@ function PolicyEditor() {
 const DEFAULT_CONTACT: ContactInfo = {
   hotline: '098.661.7939',
   zalo: '098.661.7939',
-  email: 'giangnguyendriedseafood@gmail.com',
+  email: 'giangnguyengroup@gmail.com',
   hours: '7h – 17h hàng ngày',
   address: 'Sầm Sơn, Thanh Hóa',
 };

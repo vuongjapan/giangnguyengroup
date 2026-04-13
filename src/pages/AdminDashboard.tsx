@@ -2033,7 +2033,7 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
     const toPrint = coupons.filter(c => selectedForPrint.includes(c.id));
     if (toPrint.length === 0) { toast.error('Chọn ít nhất 1 mã để in'); return; }
 
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Mã giảm giá - Giang Nguyen Seafood</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Mã giảm giá - Giang Nguyên Group</title>
     <style>
       @page { size: A4; margin: 10mm; }
       body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
@@ -2049,7 +2049,7 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
     </style></head><body>
     <div class="grid">${toPrint.map(c => `
       <div class="coupon">
-        <div class="brand">🐟 Giang Nguyen Seafood</div>
+        <div class="brand">🐟 Giang Nguyên Group</div>
         <div class="discount">GIẢM ${c.discount_percent}%</div>
         <div class="code">${c.code}</div>
         <div class="details">

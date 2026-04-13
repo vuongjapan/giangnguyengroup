@@ -19,7 +19,7 @@ const DEFAULT_DATA: HeroData = {
     {
       title: 'Hải Sản Khô Cao Cấp Sầm Sơn',
       subtitle: '100% hải sản tự nhiên – Không hóa chất',
-      slogan: 'Chọn biển sạch – Chọn Giang Nguyen',
+      slogan: 'Chọn biển sạch – Chọn Giang Nguyên Group',
     },
     {
       title: 'Quà Biếu Đặc Sản Biển',
@@ -77,7 +77,7 @@ export default function HeroBanner() {
         <div className="container mx-auto px-4">
           <div className="max-w-lg animate-slide-up" key={current}>
             <span className="inline-block bg-accent text-accent-foreground text-[10px] md:text-xs font-bold px-3 py-1 rounded-full mb-3">
-              🏆 GIANG NGUYEN SEAFOOD
+              🏆 GIANG NGUYÊN GROUP
             </span>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-primary-foreground leading-tight mb-2">
               {slide.title}

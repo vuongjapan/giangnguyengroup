@@ -43,7 +43,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=400&fit=crop',
     readTime: '6 phút', views: 8420, date: '25/03/2024',
     relatedProductIds: ['muc-kho-loai-1', 'ca-thu-1-nang'],
-    metaTitle: 'Top 5 điểm đến Sầm Sơn 2024 | Giang Nguyen Seafood',
+    metaTitle: 'Top 5 điểm đến Sầm Sơn 2024 | Giang Nguyên Group',
     metaDescription: 'Khám phá 5 điểm du lịch hấp dẫn nhất Sầm Sơn 2024 và mua đặc sản biển làm quà.',
   },
   {
@@ -61,7 +61,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=600&h=400&fit=crop',
     readTime: '5 phút', views: 6230, date: '22/03/2024',
     relatedProductIds: ['muc-kho-loai-1', 'tom-kho-boc-noi'],
-    metaTitle: 'Chợ hải sản Sầm Sơn mua gì? Giá bao nhiêu? | Giang Nguyen Seafood',
+    metaTitle: 'Chợ hải sản Sầm Sơn mua gì? Giá bao nhiêu? | Giang Nguyên Group',
     metaDescription: 'Hướng dẫn mua hải sản Sầm Sơn đúng giá, chọn hàng ngon, tránh bị chặt chém.',
   },
   {
@@ -79,7 +79,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1565680018093-ebb6e46b0bbe?w=600&h=400&fit=crop',
     readTime: '5 phút', views: 4340, date: '20/03/2024',
     relatedProductIds: ['muc-kho-loai-1'],
-    metaTitle: 'Phân biệt mực câu vs mực cào | Giang Nguyen Seafood',
+    metaTitle: 'Phân biệt mực câu vs mực cào | Giang Nguyên Group',
     metaDescription: 'Cách phân biệt mực câu và mực cào qua màu sắc, thớ thịt. Biết để mua đúng hàng chất lượng.',
   },
   {
@@ -97,7 +97,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=400&fit=crop',
     readTime: '4 phút', views: 5120, date: '18/03/2024',
     relatedProductIds: ['muc-kho-loai-1', 'ca-thu-1-nang', 'tom-kho-boc-noi'],
-    metaTitle: 'Cách bảo quản hải sản khô giữ ngon 6-8 tháng | Giang Nguyen Seafood',
+    metaTitle: 'Cách bảo quản hải sản khô giữ ngon 6-8 tháng | Giang Nguyên Group',
     metaDescription: 'Bảo quản mực khô, cá khô, tôm khô đúng cách để giữ ngon lâu dài.',
   },
   {
@@ -115,7 +115,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&h=400&fit=crop',
     readTime: '5 phút', views: 7650, date: '15/03/2024',
     relatedProductIds: ['muc-kho-loai-1'],
-    metaTitle: 'Mực khô Sầm Sơn nổi tiếng nhất Việt Nam | Giang Nguyen Seafood',
+    metaTitle: 'Mực khô Sầm Sơn nổi tiếng nhất Việt Nam | Giang Nguyên Group',
     metaDescription: 'Vì sao mực khô Sầm Sơn được coi là đặc sản hàng đầu? Tìm hiểu nguồn gốc và cách chế biến truyền thống.',
   },
   {
@@ -133,7 +133,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop',
     readTime: '4 phút', views: 5890, date: '12/03/2024',
     relatedProductIds: ['ca-thu-1-nang'],
-    metaTitle: 'Cá thu 1 nắng Sầm Sơn – Đặc sản hot nhất | Giang Nguyen Seafood',
+    metaTitle: 'Cá thu 1 nắng Sầm Sơn – Đặc sản hot nhất | Giang Nguyên Group',
     metaDescription: 'Cá thu 1 nắng là gì? Vì sao hot? Bí quyết nướng ngon và cách chọn mua chuẩn.',
   },
   {
@@ -145,13 +145,13 @@ const ARTICLES: Article[] = [
       'Dấu hiệu 1 – Màu sắc: Mực khô tẩm hóa chất thường có màu đỏ cam bắt mắt, bóng đều. Mực sạch có màu nâu hồng tự nhiên, không đều.',
       'Dấu hiệu 2 – Mùi: Hải sản sạch có mùi tanh nhẹ đặc trưng. Hàng tẩm hóa chất có mùi hắc, mùi lưu huỳnh hoặc không có mùi gì.',
       'Dấu hiệu 3 – Độ ẩm: Hàng tẩm chất tăng trọng thường nặng hơn bình thường, bề mặt ẩm ướt, dính tay.',
-      'Lời khuyên: Luôn mua từ nguồn uy tín, có cam kết chất lượng. Giang Nguyen Seafood cam kết 100% hải sản sạch, hoàn tiền nếu phát hiện hóa chất.',
+      'Lời khuyên: Luôn mua từ nguồn uy tín, có cam kết chất lượng. Giang Nguyên Group cam kết 100% hải sản sạch, hoàn tiền nếu phát hiện hóa chất.',
     ],
     category: 'Kinh nghiệm chọn hải sản',
     image: 'https://images.unsplash.com/photo-1565680018434-6ce838ebe6f0?w=600&h=400&fit=crop',
     readTime: '5 phút', views: 9120, date: '08/03/2024',
     relatedProductIds: ['muc-kho-loai-1', 'tom-kho-boc-noi'],
-    metaTitle: 'Nhận biết hải sản tẩm hóa chất | Giang Nguyen Seafood',
+    metaTitle: 'Nhận biết hải sản tẩm hóa chất | Giang Nguyên Group',
     metaDescription: 'Cách phân biệt hải sản khô sạch và tẩm hóa chất qua màu sắc, mùi vị, độ ẩm.',
   },
   {
@@ -169,7 +169,7 @@ const ARTICLES: Article[] = [
     image: 'https://images.unsplash.com/photo-1565680018093-ebb6e46b0bbe?w=600&h=400&fit=crop',
     readTime: '4 phút', views: 4560, date: '05/03/2024',
     relatedProductIds: ['tom-kho-boc-noi'],
-    metaTitle: 'Tôm khô Sầm Sơn loại nào ngon nhất | Giang Nguyen Seafood',
+    metaTitle: 'Tôm khô Sầm Sơn loại nào ngon nhất | Giang Nguyên Group',
     metaDescription: 'So sánh các loại tôm khô Sầm Sơn. Cách chọn mua tôm khô sạch, không hóa chất.',
   },
 ];

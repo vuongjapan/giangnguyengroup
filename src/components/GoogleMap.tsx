@@ -36,7 +36,7 @@ export default function GoogleMap({ focusStoreId }: Props) {
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="Bản đồ cửa hàng Giang Nguyen Seafood"
+          title="Bản đồ cửa hàng Giang Nguyên Group"
         />
 
         {/* Store selector overlay */}

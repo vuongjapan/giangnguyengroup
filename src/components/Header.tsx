@@ -87,14 +87,14 @@ export default function Header() {
             <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 7:00 – 17:00 hàng ngày</span>
           </div>
           <div className="flex items-center gap-4">
-            <a href="tel:0986617939" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
-              <Phone className="h-3 w-3" /> Hotline: 098.661.7939
+            <a href="tel:0933562286" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
+              <Phone className="h-3 w-3" /> Hotline: 093.356.2286
             </a>
-            <a href="https://zalo.me/0986617939" target="_blank" rel="noopener noreferrer" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
-              <MessageCircle className="h-3 w-3" /> Zalo: 098.661.7939
+            <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
+              <MessageCircle className="h-3 w-3" /> Zalo: 093.356.2286
             </a>
-            <a href="mailto:giangnguyendriedseafood@gmail.com" className="text-primary-foreground flex items-center gap-1 hover:underline">
-              <Mail className="h-3 w-3" /> giangnguyendriedseafood@gmail.com
+            <a href="mailto:giangnguyengroup@gmail.com" className="text-primary-foreground flex items-center gap-1 hover:underline">
+              <Mail className="h-3 w-3" /> giangnguyengroup@gmail.com
             </a>
           </div>
         </div>
@@ -108,14 +108,15 @@ export default function Header() {
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          {/* Logo */}
+          {/* Logo - CÔNG TY TNHH trên, GIANG NGUYÊN GROUP dưới */}
           <Link to="/" className="flex-shrink-0">
             <div className="leading-none">
+              <p className="text-[8px] md:text-[10px] text-muted-foreground font-bold tracking-wider uppercase">CÔNG TY TNHH</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg md:text-xl font-black text-primary tracking-tight">GIANG NGUYEN</span>
-                <span className="text-lg md:text-xl font-black text-coral tracking-tight">SEAFOOD</span>
+                <span className="text-base md:text-xl font-black text-primary tracking-tight leading-tight">GIANG NGUYÊN</span>
+                <span className="text-base md:text-xl font-black text-coral tracking-tight leading-tight">GROUP</span>
               </div>
-              <p className="text-[9px] md:text-[10px] text-muted-foreground tracking-wider font-medium">ĐẶC SẢN BIỂN SẦM SƠN</p>
+              <p className="text-[8px] md:text-[9px] text-muted-foreground tracking-wider font-medium">HẢI SẢN KHÔ – HẢI SẢN MỘT NẮNG</p>
             </div>
           </Link>
 
@@ -164,7 +165,7 @@ export default function Header() {
             >
               <User className="h-5 w-5 text-foreground hover:text-primary transition-colors" />
             </Link>
-            <a href="tel:0986617939" className="md:hidden p-2 hover:bg-muted rounded-lg">
+            <a href="tel:0933562286" className="md:hidden p-2 hover:bg-muted rounded-lg">
               <Phone className="h-5 w-5 text-primary" />
             </a>
             <button
@@ -267,8 +268,9 @@ export default function Header() {
           <div className="absolute left-0 top-0 bottom-0 w-80 bg-card shadow-2xl animate-slide-right overflow-y-auto">
             <div className="ocean-gradient p-4 flex items-center justify-between">
               <div>
-                <p className="font-black text-primary-foreground">GIANG NGUYEN SEAFOOD</p>
-                <p className="text-[10px] text-primary-foreground/80">Đặc sản biển Sầm Sơn</p>
+                <p className="text-[10px] text-primary-foreground/80 font-bold">CÔNG TY TNHH</p>
+                <p className="font-black text-primary-foreground">GIANG NGUYÊN GROUP</p>
+                <p className="text-[9px] text-primary-foreground/70">Hải sản khô – Hải sản một nắng</p>
               </div>
               <button onClick={() => setMobileMenuOpen(false)} className="text-primary-foreground p-1">
                 <X className="h-5 w-5" />
@@ -384,14 +386,14 @@ export default function Header() {
             {/* Mobile contact */}
             <div className="p-3 border-t border-border">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Liên hệ</p>
-              <a href="tel:0986617939" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
-                <Phone className="h-4 w-4" /> 098.661.7939
+              <a href="tel:0933562286" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
+                <Phone className="h-4 w-4" /> 093.356.2286
               </a>
-              <a href="https://zalo.me/0986617939" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
-                <MessageCircle className="h-4 w-4" /> Zalo: 098.661.7939
+              <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
+                <MessageCircle className="h-4 w-4" /> Zalo: 093.356.2286
               </a>
-              <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg">
-                <Mail className="h-4 w-4" /> giangnguyendriedseafood@gmail.com
+              <a href="mailto:giangnguyengroup@gmail.com" className="flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg">
+                <Mail className="h-4 w-4" /> giangnguyengroup@gmail.com
               </a>
               <div className="px-3 py-2 text-xs text-muted-foreground">
                 <p>📍 Sầm Sơn, Thanh Hóa</p>

@@ -25,7 +25,7 @@ const DEFAULT_SECTIONS: PolicySection[] = [
     { label: 'Đơn vị vận chuyển uy tín', desc: 'Giao hàng nhanh, có tracking theo dõi' },
     { label: 'Lỗi vận chuyển', desc: 'Shop chịu 100% trách nhiệm' },
   ]},
-  { title: 'Chính sách bảo hành', icon: '🛡️', intro: 'GIANG NGUYEN SEAFOOD cam kết: 100% hải sản tự nhiên – Không hóa chất – Đúng nguồn gốc biển Sầm Sơn.', items: [
+  { title: 'Chính sách bảo hành', icon: '🛡️', intro: 'GIANG NGUYÊN GROUP cam kết: 100% hải sản tự nhiên – Không hóa chất – Đúng nguồn gốc biển Sầm Sơn.', items: [
     { label: 'Đổi 1–1', desc: 'Sản phẩm lỗi, không đúng mô tả, hoặc có dấu hiệu hư hỏng' },
     { label: 'Thời gian hỗ trợ', desc: 'Trong vòng 48h từ khi nhận hàng' },
     { label: 'Hoàn tiền 100%', desc: 'Nếu khách không hài lòng về chất lượng' },
@@ -60,7 +60,7 @@ export default function SalesPolicy() {
 
         <div className="text-center mb-10">
           <h1 className="text-2xl md:text-3xl font-black text-foreground mb-2">CHÍNH SÁCH BÁN HÀNG</h1>
-          <p className="text-muted-foreground text-sm">GIANG NGUYEN SEAFOOD – Uy tín tạo nên thương hiệu</p>
+          <p className="text-muted-foreground text-sm">GIANG NGUYÊN GROUP – Uy tín tạo nên thương hiệu</p>
         </div>
 
         <div className="space-y-8">
@@ -95,8 +95,8 @@ export default function SalesPolicy() {
         </div>
 
         <div className="mt-10 ocean-gradient rounded-2xl p-8 text-center">
-          <h3 className="text-xl font-black text-primary-foreground mb-2">Mua sắm an tâm cùng Giang Nguyen Seafood</h3>
-          <p className="text-primary-foreground/80 text-sm mb-4">Hotline hỗ trợ: 098.661.7939 • Zalo: 098.661.7939</p>
+          <h3 className="text-xl font-black text-primary-foreground mb-2">Mua sắm an tâm cùng Giang Nguyên Group</h3>
+          <p className="text-primary-foreground/80 text-sm mb-4">Hotline hỗ trợ: 093.356.2286 • Zalo: 093.356.2286</p>
           <Link to="/"
             className="inline-block bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
             🛒 MUA HÀNG NGAY

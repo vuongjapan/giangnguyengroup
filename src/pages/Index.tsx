@@ -251,10 +251,10 @@ export default function Index() {
             Đặt hàng ngay – Ship tận nhà!
           </h2>
           <p className="text-primary-foreground/80 text-sm mb-4">
-            Hotline: <a href="tel:0123456789" className="font-bold text-accent hover:underline">0123.456.789</a> • Zalo: <a href="https://zalo.me/0123456789" className="font-bold text-accent hover:underline">0123.456.789</a>
+            Hotline: <a href="tel:0933562286" className="font-bold text-accent hover:underline">0123.456.789</a> • Zalo: <a href="https://zalo.me/0933562286" className="font-bold text-accent hover:underline">0123.456.789</a>
           </p>
           <a
-            href="tel:0123456789"
+            href="tel:0933562286"
             className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity"
           >
             📞 GỌI ĐẶT HÀNG NGAY

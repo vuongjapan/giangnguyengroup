@@ -15,7 +15,7 @@ export default function ChatBot() {
   const [open, setOpen] = useState(false);
   const { products } = useProducts();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Xin chào 👋 Giang Nguyen Seafood chuyên hải sản khô sạch Sầm Sơn.\nBạn muốn xem giá mực khô, tôm khô hay cá khô hôm nay ạ?' },
+    { role: 'assistant', content: 'Xin chào 👋 Công ty TNHH Giang Nguyên Group chuyên hải sản khô & hải sản một nắng Sầm Sơn.\nBạn muốn xem giá mực khô, tôm khô hay cá khô hôm nay ạ?' },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +48,6 @@ export default function ChatBot() {
     let assistantSoFar = '';
 
     try {
-      // Include product data as system context
       const systemContext = productContext ? `\n\nSẢN PHẨM HIỆN CÓ TRÊN WEBSITE:\n${productContext}` : '';
       
       const resp = await fetch(CHAT_URL, {
@@ -155,7 +154,7 @@ export default function ChatBot() {
         <div className="fixed bottom-20 md:bottom-6 right-4 z-40 w-[calc(100vw-2rem)] max-w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[60vh] md:max-h-[500px] animate-fade-in">
           <div className="ocean-gradient rounded-t-2xl p-3 flex items-center justify-between">
             <div>
-              <p className="font-bold text-primary-foreground text-sm">Giang Nguyen Seafood</p>
+              <p className="font-bold text-primary-foreground text-sm">Giang Nguyên Group</p>
               <p className="text-primary-foreground/80 text-xs">🟢 Online – Trả lời ngay</p>
             </div>
             <button onClick={() => setOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">

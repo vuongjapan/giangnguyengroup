@@ -28,17 +28,18 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Main footer - multi column like daohaisan.vn */}
+      {/* Main footer */}
       <div className="ocean-gradient text-primary-foreground">
         <div className="container mx-auto px-4 py-8 md:py-10">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
             {/* Brand */}
             <div className="col-span-2 md:col-span-1">
-              <h3 className="text-lg font-black mb-2">GIANG NGUYEN <span className="text-accent">SEAFOOD</span></h3>
-              <p className="text-xs text-primary-foreground/80 mb-3 leading-relaxed">Chuyên hải sản khô đặc sản biển Sầm Sơn – Cao cấp – Quà biếu – Du lịch</p>
+              <p className="text-[10px] text-primary-foreground/70 font-bold tracking-wider">CÔNG TY TNHH</p>
+              <h3 className="text-lg font-black mb-1">GIANG NGUYÊN <span className="text-accent">GROUP</span></h3>
+              <p className="text-xs text-primary-foreground/80 mb-3 leading-relaxed">Hải sản khô – Hải sản một nắng – Đặc sản biển Sầm Sơn</p>
               <div className="flex gap-2">
                 <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-xs font-bold transition-colors">FB</a>
-                <a href="https://zalo.me/0986617939" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-xs font-bold transition-colors">Zalo</a>
+                <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-xs font-bold transition-colors">Zalo</a>
                 <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-xs font-bold transition-colors">TT</a>
                 <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-full flex items-center justify-center text-xs font-bold transition-colors">YT</a>
               </div>
@@ -82,8 +83,8 @@ export default function Footer() {
             <div>
               <h4 className="font-bold mb-3 text-accent text-sm">LIÊN HỆ</h4>
               <div className="space-y-2.5 text-xs text-primary-foreground/80">
-                <a href="tel:0986617939" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Phone className="h-3.5 w-3.5 flex-shrink-0" /> 0986.617.939</a>
-                <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Mail className="h-3.5 w-3.5 flex-shrink-0" /> giangnguyendriedseafood@gmail.com</a>
+                <a href="tel:0933562286" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Phone className="h-3.5 w-3.5 flex-shrink-0" /> 0933.562.286</a>
+                <a href="mailto:giangnguyengroup@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Mail className="h-3.5 w-3.5 flex-shrink-0" /> giangnguyengroup@gmail.com</a>
                 <p className="flex items-center gap-2"><Clock className="h-3.5 w-3.5 flex-shrink-0" /> 7:00 – 21:00 hàng ngày</p>
                 <p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" /> Chợ Cột Đỏ, Sầm Sơn, Thanh Hóa</p>
               </div>
@@ -95,7 +96,7 @@ export default function Footer() {
         <div className="border-t border-primary-foreground/20 py-4">
           <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-2">
             <p className="text-[11px] text-primary-foreground/60 text-center">
-              © 2024 Giang Nguyen Seafood. All rights reserved. | Đặc sản biển Sầm Sơn chính gốc.
+              © 2024 Công ty TNHH Giang Nguyên Group. All rights reserved. | Hải sản khô – Hải sản một nắng Sầm Sơn.
             </p>
             <div className="flex items-center gap-3">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Stripe_Logo%2C_revised_2016.svg/120px-Stripe_Logo%2C_revised_2016.svg.png" alt="Secure" className="h-5 opacity-60" loading="lazy" />

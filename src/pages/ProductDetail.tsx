@@ -220,8 +220,8 @@ export default function ProductDetail() {
               </button>
             </div>
 
-            <a href="tel:0986617939" className="flex items-center justify-center gap-2 border-2 border-coral text-coral font-bold py-2.5 rounded-xl text-sm hover:bg-coral hover:text-primary-foreground transition-all">
-              <Phone className="h-4 w-4" /> GỌI ĐẶT HÀNG: 098.661.7939
+            <a href="tel:0933562286" className="flex items-center justify-center gap-2 border-2 border-coral text-coral font-bold py-2.5 rounded-xl text-sm hover:bg-coral hover:text-primary-foreground transition-all">
+              <Phone className="h-4 w-4" /> GỌI ĐẶT HÀNG: 093.356.2286
             </a>
 
             {/* Trust badges */}
@@ -518,7 +518,7 @@ export default function ProductDetail() {
               <button onClick={handleAddToCart} className="bg-card text-primary font-bold px-6 md:px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-card/90 active:scale-95 transition-all text-sm">
                 <ShoppingCart className="h-5 w-5" /> THÊM VÀO GIỎ HÀNG
               </button>
-              <a href="tel:0986617939" className="bg-primary-foreground/20 text-primary-foreground font-bold px-6 md:px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-foreground/30 transition-all text-sm">
+              <a href="tel:0933562286" className="bg-primary-foreground/20 text-primary-foreground font-bold px-6 md:px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-foreground/30 transition-all text-sm">
                 <Phone className="h-5 w-5" /> GỌI NGAY
               </a>
             </div>

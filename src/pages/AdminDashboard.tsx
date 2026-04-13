@@ -1032,7 +1032,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
           <label className="block text-xs font-bold text-foreground mb-1">Đơn vị</label>
           <select value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}
             className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm">
-            {['kg', '500g', '250g', 'gói', 'hộp', 'combo'].map(u => <option key={u} value={u}>{u}</option>)}
+            {['kg', '500g', '250g', '100g', 'g', 'lít', '0.5 lít', 'cái', 'túi', 'gói', 'hộp', 'combo', '10 cái', 'chai', 'lọ'].map(u => <option key={u} value={u}>{u}</option>)}
           </select>
         </div>
         <div>

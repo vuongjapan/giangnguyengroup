@@ -190,8 +190,8 @@ export default function Header() {
       {/* Main navigation bar - desktop */}
       <nav className="bg-card border-b border-border hidden md:block">
         <div className="container mx-auto px-4">
-          <div className="flex items-center flex-wrap">
-            {MAIN_MENU.map(item => (
+          <div className="flex items-center justify-center flex-wrap">
+            {MAIN_MENU.slice(0, 5).map(item => (
               <div
                 key={item.to}
                 className="relative"
@@ -200,7 +200,7 @@ export default function Header() {
               >
                 <Link
                   to={item.to}
-                  className={`flex items-center gap-1 px-3 py-2.5 text-sm font-bold transition-colors relative group whitespace-nowrap ${
+                  className={`flex items-center gap-1 px-2.5 py-2.5 text-xs font-bold transition-colors relative group whitespace-nowrap ${
                     isActive(item.to) ? 'text-primary' : 'text-foreground hover:text-primary'
                   }`}
                 >
@@ -214,7 +214,6 @@ export default function Header() {
                 {/* Product mega dropdown */}
                 {item.hasDropdown && showProductDropdown && (
                   <div className="absolute top-full left-0 w-72 bg-card rounded-b-xl shadow-2xl border border-border border-t-2 border-t-primary z-50">
-                    {/* Categories */}
                     <div className="p-2">
                       <p className="px-3 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Danh mục</p>
                       {categories.map(cat => (
@@ -228,7 +227,6 @@ export default function Header() {
                         </Link>
                       ))}
                     </div>
-                    {/* Best sellers */}
                     <div className="border-t border-border p-2">
                       <p className="px-3 py-1.5 text-[10px] font-bold text-coral uppercase tracking-wider">🔥 Bán chạy</p>
                       {BEST_SELLERS.map(bs => (
@@ -242,7 +240,6 @@ export default function Header() {
                         </Link>
                       ))}
                     </div>
-                    {/* View all */}
                     <div className="border-t border-border p-2">
                       <Link
                         to="/san-pham"
@@ -253,6 +250,32 @@ export default function Header() {
                     </div>
                   </div>
                 )}
+              </div>
+            ))}
+
+            {/* Center Logo */}
+            <Link to="/" className="mx-3 flex-shrink-0">
+              <img
+                src="/images/logo-giang-nguyen-group.jpg"
+                alt="Giang Nguyên Group"
+                className="h-10 w-auto rounded-lg"
+                loading="lazy"
+              />
+            </Link>
+
+            {MAIN_MENU.slice(5).map(item => (
+              <div key={item.to} className="relative">
+                <Link
+                  to={item.to}
+                  className={`flex items-center gap-1 px-2.5 py-2.5 text-xs font-bold transition-colors relative group whitespace-nowrap ${
+                    isActive(item.to) ? 'text-primary' : 'text-foreground hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                  <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 ${
+                    isActive(item.to) ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`} />
+                </Link>
               </div>
             ))}
           </div>

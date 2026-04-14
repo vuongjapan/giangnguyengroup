@@ -84,7 +84,7 @@ export default function Footer() {
               <h4 className="font-bold mb-3 text-accent text-sm">LIÊN HỆ</h4>
               <div className="space-y-2.5 text-xs text-primary-foreground/80">
                 <a href="tel:0933562286" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Phone className="h-3.5 w-3.5 flex-shrink-0" /> 0933.562.286</a>
-                <a href="mailto:giangnguyengroup@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Mail className="h-3.5 w-3.5 flex-shrink-0" /> giangnguyengroup@gmail.com</a>
+                <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 hover:text-primary-foreground transition-colors"><Mail className="h-3.5 w-3.5 flex-shrink-0" /> giangnguyendriedseafood@gmail.com</a>
                 <p className="flex items-center gap-2"><Clock className="h-3.5 w-3.5 flex-shrink-0" /> 7:00 – 21:00 hàng ngày</p>
                 <p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" /> Chợ Cột Đỏ, Sầm Sơn, Thanh Hóa</p>
               </div>

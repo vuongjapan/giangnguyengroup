@@ -1716,6 +1716,134 @@ function PromoBannersEditor() {
   );
 }
 
+// ============ COMMITMENTS EDITOR ============
+function CommitmentsEditor() {
+  const ICON_OPTIONS = ['shield', 'truck', 'refresh', 'award'];
+  const [items, setItems] = useState([
+    { icon: 'shield', title: 'Cam kết chất lượng', desc: '100% hải sản sạch Sầm Sơn' },
+    { icon: 'truck', title: 'Miễn phí vận chuyển', desc: 'Đơn hàng từ 500.000₫' },
+    { icon: 'refresh', title: 'Đổi trả 24h', desc: 'Hoàn tiền nếu không hài lòng' },
+    { icon: 'award', title: 'Uy tín 10 năm', desc: 'Hàng nghìn khách hàng tin tưởng' },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('commitments').then(d => {
+      if (d) setItems(d);
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('commitments', items);
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">🤝 Cam kết (Footer)</h3>
+        <button onClick={save} disabled={saving} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">Chỉnh sửa 4 cam kết hiển thị phía trên footer (Cam kết chất lượng, Miễn phí vận chuyển, Đổi trả, Uy tín)</p>
+      <div className="space-y-4">
+        {items.map((item, i) => (
+          <div key={i} className="border border-border rounded-lg p-4 space-y-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Icon</label>
+                <select value={item.icon} onChange={e => { const n = [...items]; n[i] = { ...item, icon: e.target.value }; setItems(n); }}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+                  {ICON_OPTIONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Tiêu đề</label>
+                <input value={item.title} onChange={e => { const n = [...items]; n[i] = { ...item, title: e.target.value }; setItems(n); }}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
+                <input value={item.desc} onChange={e => { const n = [...items]; n[i] = { ...item, desc: e.target.value }; setItems(n); }}
+                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============ CERTIFICATIONS EDITOR ============
+function CertificationsEditor() {
+  const [items, setItems] = useState([
+    { icon: '🏅', name: 'Chứng nhận ATTP', desc: 'An toàn Thực phẩm' },
+    { icon: '⭐', name: 'OCOP 4 sao', desc: 'Sản phẩm đặc trưng địa phương' },
+    { icon: '🛡️', name: 'Tem chống giả', desc: 'QR truy xuất nguồn gốc' },
+    { icon: '✅', name: 'ISO 22000', desc: 'Quản lý an toàn thực phẩm' },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadContent('certifications').then(d => {
+      if (d) setItems(d);
+      setLoading(false);
+    });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    await saveContent('certifications', items);
+    setSaving(false);
+  };
+
+  if (loading) return <div className="flex justify-center py-12"><RefreshCw className="h-5 w-5 animate-spin text-primary" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-foreground">🏅 Chứng nhận chất lượng</h3>
+        <button onClick={save} disabled={saving} className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+          <Save className="h-4 w-4" /> {saving ? 'Đang lưu...' : 'Lưu'}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">Chỉnh sửa các chứng nhận chất lượng hiển thị trên trang chủ</p>
+      <div className="space-y-3">
+        {items.map((item, i) => (
+          <div key={i} className="border border-border rounded-lg p-3 grid grid-cols-3 gap-2">
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Emoji</label>
+              <input value={item.icon} onChange={e => { const n = [...items]; n[i] = { ...item, icon: e.target.value }; setItems(n); }}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Tên</label>
+              <input value={item.name} onChange={e => { const n = [...items]; n[i] = { ...item, name: e.target.value }; setItems(n); }}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-foreground mb-1">Mô tả</label>
+              <input value={item.desc} onChange={e => { const n = [...items]; n[i] = { ...item, desc: e.target.value }; setItems(n); }}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        ))}
+        <button onClick={() => setItems([...items, { icon: '📌', name: '', desc: '' }])} className="text-sm text-primary font-bold hover:underline flex items-center gap-1">
+          <Plus className="h-4 w-4" /> Thêm chứng nhận
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function SimpleEditor({ contentKey }: { contentKey: string }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);

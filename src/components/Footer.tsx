@@ -1,29 +1,51 @@
 import { Link } from 'react-router-dom';
 import { Phone, MapPin, Mail, Clock, Shield, Truck, RotateCcw, Award, ChevronRight } from 'lucide-react';
+import { useSiteContent } from '@/hooks/useSiteContent';
+
+interface CommitmentItem {
+  icon: string;
+  title: string;
+  desc: string;
+}
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  shield: Shield,
+  truck: Truck,
+  refresh: RotateCcw,
+  award: Award,
+};
+
+const DEFAULT_COMMITMENTS: CommitmentItem[] = [
+  { icon: 'shield', title: 'Cam kết chất lượng', desc: '100% hải sản sạch Sầm Sơn' },
+  { icon: 'truck', title: 'Miễn phí vận chuyển', desc: 'Đơn hàng từ 500.000₫' },
+  { icon: 'refresh', title: 'Đổi trả 24h', desc: 'Hoàn tiền nếu không hài lòng' },
+  { icon: 'award', title: 'Uy tín 10 năm', desc: 'Hàng nghìn khách hàng tin tưởng' },
+];
 
 export default function Footer() {
+  const { data: commitments } = useSiteContent<CommitmentItem[]>('commitments', DEFAULT_COMMITMENTS);
+  const items = commitments?.length ? commitments : DEFAULT_COMMITMENTS;
+
   return (
     <footer className="pb-[60px] md:pb-0">
       {/* Trust strip */}
       <div className="bg-ocean-light border-t border-b border-border py-6">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { icon: Shield, title: 'Cam kết chất lượng', desc: '100% hải sản sạch Sầm Sơn' },
-              { icon: Truck, title: 'Miễn phí vận chuyển', desc: 'Đơn hàng từ 500.000₫' },
-              { icon: RotateCcw, title: 'Đổi trả 24h', desc: 'Hoàn tiền nếu không hài lòng' },
-              { icon: Award, title: 'Uy tín 10 năm', desc: 'Hàng nghìn khách hàng tin tưởng' },
-            ].map((item) => (
-              <div key={item.title} className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full ocean-gradient flex items-center justify-center flex-shrink-0">
-                  <item.icon className="h-5 w-5 text-primary-foreground" />
+            {items.map((item) => {
+              const IconComp = ICON_MAP[item.icon] || Shield;
+              return (
+                <div key={item.title} className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full ocean-gradient flex items-center justify-center flex-shrink-0">
+                    <IconComp className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-foreground text-sm">{item.title}</p>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-bold text-foreground text-sm">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -88,6 +110,21 @@ export default function Footer() {
                 <p className="flex items-center gap-2"><Clock className="h-3.5 w-3.5 flex-shrink-0" /> 7:00 – 21:00 hàng ngày</p>
                 <p className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 flex-shrink-0" /> Chợ Cột Đỏ, Sầm Sơn, Thanh Hóa</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Company logos section */}
+        <div className="border-t border-primary-foreground/20 py-6">
+          <div className="container mx-auto px-4">
+            <p className="text-center text-xs text-primary-foreground/60 font-bold tracking-wider mb-4 uppercase">Hệ thống thương hiệu Giang Nguyên Group</p>
+            <div className="flex justify-center">
+              <img
+                src="/images/logos-group.jpg"
+                alt="Hệ thống thương hiệu Giang Nguyên Group - Tuấn Đạt Luxury Hotel, Kim Linh Jewelry"
+                className="max-w-md w-full rounded-xl opacity-90"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>

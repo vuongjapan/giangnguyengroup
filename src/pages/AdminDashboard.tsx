@@ -261,7 +261,7 @@ export default function AdminDashboard() {
       <header className="ocean-gradient text-primary-foreground py-3 px-4 sticky top-0 z-50">
         <div className="container mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" className="font-black text-lg">GN SEAFOOD</Link>
+            <Link to="/" className="font-black text-lg">GN GROUP</Link>
             <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full font-bold">ADMIN</span>
           </div>
           <div className="flex items-center gap-3">

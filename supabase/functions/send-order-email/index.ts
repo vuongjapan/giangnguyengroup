@@ -33,7 +33,7 @@ async function sendEmail(
   html: string,
 ) {
   const info = await transporter.sendMail({
-    from: `GIANG NGUYEN SEAFOOD <${SMTP_EMAIL}>`,
+    from: `GIANG NGUYÊN GROUP <${SMTP_EMAIL}>`,
     to,
     subject,
     html,

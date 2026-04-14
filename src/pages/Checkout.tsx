@@ -399,13 +399,13 @@ export default function Checkout() {
                 <div className="relative z-10">
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <span className="text-accent text-lg">⭐</span>
-                    <h2 className="text-xl md:text-2xl font-black text-primary-foreground tracking-wide">GIANG NGUYÊN SEAFOOD</h2>
+                    <h2 className="text-xl md:text-2xl font-black text-primary-foreground tracking-wide">GIANG NGUYÊN GROUP</h2>
                     <span className="text-accent text-lg">⭐</span>
                   </div>
                   <p className="text-primary-foreground/80 text-xs">CÔNG TY TNHH GIANG NGUYÊN GROUP</p>
                   <p className="text-primary-foreground/70 text-[10px] mt-1">Hải sản khô & 1 nắng cao cấp Sầm Sơn, Thanh Hóa</p>
                   <div className="flex items-center justify-center gap-4 mt-2 text-[10px] text-primary-foreground/70">
-                    <span>📞 093.356.2286</span>
+                    <span>📞 0933.562.286</span>
                     <span>📍 Sầm Sơn, Thanh Hóa</span>
                   </div>
                 </div>
@@ -537,11 +537,11 @@ export default function Checkout() {
 
               {/* Invoice Footer - Premium */}
               <div className="ocean-gradient p-4 text-center">
-                <p className="text-primary-foreground/90 text-xs font-medium">Cảm ơn quý khách đã tin tưởng Giang Nguyên Seafood!</p>
+                <p className="text-primary-foreground/90 text-xs font-medium">Cảm ơn quý khách đã tin tưởng Giang Nguyên Group!</p>
                 <div className="flex items-center justify-center gap-3 mt-1.5 text-[10px] text-primary-foreground/70">
-                  <span>📞 093.356.2286</span>
+                  <span>📞 0933.562.286</span>
                   <span>•</span>
-                  <span>Zalo: 093.356.2286</span>
+                  <span>Zalo: 0933.562.286</span>
                   <span>•</span>
                   <span>📍 Sầm Sơn, Thanh Hóa</span>
                 </div>

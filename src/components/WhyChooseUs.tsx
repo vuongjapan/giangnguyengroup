@@ -13,7 +13,7 @@ interface WhyChooseData {
 }
 
 const DEFAULT_DATA: WhyChooseData = {
-  heading: '7 LÝ DO NÊN CHỌN GIANG NGUYÊN SEAFOOD',
+  heading: '7 LÝ DO NÊN CHỌN GIANG NGUYÊN GROUP',
   reasons: [
     {
       icon: 'package',
@@ -111,7 +111,7 @@ export default function WhyChooseUs() {
             {/* Table header */}
             <div className="ocean-gradient px-4 py-3 grid grid-cols-[140px_1fr] md:grid-cols-[200px_1fr]">
               <span className="text-primary-foreground font-bold text-sm md:text-base">TIÊU CHÍ</span>
-              <span className="text-primary-foreground font-bold text-sm md:text-base">MUA HÀNG TẠI GIANG NGUYÊN SEAFOOD</span>
+              <span className="text-primary-foreground font-bold text-sm md:text-base">MUA HÀNG TẠI GIANG NGUYÊN GROUP</span>
             </div>
 
             {/* Rows */}

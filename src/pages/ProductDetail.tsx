@@ -221,7 +221,7 @@ export default function ProductDetail() {
             </div>
 
             <a href="tel:0933562286" className="flex items-center justify-center gap-2 border-2 border-coral text-coral font-bold py-2.5 rounded-xl text-sm hover:bg-coral hover:text-primary-foreground transition-all">
-              <Phone className="h-4 w-4" /> GỌI ĐẶT HÀNG: 093.356.2286
+              <Phone className="h-4 w-4" /> GỌI ĐẶT HÀNG: 0933.562.286
             </a>
 
             {/* Trust badges */}

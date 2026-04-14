@@ -88,10 +88,10 @@ export default function Header() {
           </div>
           <div className="flex items-center gap-4">
             <a href="tel:0933562286" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
-              <Phone className="h-3 w-3" /> Hotline: 093.356.2286
+              <Phone className="h-3 w-3" /> Hotline: 0933.562.286
             </a>
             <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
-              <MessageCircle className="h-3 w-3" /> Zalo: 093.356.2286
+              <MessageCircle className="h-3 w-3" /> Zalo: 0933.562.286
             </a>
             <a href="mailto:giangnguyendriedseafood@gmail.com" className="text-primary-foreground flex items-center gap-1 hover:underline">
               <Mail className="h-3 w-3" /> giangnguyendriedseafood@gmail.com
@@ -385,10 +385,10 @@ export default function Header() {
             <div className="p-3 border-t border-border">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Liên hệ</p>
               <a href="tel:0933562286" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
-                <Phone className="h-4 w-4" /> 093.356.2286
+                <Phone className="h-4 w-4" /> 0933.562.286
               </a>
               <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
-                <MessageCircle className="h-4 w-4" /> Zalo: 093.356.2286
+                <MessageCircle className="h-4 w-4" /> Zalo: 0933.562.286
               </a>
               <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg">
                 <Mail className="h-4 w-4" /> giangnguyendriedseafood@gmail.com

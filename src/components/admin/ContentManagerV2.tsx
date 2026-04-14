@@ -1475,7 +1475,7 @@ function ExitPopupEditor() {
 
 // ============ WHY CHOOSE US EDITOR ============
 function WhyChooseEditor() {
-  const [heading, setHeading] = useState('7 LÝ DO NÊN CHỌN GIANG NGUYÊN SEAFOOD');
+  const [heading, setHeading] = useState('7 LÝ DO NÊN CHỌN GIANG NGUYÊN GROUP');
   const [reasons, setReasons] = useState<{ icon: string; title: string; details: string[] }[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

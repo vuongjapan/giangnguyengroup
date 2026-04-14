@@ -29,7 +29,7 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-black text-primary">GIANG NGUYEN <span className="text-coral">SEAFOOD</span></h1>
+          <h1 className="text-2xl font-black text-primary">GIANG NGUYÊN <span className="text-coral">GROUP</span></h1>
           <p className="text-muted-foreground text-sm mt-1">Quản trị hệ thống</p>
         </div>
 

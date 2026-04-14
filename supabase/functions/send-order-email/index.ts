@@ -67,69 +67,108 @@ function generateInvoiceHtml(order: any) {
   return `<!DOCTYPE html>
 <html lang="vi">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f3f4f6;">
-<div style="max-width:650px;margin:20px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
-  <div style="background:linear-gradient(135deg,#0369a1,#0ea5e9);padding:30px;text-align:center;">
-    <h1 style="margin:0;color:#fff;font-size:22px;font-weight:800;letter-spacing:1px;">GIANG NGUYEN SEAFOOD</h1>
-    <p style="margin:5px 0 0;color:rgba(255,255,255,0.85);font-size:12px;">Hải sản khô Sầm Sơn – Chất lượng tận tâm</p>
-  </div>
-  <div style="text-align:center;padding:20px 30px 10px;">
-    <h2 style="margin:0;font-size:20px;color:#1e293b;font-weight:800;">HÓA ĐƠN ĐẶT HÀNG</h2>
-    <p style="margin:6px 0 0;font-size:13px;color:#64748b;">Mã đơn: <strong style="color:#0369a1;">${orderCode}</strong></p>
-    <p style="margin:4px 0 0;font-size:12px;color:#64748b;">Ngày: ${new Date().toLocaleDateString('vi-VN')}</p>
-  </div>
-  <div style="text-align:center;padding:10px 30px;">
-    <span style="display:inline-block;padding:6px 20px;border-radius:20px;background:${statusColor};color:#fff;font-size:13px;font-weight:700;">${status}</span>
-  </div>
-  <div style="padding:15px 30px;">
-    <div style="background:#f8fafc;border-radius:8px;padding:15px;border:1px solid #e2e8f0;">
-      <h3 style="margin:0 0 8px;font-size:14px;color:#1e293b;">Thông tin khách hàng</h3>
-      <p style="margin:3px 0;font-size:13px;color:#475569;">👤 ${order.customer_name || ''}</p>
-      <p style="margin:3px 0;font-size:13px;color:#475569;">📞 ${order.customer_phone || ''}</p>
-      ${order.customer_email ? `<p style="margin:3px 0;font-size:13px;color:#475569;">📧 ${order.customer_email}</p>` : ''}
-      <p style="margin:3px 0;font-size:13px;color:#475569;">📍 ${order.customer_address || ''}</p>
+<body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;">
+<div style="max-width:650px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);">
+  
+  <!-- Header with gradient -->
+  <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9);padding:35px 30px;text-align:center;">
+    <div style="margin-bottom:8px;">
+      <span style="display:block;font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;letter-spacing:2px;text-transform:uppercase;">CÔNG TY TNHH</span>
+      <span style="display:block;font-size:26px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1.1;">GIANG NGUYÊN</span>
+      <span style="display:block;font-size:20px;color:#fbbf24;font-weight:900;letter-spacing:3px;line-height:1.2;">GROUP</span>
     </div>
+    <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:12px;letter-spacing:1px;">★ Hải sản khô Sầm Sơn – Chất lượng tận tâm ★</p>
   </div>
-  <div style="padding:0 30px;">
-    <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
-      <thead>
-        <tr style="background:#f1f5f9;">
-          <th style="padding:10px;font-size:12px;color:#475569;text-align:center;">STT</th>
-          <th style="padding:10px;font-size:12px;color:#475569;text-align:left;">Sản phẩm</th>
-          <th style="padding:10px;font-size:12px;color:#475569;text-align:center;">ĐVT</th>
-          <th style="padding:10px;font-size:12px;color:#475569;text-align:center;">SL</th>
-          <th style="padding:10px;font-size:12px;color:#475569;text-align:right;">Đơn giá</th>
-          <th style="padding:10px;font-size:12px;color:#475569;text-align:right;">Thành tiền</th>
-        </tr>
-      </thead>
-      <tbody>${itemRows}</tbody>
-    </table>
+
+  <!-- Invoice title -->
+  <div style="text-align:center;padding:25px 30px 15px;">
+    <div style="display:inline-block;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;padding:10px 30px;border-radius:30px;font-size:18px;font-weight:800;letter-spacing:1px;">
+      📋 HÓA ĐƠN ĐẶT HÀNG
+    </div>
+    <p style="margin:12px 0 0;font-size:14px;color:#64748b;">Mã đơn: <strong style="color:#0369a1;font-size:16px;">${orderCode}</strong></p>
+    <p style="margin:4px 0 0;font-size:12px;color:#94a3b8;">📅 ${new Date().toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
   </div>
-  <div style="padding:15px 30px;">
-    <div style="background:#f8fafc;border-radius:8px;padding:15px;border:1px solid #e2e8f0;">
+
+  <!-- Status badge -->
+  <div style="text-align:center;padding:5px 30px 15px;">
+    <span style="display:inline-block;padding:8px 24px;border-radius:25px;background:${statusColor};color:#fff;font-size:14px;font-weight:700;letter-spacing:0.5px;">${status}</span>
+  </div>
+
+  <!-- Customer info -->
+  <div style="padding:0 30px 15px;">
+    <div style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-radius:12px;padding:18px;border:1px solid #bae6fd;">
+      <h3 style="margin:0 0 10px;font-size:14px;color:#0369a1;font-weight:800;">👤 THÔNG TIN KHÁCH HÀNG</h3>
       <table style="width:100%;border-collapse:collapse;">
-        <tr><td style="padding:4px 0;font-size:13px;color:#475569;">Tổng tiền hàng:</td><td style="padding:4px 0;font-size:13px;font-weight:700;color:#1e293b;text-align:right;">${totalAmount.toLocaleString('vi-VN')}₫</td></tr>
-        ${order.coupon_discount ? `<tr><td style="padding:4px 0;font-size:13px;color:#16a34a;">Giảm giá (mã ${order.coupon_code || ''}):</td><td style="padding:4px 0;font-size:13px;font-weight:700;color:#16a34a;text-align:right;">-${order.coupon_discount.toLocaleString('vi-VN')}₫</td></tr>` : ''}
-        <tr style="border-top:1px solid #e2e8f0;"><td style="padding:8px 0 4px;font-size:14px;color:#ea580c;font-weight:700;">Cọc 50%:</td><td style="padding:8px 0 4px;font-size:16px;font-weight:800;color:#ea580c;text-align:right;">${depositAmount.toLocaleString('vi-VN')}₫</td></tr>
-        <tr><td style="padding:4px 0;font-size:13px;color:#475569;">Còn lại:</td><td style="padding:4px 0;font-size:13px;font-weight:700;color:#1e293b;text-align:right;">${remainingAmount.toLocaleString('vi-VN')}₫</td></tr>
+        <tr><td style="padding:3px 0;font-size:13px;color:#475569;width:30px;">📛</td><td style="padding:3px 0;font-size:13px;color:#1e293b;font-weight:600;">${order.customer_name || ''}</td></tr>
+        <tr><td style="padding:3px 0;font-size:13px;color:#475569;">📞</td><td style="padding:3px 0;font-size:13px;color:#1e293b;">${order.customer_phone || ''}</td></tr>
+        ${order.customer_email ? `<tr><td style="padding:3px 0;font-size:13px;color:#475569;">📧</td><td style="padding:3px 0;font-size:13px;color:#1e293b;">${order.customer_email}</td></tr>` : ''}
+        <tr><td style="padding:3px 0;font-size:13px;color:#475569;">📍</td><td style="padding:3px 0;font-size:13px;color:#1e293b;">${order.customer_address || ''}</td></tr>
       </table>
     </div>
   </div>
+
+  <!-- Product table -->
+  <div style="padding:0 30px;">
+    <table style="width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+      <thead>
+        <tr style="background:linear-gradient(135deg,#0369a1,#0ea5e9);">
+          <th style="padding:12px 8px;font-size:11px;color:#fff;text-align:center;font-weight:700;">STT</th>
+          <th style="padding:12px 8px;font-size:11px;color:#fff;text-align:left;font-weight:700;">SẢN PHẨM</th>
+          <th style="padding:12px 8px;font-size:11px;color:#fff;text-align:center;font-weight:700;">ĐVT</th>
+          <th style="padding:12px 8px;font-size:11px;color:#fff;text-align:center;font-weight:700;">SL</th>
+          <th style="padding:12px 8px;font-size:11px;color:#fff;text-align:right;font-weight:700;">ĐƠN GIÁ</th>
+          <th style="padding:12px 8px;font-size:11px;color:#fff;text-align:right;font-weight:700;">THÀNH TIỀN</th>
+        </tr>
+      </thead>
+      <tbody>${items.map((item: any, i: number) => `
+        <tr style="background:${i % 2 === 0 ? '#ffffff' : '#f8fafc'};border-bottom:1px solid #e2e8f0;">
+          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;">${i + 1}</td>
+          <td style="padding:10px 8px;font-size:13px;font-weight:600;color:#1e293b;">${item.name || ''}</td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;">${item.unit || 'kg'}</td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#0369a1;">${item.quantity || 1}</td>
+          <td style="padding:10px 8px;text-align:right;font-size:13px;color:#475569;">${(item.price || 0).toLocaleString('vi-VN')}₫</td>
+          <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:700;color:#1e293b;">${((item.price || 0) * (item.quantity || 1)).toLocaleString('vi-VN')}₫</td>
+        </tr>
+      `).join('')}</tbody>
+    </table>
+  </div>
+
+  <!-- Summary -->
+  <div style="padding:15px 30px;">
+    <div style="background:linear-gradient(135deg,#fefce8,#fef9c3);border-radius:12px;padding:18px;border:1px solid #fde68a;">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="padding:5px 0;font-size:14px;color:#475569;">Tổng tiền hàng:</td><td style="padding:5px 0;font-size:15px;font-weight:700;color:#1e293b;text-align:right;">${totalAmount.toLocaleString('vi-VN')}₫</td></tr>
+        ${order.coupon_discount ? `<tr><td style="padding:5px 0;font-size:14px;color:#16a34a;">🎟️ Giảm giá (${order.coupon_code || ''}):</td><td style="padding:5px 0;font-size:14px;font-weight:700;color:#16a34a;text-align:right;">-${order.coupon_discount.toLocaleString('vi-VN')}₫</td></tr>` : ''}
+        <tr style="border-top:2px solid #f59e0b;"><td style="padding:10px 0 5px;font-size:16px;color:#ea580c;font-weight:800;">💰 Cọc 50%:</td><td style="padding:10px 0 5px;font-size:18px;font-weight:900;color:#ea580c;text-align:right;">${depositAmount.toLocaleString('vi-VN')}₫</td></tr>
+        <tr><td style="padding:5px 0;font-size:14px;color:#475569;">Còn lại nhận hàng:</td><td style="padding:5px 0;font-size:15px;font-weight:700;color:#1e293b;text-align:right;">${remainingAmount.toLocaleString('vi-VN')}₫</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- QR Payment -->
   ${order.status !== 'deposit_paid' ? `
-  <div style="text-align:center;padding:15px 30px;">
-    <h3 style="margin:0 0 10px;font-size:15px;color:#1e293b;">Quét QR để thanh toán cọc</h3>
-    <img src="${qrUrl}" alt="QR thanh toán" width="200" height="200" style="border-radius:8px;border:2px solid #e2e8f0;" />
-    <div style="margin-top:10px;background:#fef3c7;border-radius:8px;padding:12px;border:1px solid #fbbf24;">
-      <p style="margin:2px 0;font-size:12px;color:#92400e;">🏦 Ngân hàng: <strong>VietinBank</strong></p>
-      <p style="margin:2px 0;font-size:12px;color:#92400e;">👤 Chủ TK: <strong>VAN THI MINH LINH</strong></p>
-      <p style="margin:2px 0;font-size:12px;color:#92400e;">💳 STK: <strong>104002912582</strong></p>
-      <p style="margin:2px 0;font-size:12px;color:#92400e;">📝 Nội dung CK: <strong style="color:#dc2626;">${orderCode}</strong></p>
-      <p style="margin:2px 0;font-size:12px;color:#92400e;">💰 Số tiền cọc: <strong style="color:#dc2626;">${depositAmount.toLocaleString('vi-VN')}₫</strong></p>
+  <div style="padding:0 30px 20px;text-align:center;">
+    <div style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-radius:12px;padding:20px;border:1px solid #bae6fd;">
+      <h3 style="margin:0 0 12px;font-size:16px;color:#0369a1;font-weight:800;">🏦 QUÉT QR ĐỂ THANH TOÁN CỌC</h3>
+      <img src="${qrUrl}" alt="QR thanh toán" width="200" height="200" style="border-radius:12px;border:3px solid #0ea5e9;" />
+      <div style="margin-top:15px;background:#fff;border-radius:10px;padding:15px;border:1px solid #e2e8f0;text-align:left;">
+        <p style="margin:4px 0;font-size:13px;color:#1e293b;">🏦 Ngân hàng: <strong>VietinBank</strong></p>
+        <p style="margin:4px 0;font-size:13px;color:#1e293b;">👤 Chủ TK: <strong>VAN THI MINH LINH</strong></p>
+        <p style="margin:4px 0;font-size:13px;color:#1e293b;">💳 STK: <strong style="color:#0369a1;font-size:15px;">104002912582</strong></p>
+        <p style="margin:4px 0;font-size:13px;color:#1e293b;">📝 Nội dung: <strong style="color:#dc2626;font-size:15px;">${orderCode}</strong></p>
+        <p style="margin:4px 0;font-size:13px;color:#1e293b;">💰 Số tiền: <strong style="color:#ea580c;font-size:15px;">${depositAmount.toLocaleString('vi-VN')}₫</strong></p>
+      </div>
     </div>
   </div>` : ''}
-  <div style="background:#f8fafc;padding:20px 30px;text-align:center;border-top:1px solid #e2e8f0;">
-    <p style="margin:0;font-size:12px;color:#64748b;">Hotline: <strong>098.661.7939</strong> | Zalo: <strong>098.661.7939</strong></p>
-    <p style="margin:4px 0 0;font-size:11px;color:#94a3b8;">© ${new Date().getFullYear()} Giang Nguyen Seafood – Sầm Sơn, Thanh Hóa</p>
+
+  <!-- Footer -->
+  <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1);padding:25px 30px;text-align:center;">
+    <p style="margin:0;font-size:13px;color:#fff;font-weight:700;">CÔNG TY TNHH GIANG NGUYÊN GROUP</p>
+    <p style="margin:6px 0;font-size:12px;color:rgba(255,255,255,0.8);">📞 Hotline: 0933.562.286 | Zalo: 0933.562.286</p>
+    <p style="margin:4px 0;font-size:12px;color:rgba(255,255,255,0.8);">📧 giangnguyendriedseafood@gmail.com</p>
+    <p style="margin:4px 0;font-size:12px;color:rgba(255,255,255,0.8);">📍 Sầm Sơn, Thanh Hóa</p>
+    <hr style="border:none;border-top:1px solid rgba(255,255,255,0.2);margin:12px 0;" />
+    <p style="margin:0;font-size:10px;color:rgba(255,255,255,0.5);">© ${new Date().getFullYear()} Giang Nguyên Group – Hải sản khô & Hải sản một nắng Sầm Sơn</p>
   </div>
 </div>
 </body>

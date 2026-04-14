@@ -1266,8 +1266,8 @@ function PolicyEditor() {
 
 // ============ CONTACT EDITOR ============
 const DEFAULT_CONTACT: ContactInfo = {
-  hotline: '093.356.2286',
-  zalo: '093.356.2286',
+  hotline: '0933.562.286',
+  zalo: '0933.562.286',
   email: 'giangnguyendriedseafood@gmail.com',
   hours: '7h – 17h hàng ngày',
   address: 'Sầm Sơn, Thanh Hóa',

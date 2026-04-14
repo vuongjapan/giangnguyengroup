@@ -110,13 +110,11 @@ export default function Header() {
 
           {/* Logo - CÔNG TY TNHH trên, GIANG NGUYÊN GROUP dưới */}
           <Link to="/" className="flex-shrink-0">
-            <div className="leading-none">
-              <p className="text-[8px] md:text-[10px] text-muted-foreground font-bold tracking-wider uppercase">CÔNG TY TNHH</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-base md:text-xl font-black text-primary tracking-tight leading-tight">GIANG NGUYÊN</span>
-                <span className="text-base md:text-xl font-black text-coral tracking-tight leading-tight">GROUP</span>
-              </div>
-              <p className="text-[8px] md:text-[9px] text-muted-foreground tracking-wider font-medium">HẢI SẢN KHÔ – HẢI SẢN MỘT NẮNG</p>
+            <div className="leading-none text-center">
+              <p className="text-[7px] md:text-[10px] text-muted-foreground font-bold tracking-wider uppercase">CÔNG TY TNHH</p>
+              <p className="text-sm md:text-xl font-black text-primary tracking-tight leading-tight">GIANG NGUYÊN</p>
+              <p className="text-xs md:text-lg font-black text-coral tracking-tight leading-tight -mt-0.5">GROUP</p>
+              <p className="text-[6px] md:text-[9px] text-muted-foreground tracking-wider font-medium">HẢI SẢN KHÔ – HẢI SẢN MỘT NẮNG</p>
             </div>
           </Link>
 

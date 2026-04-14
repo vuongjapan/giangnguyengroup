@@ -83,7 +83,7 @@ interface ContactInfo {
   address: string;
 }
 
-type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup' | 'why_choose' | 'promo_banners' | 'video_section';
+type ContentSection = 'promotions' | 'recipes' | 'news' | 'blog' | 'brand' | 'hero' | 'policy' | 'contact' | 'footer' | 'ticker' | 'exit_popup' | 'why_choose' | 'promo_banners' | 'video_section' | 'commitments' | 'certifications';
 
 // ============ HELPERS ============
 const genId = () => Math.random().toString(36).slice(2, 10);
@@ -223,6 +223,8 @@ export default function ContentManagerV2() {
     { key: 'promo_banners', label: '🖼️ Banner QC', desc: 'Ảnh quảng cáo trang chủ' },
     { key: 'promotions', label: '🎉 Khuyến mãi', desc: 'Flash sale, ưu đãi mua nhiều' },
     { key: 'why_choose', label: '✅ 7 Lý do', desc: '7 lý do chọn Giang Nguyên' },
+    { key: 'commitments', label: '🤝 Cam kết', desc: 'Cam kết, vận chuyển, đổi trả, uy tín' },
+    { key: 'certifications', label: '🏅 Chứng nhận', desc: 'Chứng nhận chất lượng sản phẩm' },
     { key: 'recipes', label: '🍳 Món ngon', desc: 'Công thức chế biến hải sản' },
     { key: 'news', label: '📰 Tin tức', desc: 'Tin tức & sự kiện' },
     { key: 'blog', label: '📚 Blog', desc: 'Bài viết kiến thức' },
@@ -258,6 +260,8 @@ export default function ContentManagerV2() {
         {section === 'ticker' && <TickerEditor />}
         {section === 'exit_popup' && <ExitPopupEditor />}
         {section === 'why_choose' && <WhyChooseEditor />}
+        {section === 'commitments' && <CommitmentsEditor />}
+        {section === 'certifications' && <CertificationsEditor />}
         {section === 'promo_banners' && <PromoBannersEditor />}
         {section === 'video_section' && <VideoSectionEditor />}
         {section === 'footer' && <SimpleEditor contentKey="footer" />}

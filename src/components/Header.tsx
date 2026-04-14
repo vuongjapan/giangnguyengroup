@@ -93,8 +93,8 @@ export default function Header() {
             <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="font-bold text-primary-foreground flex items-center gap-1 hover:underline">
               <MessageCircle className="h-3 w-3" /> Zalo: 093.356.2286
             </a>
-            <a href="mailto:giangnguyengroup@gmail.com" className="text-primary-foreground flex items-center gap-1 hover:underline">
-              <Mail className="h-3 w-3" /> giangnguyengroup@gmail.com
+            <a href="mailto:giangnguyendriedseafood@gmail.com" className="text-primary-foreground flex items-center gap-1 hover:underline">
+              <Mail className="h-3 w-3" /> giangnguyendriedseafood@gmail.com
             </a>
           </div>
         </div>
@@ -110,13 +110,11 @@ export default function Header() {
 
           {/* Logo - CÔNG TY TNHH trên, GIANG NGUYÊN GROUP dưới */}
           <Link to="/" className="flex-shrink-0">
-            <div className="leading-none">
-              <p className="text-[8px] md:text-[10px] text-muted-foreground font-bold tracking-wider uppercase">CÔNG TY TNHH</p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-base md:text-xl font-black text-primary tracking-tight leading-tight">GIANG NGUYÊN</span>
-                <span className="text-base md:text-xl font-black text-coral tracking-tight leading-tight">GROUP</span>
-              </div>
-              <p className="text-[8px] md:text-[9px] text-muted-foreground tracking-wider font-medium">HẢI SẢN KHÔ – HẢI SẢN MỘT NẮNG</p>
+            <div className="leading-none text-center">
+              <p className="text-[7px] md:text-[10px] text-muted-foreground font-bold tracking-wider uppercase">CÔNG TY TNHH</p>
+              <p className="text-sm md:text-xl font-black text-primary tracking-tight leading-tight">GIANG NGUYÊN</p>
+              <p className="text-xs md:text-lg font-black text-coral tracking-tight leading-tight -mt-0.5">GROUP</p>
+              <p className="text-[6px] md:text-[9px] text-muted-foreground tracking-wider font-medium">HẢI SẢN KHÔ – HẢI SẢN MỘT NẮNG</p>
             </div>
           </Link>
 
@@ -392,8 +390,8 @@ export default function Header() {
               <a href="https://zalo.me/0933562286" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-3 py-2.5 text-sm font-bold text-primary hover:bg-muted rounded-lg">
                 <MessageCircle className="h-4 w-4" /> Zalo: 093.356.2286
               </a>
-              <a href="mailto:giangnguyengroup@gmail.com" className="flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg">
-                <Mail className="h-4 w-4" /> giangnguyengroup@gmail.com
+              <a href="mailto:giangnguyendriedseafood@gmail.com" className="flex items-center gap-2 px-3 py-2.5 text-sm text-foreground hover:bg-muted rounded-lg">
+                <Mail className="h-4 w-4" /> giangnguyendriedseafood@gmail.com
               </a>
               <div className="px-3 py-2 text-xs text-muted-foreground">
                 <p>📍 Sầm Sơn, Thanh Hóa</p>

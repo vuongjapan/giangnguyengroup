@@ -1268,7 +1268,7 @@ function PolicyEditor() {
 const DEFAULT_CONTACT: ContactInfo = {
   hotline: '093.356.2286',
   zalo: '093.356.2286',
-  email: 'giangnguyengroup@gmail.com',
+  email: 'giangnguyendriedseafood@gmail.com',
   hours: '7h – 17h hàng ngày',
   address: 'Sầm Sơn, Thanh Hóa',
 };

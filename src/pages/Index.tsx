@@ -50,7 +50,6 @@ export default function Index() {
     document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
     return () => observer.disconnect();
   }, []);
-  const { products } = useProducts();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
   const initialStatus = searchParams.get('status');

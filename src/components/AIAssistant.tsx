@@ -96,7 +96,7 @@ export default function AIAssistant() {
   }, [location.pathname, dismissed, visible]);
 
   const handleAddToCart = (product: { id: string; name: string; price: number; unit: string; image: string }) => {
-    addItem({ id: product.id, name: product.name, price: product.price, unit: product.unit, image: product.image, quantity: 1 });
+    addItem({ productId: product.id, name: product.name, price: product.price, unit: product.unit, image: product.image });
     setVisible(false);
   };
 

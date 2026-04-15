@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Filter, ArrowUpDown, ChevronRight, Star, Flame } from 'lucide-react';
 import { priceRanges, categories, formatPrice } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
@@ -40,6 +40,16 @@ const TESTIMONIALS = [
 
 export default function Index() {
   const { products } = useProducts();
+
+  // Scroll animation observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }),
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
   const initialStatus = searchParams.get('status');
@@ -101,7 +111,7 @@ export default function Index() {
       <PromoBanners />
 
       {/* USP strip */}
-      <div className="bg-card border-b border-border py-4">
+      <div className="bg-card border-b border-border py-4 scroll-animate">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
@@ -123,7 +133,7 @@ export default function Index() {
       </div>
 
       {/* Bestseller highlight section */}
-      <section className="bg-secondary/30 py-6 md:py-8">
+      <section className="bg-secondary/30 py-6 md:py-8 scroll-animate">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -245,7 +255,7 @@ export default function Index() {
       <CustomerReviews />
 
       {/* CTA banner */}
-      <section className="ocean-gradient py-8">
+      <section className="ocean-gradient py-8 scroll-animate">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-xl md:text-2xl font-black text-primary-foreground mb-2">
             Đặt hàng ngay – Ship tận nhà!

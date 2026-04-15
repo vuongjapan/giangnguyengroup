@@ -150,14 +150,14 @@ export default function Header() {
                 <img
                   src="/images/logo-giang-nguyen-group.jpg"
                   alt="Giang Nguyên Group"
-                  className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-12' : 'h-16 lg:h-20'}`}
+                  className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-14' : 'h-20 lg:h-24'}`}
                   loading="eager"
                 />
                 <div className={`text-center mt-1 transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 opacity-0' : 'max-h-12 opacity-100'}`}>
-                  <p className="text-[10px] lg:text-xs font-semibold text-[#555] tracking-wide leading-tight">
+                  <p className="text-xs lg:text-sm font-bold text-[#444] tracking-wide leading-tight">
                     CÔNG TY TNHH GIANG NGUYÊN GROUP
                   </p>
-                  <p className="text-[9px] lg:text-[10px] text-[#777] tracking-wider leading-tight mt-0.5">
+                  <p className="text-[10px] lg:text-xs text-[#666] tracking-wider leading-tight mt-0.5">
                     Hải sản khô – Hải sản một nắng
                   </p>
                 </div>
@@ -212,14 +212,14 @@ export default function Header() {
               <img
                 src="/images/logo-giang-nguyen-group.jpg"
                 alt="Giang Nguyên Group"
-                className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-9' : 'h-12'}`}
+                className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-10' : 'h-14'}`}
                 loading="eager"
               />
               <div className={`text-center transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 opacity-0 mt-0' : 'max-h-10 opacity-100 mt-0.5'}`}>
-                <p className="text-[7px] font-semibold text-[#555] tracking-wide leading-tight">
+                <p className="text-[8px] font-bold text-[#444] tracking-wide leading-tight">
                   CÔNG TY TNHH GIANG NGUYÊN GROUP
                 </p>
-                <p className="text-[6px] text-[#777] tracking-wider leading-tight">
+                <p className="text-[7px] text-[#666] tracking-wider leading-tight">
                   Hải sản khô – Hải sản một nắng
                 </p>
               </div>

@@ -107,7 +107,7 @@ export default function Index() {
             {[
               { icon: '🐟', title: '100% Sầm Sơn', desc: 'Hải sản chính gốc' },
               { icon: '☀️', title: 'Phơi nắng thật', desc: 'Không sấy công nghiệp' },
-              { icon: '🚚', title: 'Free ship 500K', desc: 'Giao toàn quốc' },
+              { icon: '🚚', title: 'Free ship 1500K', desc: 'Giao toàn quốc' },
               { icon: '🔄', title: 'Đổi trả 24h', desc: 'Hoàn tiền 100%' },
             ].map(item => (
               <div key={item.title} className="flex items-center gap-2.5 px-2">

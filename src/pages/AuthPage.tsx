@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, Eye, EyeOff, User, Phone, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
@@ -14,35 +14,36 @@ export default function AuthPage() {
   const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate('/account', { replace: true });
+    }
+  }, [user, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await signIn(email, password);
     if (error) {
-      toast.error(error.message === 'Invalid login credentials' ? 'Email hoặc mật khẩu không đúng' : error.message);
-    } else {
-      toast.success('Đăng nhập thành công!');
-      navigate('/account');
+      toast.error(error === 'Invalid login credentials' ? 'Email hoặc mật khẩu không đúng' : error);
+      setLoading(false);
     }
-    setLoading(false);
+    // Navigation handled by useEffect above
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) { toast.error('Mật khẩu tối thiểu 6 ký tự'); return; }
+    if (loading) return;
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name, phone },
-        emailRedirectTo: window.location.origin,
-      },
-    });
+    const { error } = await signUp(email, password, { full_name: name, phone });
     if (error) {
-      toast.error(error.message);
+      toast.error(error);
     } else {
       toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.');
       setMode('login');

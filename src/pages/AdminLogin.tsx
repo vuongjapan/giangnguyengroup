@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Lock, Mail, Eye, EyeOff } from 'lucide-react';
@@ -9,20 +9,27 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, isAdmin, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
+  // If already logged in as admin, redirect
+  useEffect(() => {
+    if (!authLoading && user && isAdmin) {
+      navigate('/admin', { replace: true });
+    }
+  }, [user, isAdmin, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // prevent double submit
     setError('');
     setLoading(true);
     const { error } = await signIn(email, password);
     if (error) {
       setError(error);
       setLoading(false);
-    } else {
-      navigate('/admin');
     }
+    // Don't navigate here - the useEffect above will handle it once isAdmin is confirmed
   };
 
   return (

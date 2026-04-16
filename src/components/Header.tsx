@@ -69,7 +69,7 @@ export default function Header() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const renderMenuItem = (item: typeof LEFT_MENU[0] & { hasDropdown?: boolean }, showDropdown = false) => (
+  const renderMenuItem = (item: { label: string; to: string; icon: any; hasDropdown?: boolean }) => (
     <div
       key={item.to}
       className="relative"
@@ -259,7 +259,7 @@ export default function Header() {
           <div className="flex items-center justify-center">
             {/* Left menu items */}
             <div className="flex items-center justify-end flex-1">
-              {LEFT_MENU.map(item => renderMenuItem(item, true))}
+              {LEFT_MENU.map(item => renderMenuItem(item))}
             </div>
 
             {/* Center: Logo */}

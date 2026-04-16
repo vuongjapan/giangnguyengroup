@@ -876,8 +876,16 @@ export default function AdminDashboard() {
         {/* ===== CONTENT ===== */}
         {tab === 'content' && <ContentManagerV2 />}
 
+        {/* ===== AI ASSISTANT ===== */}
+        {tab === 'ai-assistant' && <AIAssistantManager />}
+
         {/* ===== SETTINGS ===== */}
-        {tab === 'settings' && <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />}
+        {tab === 'settings' && (
+          <div className="space-y-6">
+            <LogoManager />
+            <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />
+          </div>
+        )}
       </div>
     </div>
   );

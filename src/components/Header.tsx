@@ -69,7 +69,7 @@ export default function Header() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const renderMenuItem = (item: typeof LEFT_MENU[0], showDropdown = false) => (
+  const renderMenuItem = (item: typeof LEFT_MENU[0] & { hasDropdown?: boolean }, showDropdown = false) => (
     <div
       key={item.to}
       className="relative"

@@ -61,7 +61,7 @@ export default function AIAssistant() {
     setSuggestion(s);
     setVisible(true);
     setLastShown(Date.now());
-  }, [dismissed, lastShown]);
+  }, [dismissed, lastShown, isEnabled, cooldown]);
 
   // Smart suggestion based on recently viewed
   const recentlyViewedSuggestion = useMemo((): Suggestion | null => {

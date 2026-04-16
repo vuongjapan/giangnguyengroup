@@ -109,7 +109,9 @@ export default function Index() {
       <HeroBanner />
 
       {/* Video phóng sự */}
-      <VideoSection />
+      <Suspense fallback={<LazyFallback />}>
+        <VideoSection />
+      </Suspense>
 
       {/* Promo Banners - like daohaisan.vn */}
       <PromoBanners />
@@ -255,8 +257,9 @@ export default function Index() {
       {/* Recently Viewed */}
       <RecentlyViewed />
 
-      {/* Customer Reviews */}
-      <CustomerReviews />
+      <Suspense fallback={<LazyFallback />}>
+        <CustomerReviews />
+      </Suspense>
 
       {/* CTA banner */}
       <section className="ocean-gradient py-8 scroll-animate">
@@ -267,31 +270,33 @@ export default function Index() {
           <p className="text-primary-foreground/80 text-sm mb-4">
             Hotline: <a href="tel:0933562286" className="font-bold text-accent hover:underline">0933.562.286</a> • Zalo: <a href="https://zalo.me/0933562286" className="font-bold text-accent hover:underline">0933.562.286</a>
           </p>
-          <a
-            href="tel:0933562286"
-            className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity"
-          >
+          <a href="tel:0933562286" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
             📞 GỌI ĐẶT HÀNG NGAY
           </a>
         </div>
       </section>
 
-      {/* Why Choose Us */}
       <WhyChooseUs />
 
-      {/* Newsletter Signup */}
-      <NewsletterSignup />
+      <Suspense fallback={<LazyFallback />}>
+        <NewsletterSignup />
+      </Suspense>
 
-      {/* About & Social Proof */}
-      <AboutSection />
-      <SocialProof />
+      <Suspense fallback={<LazyFallback />}>
+        <AboutSection />
+      </Suspense>
+      <Suspense fallback={<LazyFallback />}>
+        <SocialProof />
+      </Suspense>
 
-      {/* II. Store Locations */}
-      <StoreLocations onSelectStore={handleSelectStore} />
+      <Suspense fallback={<LazyFallback />}>
+        <StoreLocations onSelectStore={handleSelectStore} />
+      </Suspense>
 
-      {/* III. Google Map */}
       <div id="map-section">
-        <GoogleMap focusStoreId={focusStoreId} />
+        <Suspense fallback={<LazyFallback />}>
+          <GoogleMap focusStoreId={focusStoreId} />
+        </Suspense>
       </div>
 
       <Footer />

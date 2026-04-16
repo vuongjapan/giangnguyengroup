@@ -23,8 +23,14 @@ interface Combo {
   image: string; tag: string; is_active: boolean;
 }
 
-const COOLDOWN = 20000;
-const AVATAR_URL = '/images/logo-giang-nguyen-group.jpg';
+const DEFAULT_COOLDOWN = 20000;
+const DEFAULT_AVATAR = '/images/logo-giang-nguyen-group.jpg';
+
+interface AIConfig {
+  enabled: boolean; avatar_url: string; cooldown: number;
+  welcome_message: string; product_message: string; idle_message: string;
+  cart_message: string; combo_message: string;
+}
 
 export default function AIAssistant() {
   const [visible, setVisible] = useState(false);
@@ -32,25 +38,30 @@ export default function AIAssistant() {
   const [dismissed, setDismissed] = useState(false);
   const [lastShown, setLastShown] = useState(0);
   const [combos, setCombos] = useState<Combo[]>([]);
+  const [aiConfig, setAiConfig] = useState<AIConfig | null>(null);
   const { products } = useProducts();
   const { addItem, totalItems } = useCart();
   const { viewed } = useRecentlyViewed();
   const location = useLocation();
 
-  // Fetch combos
+  // Fetch combos & config
   useEffect(() => {
     supabase.from('combos').select('id,name,slug,combo_price,original_price,image,tag,is_active')
-      .eq('is_active', true).order('sort_order').then(({ data }) => {
-        if (data) setCombos(data);
-      });
+      .eq('is_active', true).order('sort_order').then(({ data }) => { if (data) setCombos(data); });
+    supabase.from('site_settings').select('value').eq('key', 'ai_assistant_config').maybeSingle()
+      .then(({ data }) => { if (data?.value) setAiConfig(data.value as any); });
   }, []);
 
+  const cooldown = (aiConfig?.cooldown || 20) * 1000;
+  const avatarUrl = aiConfig?.avatar_url || DEFAULT_AVATAR;
+  const isEnabled = aiConfig?.enabled !== false;
+
   const showSuggestion = useCallback((s: Suggestion) => {
-    if (dismissed || Date.now() - lastShown < COOLDOWN) return;
+    if (dismissed || !isEnabled || Date.now() - lastShown < cooldown) return;
     setSuggestion(s);
     setVisible(true);
     setLastShown(Date.now());
-  }, [dismissed, lastShown]);
+  }, [dismissed, lastShown, isEnabled, cooldown]);
 
   // Smart suggestion based on recently viewed
   const recentlyViewedSuggestion = useMemo((): Suggestion | null => {
@@ -200,7 +211,7 @@ export default function AIAssistant() {
         className="fixed bottom-32 md:bottom-24 left-4 z-30 w-12 h-12 rounded-full shadow-lg overflow-hidden border-2 border-primary/30 hover:border-primary transition-all hover:scale-110 animate-bounce-soft"
         title="AI Tư vấn"
       >
-        <img src={AVATAR_URL} alt="AI Assistant" className="w-full h-full object-cover" />
+        <img src={avatarUrl} alt="AI Assistant" className="w-full h-full object-cover" />
         <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
       </button>
     )
@@ -210,7 +221,7 @@ export default function AIAssistant() {
     <div className="fixed bottom-32 md:bottom-24 left-4 z-30 animate-scale-in">
       <div className="flex items-end gap-2 max-w-xs">
         <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden border-2 border-primary shadow-md">
-          <img src={AVATAR_URL} alt="AI" className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt="AI" className="w-full h-full object-cover" />
         </div>
 
         <div className="bg-white rounded-2xl rounded-bl-md shadow-xl border border-gray-100 p-3 max-w-[280px] relative">

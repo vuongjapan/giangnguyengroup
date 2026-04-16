@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Filter, ArrowUpDown, ChevronRight, Star, Flame } from 'lucide-react';
 import { priceRanges, categories, formatPrice } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
@@ -7,20 +7,24 @@ import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
-import VideoSection from '@/components/VideoSection';
-import AboutSection from '@/components/AboutSection';
-import StoreLocations from '@/components/StoreLocations';
-import SocialProof from '@/components/SocialProof';
-import GoogleMap from '@/components/GoogleMap';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import CustomerReviews from '@/components/CustomerReviews';
-import NewsletterSignup from '@/components/NewsletterSignup';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
+
+// Lazy load heavy below-fold sections
+const VideoSection = lazy(() => import('@/components/VideoSection'));
+const AboutSection = lazy(() => import('@/components/AboutSection'));
+const StoreLocations = lazy(() => import('@/components/StoreLocations'));
+const SocialProof = lazy(() => import('@/components/SocialProof'));
+const GoogleMap = lazy(() => import('@/components/GoogleMap'));
+const CustomerReviews = lazy(() => import('@/components/CustomerReviews'));
+const NewsletterSignup = lazy(() => import('@/components/NewsletterSignup'));
+
+const LazyFallback = () => <div className="py-8 text-center text-muted-foreground text-sm">Đang tải...</div>;
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'hot';
 
@@ -105,7 +109,9 @@ export default function Index() {
       <HeroBanner />
 
       {/* Video phóng sự */}
-      <VideoSection />
+      <Suspense fallback={<LazyFallback />}>
+        <VideoSection />
+      </Suspense>
 
       {/* Promo Banners - like daohaisan.vn */}
       <PromoBanners />
@@ -251,8 +257,9 @@ export default function Index() {
       {/* Recently Viewed */}
       <RecentlyViewed />
 
-      {/* Customer Reviews */}
-      <CustomerReviews />
+      <Suspense fallback={<LazyFallback />}>
+        <CustomerReviews />
+      </Suspense>
 
       {/* CTA banner */}
       <section className="ocean-gradient py-8 scroll-animate">
@@ -263,31 +270,33 @@ export default function Index() {
           <p className="text-primary-foreground/80 text-sm mb-4">
             Hotline: <a href="tel:0933562286" className="font-bold text-accent hover:underline">0933.562.286</a> • Zalo: <a href="https://zalo.me/0933562286" className="font-bold text-accent hover:underline">0933.562.286</a>
           </p>
-          <a
-            href="tel:0933562286"
-            className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity"
-          >
+          <a href="tel:0933562286" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
             📞 GỌI ĐẶT HÀNG NGAY
           </a>
         </div>
       </section>
 
-      {/* Why Choose Us */}
       <WhyChooseUs />
 
-      {/* Newsletter Signup */}
-      <NewsletterSignup />
+      <Suspense fallback={<LazyFallback />}>
+        <NewsletterSignup />
+      </Suspense>
 
-      {/* About & Social Proof */}
-      <AboutSection />
-      <SocialProof />
+      <Suspense fallback={<LazyFallback />}>
+        <AboutSection />
+      </Suspense>
+      <Suspense fallback={<LazyFallback />}>
+        <SocialProof />
+      </Suspense>
 
-      {/* II. Store Locations */}
-      <StoreLocations onSelectStore={handleSelectStore} />
+      <Suspense fallback={<LazyFallback />}>
+        <StoreLocations onSelectStore={handleSelectStore} />
+      </Suspense>
 
-      {/* III. Google Map */}
       <div id="map-section">
-        <GoogleMap focusStoreId={focusStoreId} />
+        <Suspense fallback={<LazyFallback />}>
+          <GoogleMap focusStoreId={focusStoreId} />
+        </Suspense>
       </div>
 
       <Footer />

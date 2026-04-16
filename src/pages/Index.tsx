@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Filter, ArrowUpDown, ChevronRight, Star, Flame } from 'lucide-react';
 import { priceRanges, categories, formatPrice } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
@@ -7,20 +7,24 @@ import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
-import VideoSection from '@/components/VideoSection';
-import AboutSection from '@/components/AboutSection';
-import StoreLocations from '@/components/StoreLocations';
-import SocialProof from '@/components/SocialProof';
-import GoogleMap from '@/components/GoogleMap';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import CustomerReviews from '@/components/CustomerReviews';
-import NewsletterSignup from '@/components/NewsletterSignup';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
+
+// Lazy load heavy below-fold sections
+const VideoSection = lazy(() => import('@/components/VideoSection'));
+const AboutSection = lazy(() => import('@/components/AboutSection'));
+const StoreLocations = lazy(() => import('@/components/StoreLocations'));
+const SocialProof = lazy(() => import('@/components/SocialProof'));
+const GoogleMap = lazy(() => import('@/components/GoogleMap'));
+const CustomerReviews = lazy(() => import('@/components/CustomerReviews'));
+const NewsletterSignup = lazy(() => import('@/components/NewsletterSignup'));
+
+const LazyFallback = () => <div className="py-8 text-center text-muted-foreground text-sm">Đang tải...</div>;
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'hot';
 

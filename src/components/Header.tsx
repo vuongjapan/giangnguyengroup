@@ -307,7 +307,7 @@ export default function Header() {
             <div className="py-2">
               {ALL_MENU.map(item => (
                 <div key={item.to}>
-                  {item.hasDropdown ? (
+                  {('hasDropdown' in item && item.hasDropdown) ? (
                     <>
                       <button onClick={() => setMobileProductExpanded(!mobileProductExpanded)}
                         className={`w-full flex items-center justify-between px-4 py-3 text-sm font-bold transition-colors ${isActive(item.to) ? 'text-primary bg-primary/5' : 'text-gray-800 hover:bg-gray-50'}`}>

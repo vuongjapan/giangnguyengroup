@@ -211,7 +211,7 @@ export default function AIAssistant() {
         className="fixed bottom-32 md:bottom-24 left-4 z-30 w-12 h-12 rounded-full shadow-lg overflow-hidden border-2 border-primary/30 hover:border-primary transition-all hover:scale-110 animate-bounce-soft"
         title="AI Tư vấn"
       >
-        <img src={AVATAR_URL} alt="AI Assistant" className="w-full h-full object-cover" />
+        <img src={avatarUrl} alt="AI Assistant" className="w-full h-full object-cover" />
         <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
       </button>
     )
@@ -221,7 +221,7 @@ export default function AIAssistant() {
     <div className="fixed bottom-32 md:bottom-24 left-4 z-30 animate-scale-in">
       <div className="flex items-end gap-2 max-w-xs">
         <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden border-2 border-primary shadow-md">
-          <img src={AVATAR_URL} alt="AI" className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt="AI" className="w-full h-full object-cover" />
         </div>
 
         <div className="bg-white rounded-2xl rounded-bl-md shadow-xl border border-gray-100 p-3 max-w-[280px] relative">

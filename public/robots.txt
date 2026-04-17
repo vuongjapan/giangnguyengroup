@@ -4,5 +4,7 @@ Disallow: /admin
 Disallow: /admin-login
 Disallow: /account
 Disallow: /checkout
+Disallow: /cart
 
 Sitemap: https://giangnguyengroup.lovable.app/sitemap.xml
+Sitemap: https://hhnycprummorizjvzyrw.supabase.co/functions/v1/sitemap-xml

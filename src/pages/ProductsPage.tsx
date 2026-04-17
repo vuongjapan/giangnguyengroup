@@ -7,6 +7,8 @@ import ProductCard from '@/components/ProductCard';
 import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
+import { breadcrumbLD } from '@/lib/seo';
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'hot';
 
@@ -58,8 +60,23 @@ export default function ProductsPage() {
 
   const hasFilters = Object.values(filters).some(v => v !== null);
 
+  const categoryTitle = filters.category
+    ? `${filters.category} – Hải sản khô Sầm Sơn cao cấp`
+    : 'Tất cả sản phẩm hải sản khô – Giang Nguyên Group';
+  const categoryDesc = filters.category
+    ? `Mua ${filters.category} chính gốc Sầm Sơn, phơi nắng tự nhiên, ship toàn quốc.`
+    : 'Mực khô, cá thu một nắng, nem chua, tôm khô và đặc sản Sầm Sơn. Ship toàn quốc, đổi trả 24h.';
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO
+        title={categoryTitle}
+        description={categoryDesc}
+        jsonLd={breadcrumbLD([
+          { name: 'Trang chủ', url: '/' },
+          { name: filters.category || 'Sản phẩm', url: '/san-pham' },
+        ])}
+      />
       <Header />
 
       {/* Category strip */}

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
+import { breadcrumbLD } from '@/lib/seo';
 import { Clock, ChevronRight, Sparkles, Tag, MessageCircle, Waves } from 'lucide-react';
 import { useSiteContent } from '@/hooks/useSiteContent';
 
@@ -45,6 +47,14 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO
+        title="Tin tức Sầm Sơn & hải sản khô | Giang Nguyên Group"
+        description="Hàng mới về, tin biển Sầm Sơn, khuyến mãi và feedback khách hàng. Cập nhật thường xuyên về thị trường hải sản khô."
+        jsonLd={breadcrumbLD([
+          { name: 'Trang chủ', url: '/' },
+          { name: 'Tin tức', url: '/tin-tuc' },
+        ])}
+      />
       <Header />
 
       <section className="ocean-gradient py-12 md:py-16">

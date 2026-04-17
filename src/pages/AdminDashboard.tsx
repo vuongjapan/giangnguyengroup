@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
 import ContentManagerV2 from '@/components/admin/ContentManagerV2';
 import AIAssistantManager from '@/components/admin/AIAssistantManager';
+import AISalesScriptsManager from '@/components/AISalesScriptsManager';
 import LogoManager from '@/components/admin/LogoManager';
 
 type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant';
@@ -877,7 +878,15 @@ export default function AdminDashboard() {
         {tab === 'content' && <ContentManagerV2 />}
 
         {/* ===== AI ASSISTANT ===== */}
-        {tab === 'ai-assistant' && <AIAssistantManager />}
+        {tab === 'ai-assistant' && (
+          <div className="space-y-6">
+            <AISalesScriptsManager />
+            <div className="border-t border-border pt-6">
+              <h3 className="text-lg font-bold text-foreground mb-4">Cấu hình cũ (legacy)</h3>
+              <AIAssistantManager />
+            </div>
+          </div>
+        )}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
+import { breadcrumbLD } from '@/lib/seo';
 
 interface DBCombo {
   id: string; name: string; slug: string; tag: string; tag_color: string;
@@ -62,6 +64,14 @@ export default function ComboPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO
+        title="Combo hải sản tiết kiệm – Quà biếu sang trọng | Giang Nguyên Group"
+        description="Combo quà Tết, quà biếu sếp, quà gia đình từ hải sản khô Sầm Sơn. Tiết kiệm hơn mua lẻ, đóng hộp sang trọng, ship toàn quốc."
+        jsonLd={breadcrumbLD([
+          { name: 'Trang chủ', url: '/' },
+          { name: 'Combo', url: '/combo' },
+        ])}
+      />
       <Header />
       <main className="container mx-auto px-4 py-8 flex-1 max-w-6xl">
         <Link to="/" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">

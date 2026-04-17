@@ -2,6 +2,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Clock, Users, ShoppingCart, ChefHat } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
+import { recipeLD, breadcrumbLD } from '@/lib/seo';
 import { products as staticProducts, formatPrice } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
 import { useCart } from '@/contexts/CartContext';
@@ -63,6 +65,28 @@ export default function RecipeDetail() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${recipe.title} – Công thức chế biến hải sản | Giang Nguyên Group`}
+        description={recipe.description}
+        image={recipe.image}
+        type="article"
+        jsonLd={[
+          recipeLD({
+            name: recipe.title,
+            description: recipe.description,
+            image: recipe.image,
+            prepTime: recipe.time,
+            servings: recipe.servings,
+            ingredients: recipe.ingredients,
+            steps: recipe.steps,
+          }),
+          breadcrumbLD([
+            { name: 'Trang chủ', url: '/' },
+            { name: 'Món ngon', url: '/mon-ngon' },
+            { name: recipe.title, url: `/mon-ngon/${recipe.id}` },
+          ]),
+        ]}
+      />
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-3xl">
         <Link to="/mon-ngon" className="inline-flex items-center gap-1 text-sm text-primary hover:underline mb-6">

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Upload, Image } from 'lucide-react';
 import { toast } from 'sonner';
+import defaultLogo from '@/assets/logo-giang-nguyen.jpg';
 
 export default function LogoManager() {
-  const [logoUrl, setLogoUrl] = useState('/images/logo-giang-nguyen-group.jpg');
+  const [logoUrl, setLogoUrl] = useState<string>(defaultLogo);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -16,26 +17,40 @@ export default function LogoManager() {
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error('Ảnh quá lớn (max 5MB)'); return; }
     setUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `logos/site-logo-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('site-media').upload(path, file, { upsert: true });
-    if (error) { toast.error('Upload thất bại'); setUploading(false); return; }
-    const { data: urlData } = supabase.storage.from('site-media').getPublicUrl(path);
-    setLogoUrl(urlData.publicUrl);
-    toast.success('Đã upload logo mới');
+    try {
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const path = `logos/site-logo-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from('site-media')
+        .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from('site-media').getPublicUrl(path);
+      setLogoUrl(urlData.publicUrl);
+      toast.success('Đã upload. Nhấn "Lưu logo" để áp dụng.');
+    } catch (err: any) {
+      toast.error('Upload thất bại: ' + (err?.message || 'Kiểm tra quyền admin'));
+    }
     setUploading(false);
+    e.target.value = '';
   };
 
   const saveLogo = async () => {
     setSaving(true);
-    const { data: existing } = await supabase.from('site_settings').select('id').eq('key', 'site_logo').maybeSingle();
-    if (existing) {
-      await supabase.from('site_settings').update({ value: JSON.stringify(logoUrl) as any }).eq('key', 'site_logo');
-    } else {
-      await supabase.from('site_settings').insert({ key: 'site_logo', value: JSON.stringify(logoUrl) as any });
+    try {
+      const { data: existing } = await supabase.from('site_settings').select('id').eq('key', 'site_logo').maybeSingle();
+      if (existing) {
+        const { error } = await supabase.from('site_settings').update({ value: logoUrl as any }).eq('key', 'site_logo');
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('site_settings').insert({ key: 'site_logo', value: logoUrl as any });
+        if (error) throw error;
+      }
+      toast.success('Đã lưu logo. Refresh để thấy thay đổi.');
+    } catch (err: any) {
+      toast.error('Lỗi lưu logo: ' + (err?.message || 'Unknown'));
     }
-    toast.success('Đã lưu logo');
     setSaving(false);
   };
 

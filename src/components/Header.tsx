@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice, categories } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
 import { useSiteContent } from '@/hooks/useSiteContent';
+import defaultLogo from '@/assets/logo-giang-nguyen.jpg';
 
 const DEFAULT_TICKER = [
   '🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên',
@@ -51,7 +52,7 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: tickerItems } = useSiteContent<string[]>('ticker_banner', DEFAULT_TICKER);
-  const { data: logoUrl } = useSiteContent<string>('site_logo', '/images/logo-giang-nguyen-group.jpg');
+  const { data: logoUrl } = useSiteContent<string>('site_logo', defaultLogo);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -235,10 +236,11 @@ export default function Header() {
             </button>
             <Link to="/" className="flex flex-col items-center flex-1 min-w-0">
               <img
-                src={logoUrl || '/images/logo-giang-nguyen-group.jpg'}
+                src={logoUrl || defaultLogo}
                 alt="Giang Nguyên Group"
                 className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-10' : 'h-14'}`}
                 loading="eager"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultLogo; }}
               />
             </Link>
             <button onClick={() => setIsOpen(true)} className="relative p-2 hover:bg-gray-50 rounded-lg">
@@ -265,10 +267,11 @@ export default function Header() {
             {/* Center: Logo */}
             <Link to="/" className="flex-shrink-0 mx-4">
               <img
-                src={logoUrl || '/images/logo-giang-nguyen-group.jpg'}
+                src={logoUrl || defaultLogo}
                 alt="Giang Nguyên Group"
                 className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-12' : 'h-16 lg:h-20'}`}
                 loading="eager"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultLogo; }}
               />
             </Link>
 

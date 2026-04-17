@@ -7,6 +7,8 @@ import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
+import SEO from '@/components/SEO';
+import { organizationLD, localBusinessLD, breadcrumbLD } from '@/lib/seo';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
@@ -102,6 +104,11 @@ export default function Index() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO
+        title="Hải Sản Khô Sầm Sơn Cao Cấp – Giang Nguyên Group"
+        description="Mực khô, cá thu một nắng, nem chua Thanh Hóa chính gốc Sầm Sơn. Combo quà biếu sang trọng. Free ship toàn quốc đơn từ 1.5 triệu."
+        jsonLd={[organizationLD(), localBusinessLD(), breadcrumbLD([{ name: 'Trang chủ', url: '/' }])]}
+      />
       <FlashSaleBanner />
       <Header />
 

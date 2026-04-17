@@ -27,7 +27,7 @@ const DEFAULT_DATA: HeroData = {
       slogan: 'Uy tín – Chất lượng – Đúng giá',
     },
     {
-      title: 'Ship Toàn Quốc – Free Ship 500K',
+      title: 'Ship Toàn Quốc – Free Ship 1500K',
       subtitle: 'Phơi nắng tự nhiên • Cam kết chính gốc',
       slogan: 'Đặt hàng ngay hôm nay!',
     },

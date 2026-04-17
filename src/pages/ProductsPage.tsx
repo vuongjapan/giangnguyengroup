@@ -7,6 +7,8 @@ import ProductCard from '@/components/ProductCard';
 import FilterSidebar from '@/components/FilterSidebar';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
+import { breadcrumbLD } from '@/lib/seo';
 
 type SortOption = 'default' | 'price-asc' | 'price-desc' | 'hot';
 

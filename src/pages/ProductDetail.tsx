@@ -13,6 +13,7 @@ import ProductGradeBadge from '@/components/ProductGradeBadge';
 import QRTraceability from '@/components/QRTraceability';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import SuggestedProducts from '@/components/SuggestedProducts';
+import SEO from '@/components/SEO';
 
 export default function ProductDetail() {
   const { slug } = useParams();
@@ -85,8 +86,41 @@ export default function ProductDetail() {
     { id: 'reviews' as const, label: `⭐ Đánh giá (${reviews.length})` },
   ];
 
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.images,
+    description: typeof product.description === 'string' ? product.description : product.name,
+    sku: product.id,
+    category: product.category,
+    brand: { '@type': 'Brand', name: 'Giang Nguyên Group' },
+    offers: {
+      '@type': 'Offer',
+      url: `https://giangnguyengroup.lovable.app/product/${product.slug}`,
+      priceCurrency: 'VND',
+      price: product.price,
+      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+    },
+    ...(reviews.length > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: avgRating.toFixed(1),
+        reviewCount: reviews.length,
+      },
+    }),
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
+      <SEO
+        title={`${product.name} – Giang Nguyên Group`}
+        description={`${product.name} chính hãng Sầm Sơn. Giá ${product.price.toLocaleString('vi-VN')}đ/${product.unit}. Cam kết tươi ngon, ship toàn quốc.`}
+        image={product.images[0]}
+        type="product"
+        jsonLd={productJsonLd}
+      />
       <Header />
 
       {/* Lightbox */}

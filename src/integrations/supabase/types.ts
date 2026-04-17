@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload?: Json
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ai_scripts: {
+        Row: {
+          active: boolean
+          created_at: string
+          cta_action: string
+          cta_label: string
+          id: string
+          message: string
+          sort_order: number
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cta_action?: string
+          cta_label?: string
+          id?: string
+          message: string
+          sort_order?: number
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cta_action?: string
+          cta_label?: string
+          id?: string
+          message?: string
+          sort_order?: number
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_settings: {
+        Row: {
+          avatar_url: string
+          close_sleep_hours: number
+          cooldown_seconds: number
+          created_at: string
+          enabled: boolean
+          id: string
+          max_close_count: number
+          position: string
+          style_theme: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string
+          close_sleep_hours?: number
+          cooldown_seconds?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          max_close_count?: number
+          position?: string
+          style_theme?: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string
+          close_sleep_hours?: number
+          cooldown_seconds?: number
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          max_close_count?: number
+          position?: string
+          style_theme?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       combos: {
         Row: {
           category: string
@@ -209,6 +311,33 @@ export type Database = {
           total?: number
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      product_relations: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          related_product_id: string
+          relation_type: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          related_product_id: string
+          relation_type?: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          related_product_id?: string
+          relation_type?: string
+          weight?: number
         }
         Relationships: []
       }

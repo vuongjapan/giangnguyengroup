@@ -34,6 +34,7 @@ import NewsPage from "./pages/NewsPage.tsx";
 import RecipeDetail from "./pages/RecipeDetail.tsx";
 import NewsDetail from "./pages/NewsDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import WholesalePage from "./pages/WholesalePage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,8 @@ const App = () => (
                 <Route path="/tin-tuc/:id" element={<NewsDetail />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/dai-ly" element={<WholesalePage />} />
+                <Route path="/ban-si" element={<Navigate to="/dai-ly" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TrackingPixels />

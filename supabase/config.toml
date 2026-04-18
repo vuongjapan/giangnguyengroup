@@ -2,3 +2,6 @@ project_id = "hhnycprummorizjvzyrw"
 
 [functions.sitemap-xml]
 verify_jwt = false
+
+[functions.upload-image-webp]
+verify_jwt = false

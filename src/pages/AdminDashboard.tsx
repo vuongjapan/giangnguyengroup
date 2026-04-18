@@ -17,8 +17,9 @@ import AIAssistantManager from '@/components/admin/AIAssistantManager';
 import AISalesScriptsManager from '@/components/AISalesScriptsManager';
 import AIAnalyticsDashboard from '@/components/admin/AIAnalyticsDashboard';
 import LogoManager from '@/components/admin/LogoManager';
+import WholesaleLeadsManager from '@/components/admin/WholesaleLeadsManager';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -256,6 +257,7 @@ export default function AdminDashboard() {
     { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
       { id: 'reviews' as Tab, label: `Đánh giá (${reviews.length})`, icon: Star },
       { id: 'ai-assistant' as Tab, label: 'AI Tư vấn', icon: Sparkles },
+      { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ', icon: Users },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
@@ -891,6 +893,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* ===== WHOLESALE LEADS ===== */}
+        {tab === 'wholesale' && <WholesaleLeadsManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

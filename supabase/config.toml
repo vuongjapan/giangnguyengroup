@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.upload-image-webp]
 verify_jwt = false
+
+[functions.ai-search]
+verify_jwt = false
+
+[functions.wholesale-lead]
+verify_jwt = false

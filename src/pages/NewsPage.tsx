@@ -91,7 +91,7 @@ export default function NewsPage() {
           {filtered.map(news => (
             <Link key={news.id} to={`/tin-tuc/${news.id}`} className="bg-card rounded-xl overflow-hidden border border-border card-hover h-full flex flex-col group">
               <div className="aspect-video overflow-hidden relative">
-                <img src={news.image} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                <img src={news.image} alt={news.title} width={600} height={400} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 {news.tag && (
                   <span className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full ${news.tag === 'HOT' ? 'bg-coral text-primary-foreground' : 'bg-accent text-accent-foreground'}`}>
                     {news.tag}

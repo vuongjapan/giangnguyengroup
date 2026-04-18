@@ -13,6 +13,8 @@ import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
+import AISearchBar from '@/components/AISearchBar';
+import AIBudgetPlanner from '@/components/AIBudgetPlanner';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';

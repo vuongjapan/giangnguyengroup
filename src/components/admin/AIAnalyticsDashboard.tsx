@@ -50,7 +50,7 @@ export default function AIAnalyticsDashboard() {
 
   // Group events by day
   const dailyData = useMemo(() => {
-    const map = new Map<string, Record<string, number>>();
+    const map = new Map<string, Record<string, any>>();
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);

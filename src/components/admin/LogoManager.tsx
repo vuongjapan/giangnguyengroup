@@ -20,15 +20,24 @@ export default function LogoManager() {
     if (file.size > 5 * 1024 * 1024) { toast.error('Ảnh quá lớn (max 5MB)'); return; }
     setUploading(true);
     try {
-      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-      const path = `logos/site-logo-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage
-        .from('site-media')
-        .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' });
-      if (upErr) throw upErr;
-      const { data: urlData } = supabase.storage.from('site-media').getPublicUrl(path);
-      setLogoUrl(urlData.publicUrl);
-      toast.success('Đã upload. Nhấn "Lưu logo" để áp dụng.');
+      // Try edge function (WebP conversion + admin validation)
+      const { uploadImageWebP } = await import('@/lib/imageUpload');
+      try {
+        const { primary } = await uploadImageWebP(file, { bucket: 'site-media', folder: 'logos', quality: 90, maxWidth: 800 });
+        setLogoUrl(primary);
+        toast.success('Đã upload (WebP). Nhấn "Lưu logo" để áp dụng.');
+      } catch {
+        // Fallback to direct upload if edge function fails
+        const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+        const path = `logos/site-logo-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from('site-media')
+          .upload(path, file, { upsert: true, contentType: file.type, cacheControl: '3600' });
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from('site-media').getPublicUrl(path);
+        setLogoUrl(urlData.publicUrl);
+        toast.success('Đã upload. Nhấn "Lưu logo" để áp dụng.');
+      }
     } catch (err: any) {
       toast.error('Upload thất bại: ' + (err?.message || 'Kiểm tra quyền admin'));
     }

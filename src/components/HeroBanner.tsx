@@ -63,6 +63,9 @@ export default function HeroBanner() {
           loop
           muted
           playsInline
+          width={1920}
+          height={480}
+          preload="metadata"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src={videoUrl} type="video/mp4" />

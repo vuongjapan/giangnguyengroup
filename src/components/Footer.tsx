@@ -98,6 +98,7 @@ export default function Footer() {
                 <Link to="/san-pham?category=Hải+sản+1+nắng" className="flex items-center gap-1 hover:text-primary-foreground transition-colors"><ChevronRight className="h-3 w-3" /> Hải sản 1 nắng</Link>
                 <Link to="/combo" className="flex items-center gap-1 hover:text-primary-foreground transition-colors"><ChevronRight className="h-3 w-3" /> Combo quà biếu</Link>
                 <Link to="/khuyen-mai" className="flex items-center gap-1 hover:text-primary-foreground transition-colors"><ChevronRight className="h-3 w-3" /> Khuyến mãi</Link>
+                <Link to="/dai-ly" className="flex items-center gap-1 hover:text-accent transition-colors font-semibold"><ChevronRight className="h-3 w-3" /> 🤝 Đăng ký đại lý / sỉ</Link>
               </div>
             </div>
 

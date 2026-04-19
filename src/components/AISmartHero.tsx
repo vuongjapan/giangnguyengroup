@@ -205,7 +205,7 @@ export default function AISmartHero() {
                     {result.total_estimate > 0 && (
                       <p className="text-xs text-muted-foreground mt-1">
                         Tổng: <span className="font-bold text-coral">{result.total_estimate.toLocaleString('vi-VN')}đ</span>
-                        {mode === 'budget' && result.total_estimate <= budget && <span className="ml-2 text-green-600">✓ Trong ngân sách</span>}
+                        {mode === 'budget' && result.total_estimate <= budget && <span className="ml-2 text-primary font-semibold">✓ Trong ngân sách</span>}
                       </p>
                     )}
                   </div>

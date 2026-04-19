@@ -109,6 +109,7 @@ export default function Checkout() {
     const timeout = setTimeout(() => {
       clearCart();
       localStorage.removeItem(CHECKOUT_SESSION_KEY);
+      window.dispatchEvent(new CustomEvent('gn-order-placed'));
       setStep('done');
     }, 1500);
 

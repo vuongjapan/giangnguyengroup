@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_carts: {
+        Row: {
+          cart_data: Json
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          recovered: boolean
+          recovered_at: string | null
+          recovery_token: string
+          reminder_sent_at: string | null
+          total_value: number
+          updated_at: string
+          user_id: string | null
+          voucher_code: string | null
+        }
+        Insert: {
+          cart_data?: Json
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          recovered?: boolean
+          recovered_at?: string | null
+          recovery_token?: string
+          reminder_sent_at?: string | null
+          total_value?: number
+          updated_at?: string
+          user_id?: string | null
+          voucher_code?: string | null
+        }
+        Update: {
+          cart_data?: Json
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          recovered?: boolean
+          recovered_at?: string | null
+          recovery_token?: string
+          reminder_sent_at?: string | null
+          total_value?: number
+          updated_at?: string
+          user_id?: string | null
+          voucher_code?: string | null
+        }
+        Relationships: []
+      }
       ai_logs: {
         Row: {
           created_at: string
@@ -390,6 +441,7 @@ export type Database = {
           rating: number
           slug: string
           sort_order: number
+          status: string
           stock: number
           unit: string
           updated_at: string
@@ -409,6 +461,7 @@ export type Database = {
           rating?: number
           slug: string
           sort_order?: number
+          status?: string
           stock?: number
           unit?: string
           updated_at?: string
@@ -428,6 +481,7 @@ export type Database = {
           rating?: number
           slug?: string
           sort_order?: number
+          status?: string
           stock?: number
           unit?: string
           updated_at?: string
@@ -470,6 +524,105 @@ export type Database = {
           points?: number
           total_spent?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      repeat_order_campaigns: {
+        Row: {
+          created_at: string
+          customer_email: string
+          customer_name: string | null
+          days_after: number
+          id: string
+          opened: boolean
+          order_id: string
+          reordered: boolean
+          sent_at: string
+          suggested_product_ids: string[]
+          voucher_code: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          customer_name?: string | null
+          days_after: number
+          id?: string
+          opened?: boolean
+          order_id: string
+          reordered?: boolean
+          sent_at?: string
+          suggested_product_ids?: string[]
+          voucher_code?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          customer_name?: string | null
+          days_after?: number
+          id?: string
+          opened?: boolean
+          order_id?: string
+          reordered?: boolean
+          sent_at?: string
+          suggested_product_ids?: string[]
+          voucher_code?: string | null
+        }
+        Relationships: []
+      }
+      seo_landing_pages: {
+        Row: {
+          content_html: string
+          created_at: string
+          faq: Json
+          h1: string
+          hero_image: string | null
+          id: string
+          intro: string
+          json_ld: Json
+          keyword: string
+          meta_description: string
+          related_product_ids: string[]
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          content_html?: string
+          created_at?: string
+          faq?: Json
+          h1?: string
+          hero_image?: string | null
+          id?: string
+          intro?: string
+          json_ld?: Json
+          keyword?: string
+          meta_description?: string
+          related_product_ids?: string[]
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          content_html?: string
+          created_at?: string
+          faq?: Json
+          h1?: string
+          hero_image?: string | null
+          id?: string
+          intro?: string
+          json_ld?: Json
+          keyword?: string
+          meta_description?: string
+          related_product_ids?: string[]
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          views?: number
         }
         Relationships: []
       }

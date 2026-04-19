@@ -11,3 +11,18 @@ verify_jwt = false
 
 [functions.wholesale-lead]
 verify_jwt = false
+
+[functions.abandoned-cart-save]
+verify_jwt = false
+
+[functions.abandoned-cart-recover]
+verify_jwt = false
+
+[functions.seo-landing-generate]
+verify_jwt = true
+
+[functions.ai-quick-import]
+verify_jwt = true
+
+[functions.repeat-order-cron]
+verify_jwt = false

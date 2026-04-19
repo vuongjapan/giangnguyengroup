@@ -18,8 +18,11 @@ import AISalesScriptsManager from '@/components/AISalesScriptsManager';
 import AIAnalyticsDashboard from '@/components/admin/AIAnalyticsDashboard';
 import LogoManager from '@/components/admin/LogoManager';
 import WholesaleLeadsManager from '@/components/admin/WholesaleLeadsManager';
+import SeoLandingManager from '@/components/admin/SeoLandingManager';
+import AIQuickImport from '@/components/admin/AIQuickImport';
+import AbandonedCartsManager from '@/components/admin/AbandonedCartsManager';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -257,7 +260,10 @@ export default function AdminDashboard() {
     { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
       { id: 'reviews' as Tab, label: `Đánh giá (${reviews.length})`, icon: Star },
       { id: 'ai-assistant' as Tab, label: 'AI Tư vấn', icon: Sparkles },
+      { id: 'ai-import' as Tab, label: 'AI Quick Import', icon: PlusCircle },
+      { id: 'seo-landing' as Tab, label: 'SEO Landing', icon: Globe },
       { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ', icon: Users },
+      { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
@@ -896,6 +902,15 @@ export default function AdminDashboard() {
 
         {/* ===== WHOLESALE LEADS ===== */}
         {tab === 'wholesale' && <WholesaleLeadsManager />}
+
+        {/* ===== SEO LANDING ===== */}
+        {tab === 'seo-landing' && <SeoLandingManager />}
+
+        {/* ===== AI QUICK IMPORT ===== */}
+        {tab === 'ai-import' && <AIQuickImport />}
+
+        {/* ===== ABANDONED CARTS ===== */}
+        {tab === 'abandoned-carts' && <AbandonedCartsManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

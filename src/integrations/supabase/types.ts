@@ -92,6 +92,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_module_settings: {
+        Row: {
+          auto_off_at: string | null
+          enabled: boolean
+          id: string
+          last_reset_at: string
+          module_key: string
+          monthly_budget_usd: number
+          updated_at: string
+          used_this_month: number
+        }
+        Insert: {
+          auto_off_at?: string | null
+          enabled?: boolean
+          id?: string
+          last_reset_at?: string
+          module_key: string
+          monthly_budget_usd?: number
+          updated_at?: string
+          used_this_month?: number
+        }
+        Update: {
+          auto_off_at?: string | null
+          enabled?: boolean
+          id?: string
+          last_reset_at?: string
+          module_key?: string
+          monthly_budget_usd?: number
+          updated_at?: string
+          used_this_month?: number
+        }
+        Relationships: []
+      }
       ai_scripts: {
         Row: {
           active: boolean
@@ -164,6 +197,45 @@ export type Database = {
           position?: string
           style_theme?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      analytics_daily_summary: {
+        Row: {
+          carts_created: number
+          carts_recovered: number
+          created_at: string
+          date: string
+          exit_popup_converted: number
+          exit_popup_shown: number
+          id: string
+          landing_views: number
+          repeat_voucher_used: number
+          total_orders: number
+        }
+        Insert: {
+          carts_created?: number
+          carts_recovered?: number
+          created_at?: string
+          date: string
+          exit_popup_converted?: number
+          exit_popup_shown?: number
+          id?: string
+          landing_views?: number
+          repeat_voucher_used?: number
+          total_orders?: number
+        }
+        Update: {
+          carts_created?: number
+          carts_recovered?: number
+          created_at?: string
+          date?: string
+          exit_popup_converted?: number
+          exit_popup_shown?: number
+          id?: string
+          landing_views?: number
+          repeat_voucher_used?: number
+          total_orders?: number
         }
         Relationships: []
       }
@@ -260,6 +332,33 @@ export type Database = {
           min_order?: number
           updated_at?: string
           used_count?: number
+        }
+        Relationships: []
+      }
+      exit_intent_events: {
+        Row: {
+          cart_value: number
+          coupon_code: string | null
+          created_at: string
+          event_type: string
+          id: string
+          session_id: string
+        }
+        Insert: {
+          cart_value?: number
+          coupon_code?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          session_id?: string
+        }
+        Update: {
+          cart_value?: number
+          coupon_code?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          session_id?: string
         }
         Relationships: []
       }
@@ -362,6 +461,66 @@ export type Database = {
           total?: number
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      popup_campaigns: {
+        Row: {
+          button_text: string
+          cart_threshold: number
+          clicks: number
+          coupon_code: string
+          created_at: string
+          end_at: string | null
+          headline: string
+          id: string
+          image_url: string
+          is_active: boolean
+          name: string
+          show_pages: string[]
+          start_at: string | null
+          target_url: string
+          type: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          button_text?: string
+          cart_threshold?: number
+          clicks?: number
+          coupon_code?: string
+          created_at?: string
+          end_at?: string | null
+          headline?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name: string
+          show_pages?: string[]
+          start_at?: string | null
+          target_url?: string
+          type?: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          button_text?: string
+          cart_threshold?: number
+          clicks?: number
+          coupon_code?: string
+          created_at?: string
+          end_at?: string | null
+          headline?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name?: string
+          show_pages?: string[]
+          start_at?: string | null
+          target_url?: string
+          type?: string
+          updated_at?: string
+          views?: number
         }
         Relationships: []
       }

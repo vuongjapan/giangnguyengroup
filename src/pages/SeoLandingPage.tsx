@@ -82,8 +82,9 @@ export default function SeoLandingPage() {
       <SEO
         title={page.title}
         description={page.meta_description}
-        canonical={`https://giangnguyengroup.lovable.app/lp/${page.slug}`}
-        jsonLd={fullJsonLd}
+        url={`https://giangnguyengroup.lovable.app/lp/${page.slug}`}
+        type="article"
+        jsonLd={fullJsonLd as any}
       />
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-4xl">

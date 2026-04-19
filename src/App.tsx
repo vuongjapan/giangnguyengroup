@@ -35,6 +35,8 @@ import RecipeDetail from "./pages/RecipeDetail.tsx";
 import NewsDetail from "./pages/NewsDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import WholesalePage from "./pages/WholesalePage.tsx";
+import SeoLandingPage from "./pages/SeoLandingPage.tsx";
+import AbandonedCartTracker from "./components/AbandonedCartTracker.tsx";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +76,7 @@ const App = () => (
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/dai-ly" element={<WholesalePage />} />
                 <Route path="/ban-si" element={<Navigate to="/dai-ly" replace />} />
+                <Route path="/lp/:slug" element={<SeoLandingPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TrackingPixels />
@@ -83,6 +86,7 @@ const App = () => (
               <MobileBottomNav />
               <ExitIntentPopup />
               <AIAssistant />
+              <AbandonedCartTracker />
             </BrowserRouter>
           </HotelProvider>
         </CartProvider>

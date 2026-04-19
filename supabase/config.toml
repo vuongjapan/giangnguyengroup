@@ -26,3 +26,6 @@ verify_jwt = true
 
 [functions.repeat-order-cron]
 verify_jwt = false
+
+[functions.seo-landing-batch]
+verify_jwt = true

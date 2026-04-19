@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Plus, Eye, Edit, Trash2, ExternalLink, Save } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, ExternalLink, Save, Sparkles, ListChecks } from 'lucide-react';
 
 interface Landing {
   id: string;
@@ -21,11 +21,25 @@ interface Landing {
   created_at: string;
 }
 
+const PRESET_KEYWORDS = `mực khô ngon mua ở đâu
+tôm khô cao cấp Sầm Sơn
+cá thu một nắng Thanh Hóa
+combo quà biếu Tết 1 triệu
+đặc sản biển miền Trung gửi đi xa
+mực khô loại 1 giá bao nhiêu
+hải sản khô ăn liền
+quà biếu sếp dịp Tết
+mua hải sản khô online uy tín
+đồ nhậu cuối tuần ngon`;
+
 export default function SeoLandingManager() {
   const [pages, setPages] = useState<Landing[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [keyword, setKeyword] = useState('');
+  const [batchMode, setBatchMode] = useState(false);
+  const [batchKeywords, setBatchKeywords] = useState(PRESET_KEYWORDS);
+  const [batchProgress, setBatchProgress] = useState<string>('');
   const [editing, setEditing] = useState<Landing | null>(null);
 
   const load = async () => {
@@ -40,16 +54,47 @@ export default function SeoLandingManager() {
     if (!keyword.trim()) { toast.error('Nhập từ khóa'); return; }
     setGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('seo-landing-generate', {
-        body: { keyword: keyword.trim() },
+      const { data, error } = await supabase.functions.invoke('seo-landing-batch', {
+        body: { keywords: [keyword.trim()] },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      toast.success(`Đã tạo landing: ${data.landing.slug}`);
+      const r = data.results?.[0];
+      if (r?.status === 'created') toast.success(`Đã tạo: /lp/${r.slug}`);
+      else if (r?.status === 'exists') toast.info(`Đã tồn tại: /lp/${r.slug}`);
+      else toast.error(r?.error || 'Không tạo được');
       setKeyword('');
       load();
     } catch (e: any) {
       toast.error(e.message || 'Lỗi tạo landing');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const generateBatch = async () => {
+    const kws = batchKeywords.split('\n').map(s => s.trim()).filter(Boolean);
+    if (kws.length === 0) { toast.error('Nhập danh sách keyword'); return; }
+    if (kws.length > 15) { toast.error('Tối đa 15 keyword/lượt'); return; }
+    if (!confirm(`Tạo ${kws.length} landing page? AI sẽ chạy tuần tự, mất ~${kws.length * 5}s.`)) return;
+
+    setGenerating(true);
+    setBatchProgress(`Đang tạo ${kws.length} trang...`);
+    try {
+      const { data, error } = await supabase.functions.invoke('seo-landing-batch', {
+        body: { keywords: kws },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      const created = (data.results || []).filter((r: any) => r.status === 'created').length;
+      const exists = (data.results || []).filter((r: any) => r.status === 'exists').length;
+      const errors = (data.results || []).filter((r: any) => r.status === 'error').length;
+      toast.success(`Hoàn tất: ${created} mới, ${exists} đã có, ${errors} lỗi`);
+      setBatchProgress('');
+      load();
+    } catch (e: any) {
+      toast.error(e.message || 'Lỗi batch');
+      setBatchProgress('');
     } finally {
       setGenerating(false);
     }
@@ -121,20 +166,47 @@ export default function SeoLandingManager() {
   return (
     <div className="space-y-6">
       <div className="bg-primary/5 rounded-lg p-4">
-        <h3 className="font-semibold mb-2">Tạo landing page mới (AI)</h3>
-        <div className="flex gap-2">
-          <Input
-            placeholder='VD: "mực khô ngon mua ở đâu", "tôm khô cao cấp", "combo quà biếu Tết 1 triệu"'
-            value={keyword}
-            onChange={e => setKeyword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && generate()}
-            disabled={generating}
-          />
-          <Button onClick={generate} disabled={generating}>
-            {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            <span className="ml-2">{generating ? 'Đang tạo...' : 'Tạo'}</span>
-          </Button>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-semibold flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Tạo landing page (AI)</h3>
+          <div className="flex gap-1 bg-muted rounded-full p-0.5">
+            <button onClick={() => setBatchMode(false)} className={`px-3 py-1 rounded-full text-xs font-semibold ${!batchMode ? 'bg-card shadow' : 'text-muted-foreground'}`}>1 trang</button>
+            <button onClick={() => setBatchMode(true)} className={`px-3 py-1 rounded-full text-xs font-semibold ${batchMode ? 'bg-card shadow' : 'text-muted-foreground'}`}>Batch (10-15)</button>
+          </div>
         </div>
+
+        {!batchMode ? (
+          <div className="flex gap-2">
+            <Input
+              placeholder='VD: "mực khô ngon mua ở đâu"'
+              value={keyword}
+              onChange={e => setKeyword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && generate()}
+              disabled={generating}
+            />
+            <Button onClick={generate} disabled={generating}>
+              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+              <span className="ml-2">{generating ? 'Đang tạo...' : 'Tạo'}</span>
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">Mỗi từ khóa 1 dòng (tối đa 15). Bấm "Tạo batch" để AI viết hàng loạt và lưu vĩnh viễn.</p>
+            <Textarea
+              rows={10}
+              value={batchKeywords}
+              onChange={e => setBatchKeywords(e.target.value)}
+              disabled={generating}
+              className="font-mono text-xs"
+            />
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">{batchKeywords.split('\n').filter(s => s.trim()).length} keywords</span>
+              <Button onClick={generateBatch} disabled={generating}>
+                {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ListChecks className="h-4 w-4 mr-2" />}
+                {generating ? batchProgress || 'Đang tạo...' : 'Tạo batch'}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {loading ? <Loader2 className="animate-spin" /> : (
@@ -158,7 +230,7 @@ export default function SeoLandingManager() {
                   </td>
                   <td className="p-3 max-w-xs truncate">{p.title}</td>
                   <td className="p-3">
-                    <span className={`px-2 py-1 rounded text-xs ${p.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                    <span className={`px-2 py-1 rounded text-xs ${p.status === 'published' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                       {p.status}
                     </span>
                   </td>

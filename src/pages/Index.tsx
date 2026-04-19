@@ -13,8 +13,7 @@ import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import AISearchBar from '@/components/AISearchBar';
-import AIBudgetPlanner from '@/components/AIBudgetPlanner';
+import AISmartHero from '@/components/AISmartHero';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -114,15 +113,11 @@ export default function Index() {
       <FlashSaleBanner />
       <Header />
 
+      {/* AI Smart Hero - Search + Budget combined at top */}
+      <AISmartHero />
+
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
-
-      {/* AI Smart Search */}
-      <section className="bg-gradient-to-b from-background to-primary/5 py-6">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <AISearchBar />
-        </div>
-      </section>
 
       {/* Video phóng sự */}
       <Suspense fallback={<LazyFallback />}>
@@ -272,9 +267,6 @@ export default function Index() {
 
       {/* Recently Viewed */}
       <RecentlyViewed />
-
-      {/* AI Budget Planner */}
-      <AIBudgetPlanner />
 
       <Suspense fallback={<LazyFallback />}>
         <CustomerReviews />

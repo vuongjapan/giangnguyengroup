@@ -21,8 +21,11 @@ import WholesaleLeadsManager from '@/components/admin/WholesaleLeadsManager';
 import SeoLandingManager from '@/components/admin/SeoLandingManager';
 import AIQuickImport from '@/components/admin/AIQuickImport';
 import AbandonedCartsManager from '@/components/admin/AbandonedCartsManager';
+import AICostControl from '@/components/admin/AICostControl';
+import PopupCampaignManager from '@/components/admin/PopupCampaignManager';
+import GrowthAnalytics from '@/components/admin/GrowthAnalytics';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -259,6 +262,9 @@ export default function AdminDashboard() {
     { id: 'stores' as Tab, label: `Cửa hàng (${stores.length})`, icon: Store },
     { id: 'coupons' as Tab, label: `Mã giảm giá (${coupons.length})`, icon: Tag },
       { id: 'reviews' as Tab, label: `Đánh giá (${reviews.length})`, icon: Star },
+      { id: 'ai-growth' as Tab, label: '⚡ AI & Tăng Trưởng', icon: Sparkles },
+      { id: 'growth-analytics' as Tab, label: '📊 Growth Analytics', icon: BarChart3 },
+      { id: 'popups' as Tab, label: 'Popup Campaigns', icon: BellRing },
       { id: 'ai-assistant' as Tab, label: 'AI Tư vấn', icon: Sparkles },
       { id: 'ai-import' as Tab, label: 'AI Quick Import', icon: PlusCircle },
       { id: 'seo-landing' as Tab, label: 'SEO Landing', icon: Globe },
@@ -911,6 +917,15 @@ export default function AdminDashboard() {
 
         {/* ===== ABANDONED CARTS ===== */}
         {tab === 'abandoned-carts' && <AbandonedCartsManager />}
+
+        {/* ===== AI & GROWTH (cost control) ===== */}
+        {tab === 'ai-growth' && <AICostControl />}
+
+        {/* ===== GROWTH ANALYTICS ===== */}
+        {tab === 'growth-analytics' && <GrowthAnalytics />}
+
+        {/* ===== POPUP CAMPAIGNS ===== */}
+        {tab === 'popups' && <PopupCampaignManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

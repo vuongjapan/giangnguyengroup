@@ -918,6 +918,15 @@ export default function AdminDashboard() {
         {/* ===== ABANDONED CARTS ===== */}
         {tab === 'abandoned-carts' && <AbandonedCartsManager />}
 
+        {/* ===== AI & GROWTH (cost control) ===== */}
+        {tab === 'ai-growth' && <AICostControl />}
+
+        {/* ===== GROWTH ANALYTICS ===== */}
+        {tab === 'growth-analytics' && <GrowthAnalytics />}
+
+        {/* ===== POPUP CAMPAIGNS ===== */}
+        {tab === 'popups' && <PopupCampaignManager />}
+
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (
           <div className="space-y-6">

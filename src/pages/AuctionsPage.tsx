@@ -50,11 +50,16 @@ export default function AuctionsPage() {
     const channel = supabase
       .channel('auctions-list')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'auction_products' }, fetchData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'auction_bids' }, fetchData)
       .subscribe();
+
+    // Fallback auto-refresh 5s
+    const poll = setInterval(fetchData, 5000);
 
     return () => {
       mounted = false;
       supabase.removeChannel(channel);
+      clearInterval(poll);
     };
   }, []);
 

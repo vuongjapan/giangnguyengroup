@@ -160,16 +160,12 @@ export default function AuctionDetail() {
       });
       if (error) throw error;
 
-      // Update current price if higher
-      if (pendingBid > (auction.current_price || 0)) {
-        await supabase
-          .from('auction_products')
-          .update({ current_price: pendingBid })
-          .eq('id', auction.id);
-      }
-
+      // Trigger DB tự cập nhật current_price khi bid > current_price
       setSubmitted(true);
       setBidInput('');
+      // Optimistic refresh
+      fetchBids(auction.id);
+      fetchAuction();
     } catch (e: any) {
       toast.error('Có lỗi xảy ra, thử lại nhé');
     } finally {

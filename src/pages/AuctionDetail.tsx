@@ -94,12 +94,18 @@ export default function AuctionDetail() {
       .channel(`auction-${auction.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'auction_bids', filter: `auction_id=eq.${auction.id}` }, () => {
         fetchBids(auction.id);
+        fetchAuction();
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'auction_products', filter: `id=eq.${auction.id}` }, (payload) => {
         setAuction((prev) => (prev ? { ...prev, ...(payload.new as AuctionRow) } : prev));
       })
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    // Fallback auto-refresh 5s phòng khi realtime fail
+    const poll = setInterval(() => {
+      fetchBids(auction.id);
+      fetchAuction();
+    }, 5000);
+    return () => { supabase.removeChannel(channel); clearInterval(poll); };
   }, [auction?.id]);
 
   const remaining = useMemo(() => {
@@ -108,7 +114,19 @@ export default function AuctionDetail() {
   }, [auction, now]);
 
   const ended = remaining <= 0;
-  const minNextBid = auction ? Math.max(auction.current_price || auction.start_price, auction.start_price) + auction.min_increment : 0;
+
+  // Highest bid: max(bids) hoặc start_price nếu chưa ai trả giá
+  const highestBid = useMemo(() => {
+    if (!auction) return 0;
+    const bidMax = bids.reduce((m, b) => Math.max(m, Number(b.bid_amount) || 0), 0);
+    return Math.max(
+      Number(auction.start_price) || 0,
+      Number(auction.current_price) || 0,
+      bidMax
+    );
+  }, [auction, bids]);
+
+  const minNextBid = auction ? highestBid + (Number(auction.min_increment) || 0) : 0;
 
   const handleOpenPopup = () => {
     if (!auction || ended) return;
@@ -192,7 +210,7 @@ export default function AuctionDetail() {
     );
   }
 
-  const currentPrice = auction.current_price || auction.start_price;
+  const currentPrice = highestBid;
   const viewers = auction.fake_viewers + Math.floor(Math.sin(now / 8000) * 3 + 3);
 
   return (

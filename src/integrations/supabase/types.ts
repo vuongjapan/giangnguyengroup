@@ -239,6 +239,98 @@ export type Database = {
         }
         Relationships: []
       }
+      auction_bids: {
+        Row: {
+          auction_id: string
+          bid_amount: number
+          created_at: string
+          customer_name: string
+          customer_phone: string
+          id: string
+        }
+        Insert: {
+          auction_id: string
+          bid_amount: number
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+        }
+        Update: {
+          auction_id?: string
+          bid_amount?: number
+          created_at?: string
+          customer_name?: string
+          customer_phone?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auction_bids_auction_id_fkey"
+            columns: ["auction_id"]
+            isOneToOne: false
+            referencedRelation: "auction_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      auction_products: {
+        Row: {
+          created_at: string
+          current_price: number
+          description: string
+          end_at: string
+          fake_viewers: number
+          id: string
+          image: string
+          is_active: boolean
+          list_price: number
+          min_increment: number
+          name: string
+          slug: string
+          sort_order: number
+          start_at: string
+          start_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_price?: number
+          description?: string
+          end_at?: string
+          fake_viewers?: number
+          id?: string
+          image?: string
+          is_active?: boolean
+          list_price?: number
+          min_increment?: number
+          name: string
+          slug: string
+          sort_order?: number
+          start_at?: string
+          start_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_price?: number
+          description?: string
+          end_at?: string
+          fake_viewers?: number
+          id?: string
+          image?: string
+          is_active?: boolean
+          list_price?: number
+          min_increment?: number
+          name?: string
+          slug?: string
+          sort_order?: number
+          start_at?: string
+          start_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       combos: {
         Row: {
           category: string

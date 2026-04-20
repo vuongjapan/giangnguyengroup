@@ -65,7 +65,7 @@ export default function AuctionsPage() {
       <SEO
         title="Đấu giá hải sản khô realtime — Giang Nguyên Group"
         description="Trả giá như đi chợ — đấu giá realtime mực khô, cá khô, đặc sản Sầm Sơn. Giá tốt mỗi ngày."
-        canonical="/dau-gia"
+        url="https://giangnguyengroup.lovable.app/dau-gia"
       />
       <Header />
 

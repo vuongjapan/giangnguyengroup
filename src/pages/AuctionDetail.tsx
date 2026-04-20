@@ -200,7 +200,7 @@ export default function AuctionDetail() {
       <SEO
         title={`Đấu giá ${auction.name} — Giang Nguyên Group`}
         description={`Trả giá ${auction.name} realtime. Giá khởi điểm ${formatPrice(auction.start_price)}.`}
-        canonical={`/dau-gia/${auction.slug}`}
+        url={`https://giangnguyengroup.lovable.app/dau-gia/${auction.slug}`}
       />
       <Header />
 

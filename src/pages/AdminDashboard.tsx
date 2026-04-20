@@ -8,7 +8,7 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare
+  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
@@ -24,8 +24,9 @@ import AbandonedCartsManager from '@/components/admin/AbandonedCartsManager';
 import AICostControl from '@/components/admin/AICostControl';
 import PopupCampaignManager from '@/components/admin/PopupCampaignManager';
 import GrowthAnalytics from '@/components/admin/GrowthAnalytics';
+import AuctionManager from '@/components/admin/AuctionManager';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -269,6 +270,7 @@ export default function AdminDashboard() {
       { id: 'ai-import' as Tab, label: 'AI Quick Import', icon: PlusCircle },
       { id: 'seo-landing' as Tab, label: 'SEO Landing', icon: Globe },
       { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ', icon: Users },
+      { id: 'auctions' as Tab, label: '🔥 Đấu giá', icon: Flame as any },
       { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
@@ -926,6 +928,9 @@ export default function AdminDashboard() {
 
         {/* ===== POPUP CAMPAIGNS ===== */}
         {tab === 'popups' && <PopupCampaignManager />}
+
+        {/* ===== AUCTIONS ===== */}
+        {tab === 'auctions' && <AuctionManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

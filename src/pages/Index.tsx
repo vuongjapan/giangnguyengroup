@@ -14,6 +14,7 @@ import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import AISmartHero from '@/components/AISmartHero';
+import HotAuctions from '@/components/HotAuctions';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
@@ -118,6 +119,9 @@ export default function Index() {
 
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
+
+      {/* Phiên đấu giá hot nhất - widget realtime ngay dưới hero */}
+      <HotAuctions />
 
       {/* Video phóng sự */}
       <Suspense fallback={<LazyFallback />}>

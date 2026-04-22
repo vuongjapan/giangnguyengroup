@@ -172,29 +172,57 @@ export default function Index() {
       </section>
 
 
-      {/* Quick category strip */}
-      <div className="border-b border-border bg-card sticky top-[88px] md:top-[140px] z-30" id="products">
+      {/* Quick category strip with icons */}
+      <div className="border-b border-border bg-card sticky top-[88px] md:top-[140px] z-30 shadow-sm" id="products">
         <div className="container mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto py-2.5 scrollbar-hide">
-            <button
-              onClick={() => setFilters(f => ({ ...f, category: null }))}
-              className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                !filters.category ? 'ocean-gradient text-primary-foreground shadow-md' : 'bg-muted text-foreground hover:bg-primary/10'
-              }`}
-            >
-              Tất cả
-            </button>
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setFilters(f => ({ ...f, category: f.category === cat ? null : cat }))}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                  filters.category === cat ? 'ocean-gradient text-primary-foreground shadow-md' : 'bg-muted text-foreground hover:bg-primary/10'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex gap-2 overflow-x-auto py-3 scrollbar-hide">
+            {(() => {
+              const catIcons: Record<string, string> = {
+                'Mực khô': '🦑',
+                'Cá khô': '🐟',
+                'Hải sản 1 nắng': '☀️',
+                'Nem chua': '🥬',
+                'Tôm khô': '🦐',
+                'Đặc sản khác': '🌊',
+              };
+              const allCount = products.length;
+              return (
+                <>
+                  <button
+                    onClick={() => setFilters(f => ({ ...f, category: null }))}
+                    className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                      !filters.category
+                        ? 'ocean-gradient text-primary-foreground shadow-md scale-105'
+                        : 'bg-muted text-foreground hover:bg-primary/10 hover:scale-105'
+                    }`}
+                  >
+                    <span>🛒</span>
+                    <span>Tất cả</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${!filters.category ? 'bg-white/20' : 'bg-background/60'}`}>{allCount}</span>
+                  </button>
+                  {categories.map(cat => {
+                    const count = products.filter(p => p.category === cat).length;
+                    if (count === 0) return null;
+                    const active = filters.category === cat;
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setFilters(f => ({ ...f, category: f.category === cat ? null : cat }))}
+                        className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                          active
+                            ? 'ocean-gradient text-primary-foreground shadow-md scale-105'
+                            : 'bg-muted text-foreground hover:bg-primary/10 hover:scale-105'
+                        }`}
+                      >
+                        <span>{catIcons[cat] || '🐠'}</span>
+                        <span>{cat}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-white/20' : 'bg-background/60'}`}>{count}</span>
+                      </button>
+                    );
+                  })}
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>

@@ -39,16 +39,18 @@ export default function ProductCard({ product }: Props) {
     <>
       <Link to={`/product/${product.slug}`} className="group block">
         <div className="bg-card rounded-xl overflow-hidden border border-border hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          {/* Image container */}
+          {/* Image container - high resolution */}
           <div className="relative aspect-square overflow-hidden bg-muted">
             <img
               src={product.images[0]}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
               decoding="async"
-              width={400}
-              height={400}
+              width={800}
+              height={800}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              style={{ imageRendering: 'auto' }}
             />
 
             {/* Grade badge top-right */}

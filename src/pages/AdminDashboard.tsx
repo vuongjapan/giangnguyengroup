@@ -956,6 +956,8 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
     unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
     stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
     rating: product?.rating || 5,
+    taste: (product as any)?.taste || '', color: (product as any)?.color || '',
+    ingredients: (product as any)?.ingredients || '', cooking: (product as any)?.cooking || '',
   });
 
   // Structured description state
@@ -1061,7 +1063,8 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
       badges: form.badges ? form.badges.split(',').map(b => b.trim()).filter(Boolean) : [],
       needs: form.needs ? form.needs.split(',').map(n => n.trim()).filter(Boolean) : [],
       images: allImages, description: descObj,
-    };
+      taste: form.taste, color: form.color, ingredients: form.ingredients, cooking: form.cooking,
+    } as any;
 
     if (product) {
       const { error } = await supabase.from('products').update(payload).eq('id', product.id);

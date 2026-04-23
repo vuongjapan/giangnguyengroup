@@ -1142,6 +1142,30 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
         </div>
       </div>
 
+      {/* ===== Quick attributes ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/40 rounded-xl">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🍴 Mùi vị</label>
+          <input value={form.taste} onChange={e => setForm(f => ({ ...f, taste: e.target.value }))} placeholder="VD: Ngọt thanh, đậm đà"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🎨 Màu sắc</label>
+          <input value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} placeholder="VD: Vàng nâu tự nhiên"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🧪 Thành phần</label>
+          <input value={form.ingredients} onChange={e => setForm(f => ({ ...f, ingredients: e.target.value }))} placeholder="VD: Mực tươi 100%, muối biển"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🍳 Cách chế biến (ngắn)</label>
+          <input value={form.cooking} onChange={e => setForm(f => ({ ...f, cooking: e.target.value }))} placeholder="VD: Nướng / chiên / xé khô"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+      </div>
+
       {/* ===== STRUCTURED DESCRIPTION ===== */}
       <div className="border border-border rounded-xl overflow-hidden">
         <div className="bg-muted px-4 py-2.5">

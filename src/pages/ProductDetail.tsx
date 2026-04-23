@@ -400,16 +400,20 @@ export default function ProductDetail() {
                   <div className="border border-border rounded-xl overflow-hidden">
                     <table className="w-full text-sm">
                       <tbody>
-                        {[
+                        {([
                           ['Tên sản phẩm', product.name],
                           ['Danh mục', product.category],
                           ['Phân loại', product.grade],
+                          ['🍴 Mùi vị', (product as any).taste],
+                          ['🎨 Màu sắc', (product as any).color],
+                          ['🧪 Thành phần', (product as any).ingredients],
+                          ['🍳 Cách chế biến', (product as any).cooking],
                           ['Xuất xứ', desc.specs?.origin || 'Sầm Sơn, Thanh Hóa'],
                           ['Quy cách', desc.specs?.weight || product.unit],
                           ['Hạn sử dụng', desc.specs?.expiry || '6-12 tháng'],
                           ['Đơn vị', product.unit],
                           ['Tình trạng', product.stock > 0 ? 'Còn hàng' : 'Hết hàng'],
-                        ].map(([label, value], i) => (
+                        ] as [string, string][]).filter(([, v]) => v && String(v).trim()).map(([label, value], i) => (
                           <tr key={i} className={i % 2 === 0 ? 'bg-secondary/30' : ''}>
                             <td className="p-3 font-bold text-foreground border-b border-border w-1/3">{label}</td>
                             <td className="p-3 text-muted-foreground border-b border-border">{value}</td>

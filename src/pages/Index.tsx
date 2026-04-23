@@ -114,9 +114,6 @@ export default function Index() {
       <FlashSaleBanner />
       <Header />
 
-      {/* AI Smart Hero - Search + Budget combined at top */}
-      <AISmartHero />
-
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
 

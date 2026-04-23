@@ -139,6 +139,14 @@ export default function AuctionManager() {
     fetchAuctions();
   };
 
+  const removeBid = async (bidId: string) => {
+    if (!confirm('Xóa khách này khỏi danh sách trả giá?')) return;
+    const { error } = await supabase.from('auction_bids').delete().eq('id', bidId);
+    if (error) return toast.error(error.message);
+    toast.success('Đã xóa');
+    fetchBids();
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">

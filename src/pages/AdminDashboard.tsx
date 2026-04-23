@@ -25,8 +25,9 @@ import AICostControl from '@/components/admin/AICostControl';
 import PopupCampaignManager from '@/components/admin/PopupCampaignManager';
 import GrowthAnalytics from '@/components/admin/GrowthAnalytics';
 import AuctionManager from '@/components/admin/AuctionManager';
+import AgentsManager from '@/components/admin/AgentsManager';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -269,7 +270,8 @@ export default function AdminDashboard() {
       { id: 'ai-assistant' as Tab, label: 'AI Tư vấn', icon: Sparkles },
       { id: 'ai-import' as Tab, label: 'AI Quick Import', icon: PlusCircle },
       { id: 'seo-landing' as Tab, label: 'SEO Landing', icon: Globe },
-      { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ', icon: Users },
+      { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ (Lead)', icon: Users },
+      { id: 'agents' as Tab, label: '🏪 Đại lý phân phối', icon: Store },
       { id: 'auctions' as Tab, label: '🔥 Đấu giá', icon: Flame as any },
       { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
@@ -931,6 +933,9 @@ export default function AdminDashboard() {
 
         {/* ===== AUCTIONS ===== */}
         {tab === 'auctions' && <AuctionManager />}
+
+        {/* ===== AGENTS ===== */}
+        {tab === 'agents' && <AgentsManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

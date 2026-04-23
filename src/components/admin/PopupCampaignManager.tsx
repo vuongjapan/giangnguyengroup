@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Plus, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Plus, Edit, Trash2, Eye, EyeOff, Upload } from 'lucide-react';
+import { uploadImageWebP } from '@/lib/imageUpload';
 
 interface Campaign {
   id: string;
@@ -39,6 +40,23 @@ export default function PopupCampaignManager() {
   const [list, setList] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Campaign> | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { primary } = await uploadImageWebP(file, { bucket: 'site-media', folder: 'popups', maxWidth: 1200, quality: 85 });
+      setEditing(prev => prev ? { ...prev, image_url: primary } : prev);
+      toast.success('Đã tải ảnh lên');
+    } catch (e: any) {
+      toast.error(e?.message || 'Tải ảnh thất bại');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -119,9 +137,16 @@ export default function PopupCampaignManager() {
           </div>
         </div>
         <div>
-          <label className="text-xs font-semibold">URL ảnh popup (tùy chọn)</label>
-          <Input placeholder="https://..." value={editing.image_url || ''} onChange={e => setEditing({ ...editing, image_url: e.target.value })} />
-          {editing.image_url && <img src={editing.image_url} alt="preview" className="mt-2 max-h-32 rounded border" />}
+          <label className="text-xs font-semibold">Ảnh popup</label>
+          <div className="flex gap-2 items-start mt-1">
+            <Input placeholder="Dán URL hoặc bấm Tải ảnh →" value={editing.image_url || ''} onChange={e => setEditing({ ...editing, image_url: e.target.value })} />
+            <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+            <Button type="button" variant="outline" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              <span className="ml-1 hidden sm:inline">Tải ảnh</span>
+            </Button>
+          </div>
+          {editing.image_url && <img src={editing.image_url} alt="preview" className="mt-2 max-h-40 rounded border" />}
         </div>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={editing.is_active ?? true} onChange={e => setEditing({ ...editing, is_active: e.target.checked })} />

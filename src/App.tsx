@@ -40,6 +40,8 @@ import WholesalePage from "./pages/WholesalePage.tsx";
 import SeoLandingPage from "./pages/SeoLandingPage.tsx";
 import AuctionsPage from "./pages/AuctionsPage.tsx";
 import AuctionDetail from "./pages/AuctionDetail.tsx";
+import LivePage from "./pages/LivePage.tsx";
+import AgentsPage from "./pages/AgentsPage.tsx";
 import AbandonedCartTracker from "./components/AbandonedCartTracker.tsx";
 
 const queryClient = new QueryClient();
@@ -83,6 +85,8 @@ const App = () => (
                 <Route path="/lp/:slug" element={<SeoLandingPage />} />
                 <Route path="/dau-gia" element={<AuctionsPage />} />
                 <Route path="/dau-gia/:slug" element={<AuctionDetail />} />
+                <Route path="/live" element={<LivePage />} />
+                <Route path="/dai-ly-phan-phoi" element={<AgentsPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TrackingPixels />

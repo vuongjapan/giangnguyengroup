@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame, Radio, Building2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice, categories } from '@/data/products';
@@ -23,6 +23,7 @@ const BEST_SELLERS = [
 
 const LEFT_MENU = [
   { label: 'SẢN PHẨM', to: '/san-pham', icon: Package, hasDropdown: true },
+  { label: 'LIVE 🔴', to: '/live', icon: Radio },
   { label: 'ĐẤU GIÁ 🔥', to: '/dau-gia', icon: Flame },
   { label: 'COMBO QUÀ BIẾU', to: '/combo', icon: Gift },
   { label: 'KHUYẾN MÃI', to: '/khuyen-mai', icon: Tag },
@@ -31,6 +32,7 @@ const LEFT_MENU = [
 ];
 
 const RIGHT_MENU = [
+  { label: 'ĐẠI LÝ', to: '/dai-ly-phan-phoi', icon: Building2 },
   { label: 'BLOG', to: '/blog', icon: BookOpen },
   { label: 'GIỚI THIỆU', to: '/gioi-thieu', icon: BookOpen },
   { label: 'CỬA HÀNG', to: '/he-thong-cua-hang', icon: Store },

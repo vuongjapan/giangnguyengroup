@@ -25,8 +25,9 @@ import AICostControl from '@/components/admin/AICostControl';
 import PopupCampaignManager from '@/components/admin/PopupCampaignManager';
 import GrowthAnalytics from '@/components/admin/GrowthAnalytics';
 import AuctionManager from '@/components/admin/AuctionManager';
+import AgentsManager from '@/components/admin/AgentsManager';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -269,7 +270,8 @@ export default function AdminDashboard() {
       { id: 'ai-assistant' as Tab, label: 'AI Tư vấn', icon: Sparkles },
       { id: 'ai-import' as Tab, label: 'AI Quick Import', icon: PlusCircle },
       { id: 'seo-landing' as Tab, label: 'SEO Landing', icon: Globe },
-      { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ', icon: Users },
+      { id: 'wholesale' as Tab, label: 'Đại lý / Sỉ (Lead)', icon: Users },
+      { id: 'agents' as Tab, label: '🏪 Đại lý phân phối', icon: Store },
       { id: 'auctions' as Tab, label: '🔥 Đấu giá', icon: Flame as any },
       { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
@@ -932,6 +934,9 @@ export default function AdminDashboard() {
         {/* ===== AUCTIONS ===== */}
         {tab === 'auctions' && <AuctionManager />}
 
+        {/* ===== AGENTS ===== */}
+        {tab === 'agents' && <AgentsManager />}
+
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (
           <div className="space-y-6">
@@ -951,6 +956,8 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
     unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
     stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
     rating: product?.rating || 5,
+    taste: (product as any)?.taste || '', color: (product as any)?.color || '',
+    ingredients: (product as any)?.ingredients || '', cooking: (product as any)?.cooking || '',
   });
 
   // Structured description state
@@ -1056,7 +1063,8 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
       badges: form.badges ? form.badges.split(',').map(b => b.trim()).filter(Boolean) : [],
       needs: form.needs ? form.needs.split(',').map(n => n.trim()).filter(Boolean) : [],
       images: allImages, description: descObj,
-    };
+      taste: form.taste, color: form.color, ingredients: form.ingredients, cooking: form.cooking,
+    } as any;
 
     if (product) {
       const { error } = await supabase.from('products').update(payload).eq('id', product.id);
@@ -1131,6 +1139,30 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
           <label className="block text-xs font-bold text-foreground mb-1">Nhu cầu (phẩy ngăn)</label>
           <input value={form.needs} onChange={e => setForm(f => ({ ...f, needs: e.target.value }))} placeholder="nhậu, quà biếu"
             className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+        </div>
+      </div>
+
+      {/* ===== Quick attributes ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/40 rounded-xl">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🍴 Mùi vị</label>
+          <input value={form.taste} onChange={e => setForm(f => ({ ...f, taste: e.target.value }))} placeholder="VD: Ngọt thanh, đậm đà"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🎨 Màu sắc</label>
+          <input value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} placeholder="VD: Vàng nâu tự nhiên"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🧪 Thành phần</label>
+          <input value={form.ingredients} onChange={e => setForm(f => ({ ...f, ingredients: e.target.value }))} placeholder="VD: Mực tươi 100%, muối biển"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🍳 Cách chế biến (ngắn)</label>
+          <input value={form.cooking} onChange={e => setForm(f => ({ ...f, cooking: e.target.value }))} placeholder="VD: Nướng / chiên / xé khô"
+            className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </div>
       </div>
 

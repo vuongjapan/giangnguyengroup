@@ -65,6 +65,57 @@ export type Database = {
         }
         Relationships: []
       }
+      agents: {
+        Row: {
+          address: string
+          avatar: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string
+          products_distributed: string[]
+          region: string
+          slug: string
+          sort_order: number
+          updated_at: string
+          zalo: string
+        }
+        Insert: {
+          address?: string
+          avatar?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string
+          products_distributed?: string[]
+          region?: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+          zalo?: string
+        }
+        Update: {
+          address?: string
+          avatar?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string
+          products_distributed?: string[]
+          region?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+          zalo?: string
+        }
+        Relationships: []
+      }
       ai_logs: {
         Row: {
           created_at: string
@@ -680,11 +731,14 @@ export type Database = {
         Row: {
           badges: string[]
           category: string
+          color: string
+          cooking: string
           created_at: string
           description: Json
           grade: string
           id: string
           images: string[]
+          ingredients: string
           is_active: boolean
           name: string
           needs: string[]
@@ -694,17 +748,21 @@ export type Database = {
           sort_order: number
           status: string
           stock: number
+          taste: string
           unit: string
           updated_at: string
         }
         Insert: {
           badges?: string[]
           category: string
+          color?: string
+          cooking?: string
           created_at?: string
           description?: Json
           grade?: string
           id?: string
           images?: string[]
+          ingredients?: string
           is_active?: boolean
           name: string
           needs?: string[]
@@ -714,17 +772,21 @@ export type Database = {
           sort_order?: number
           status?: string
           stock?: number
+          taste?: string
           unit?: string
           updated_at?: string
         }
         Update: {
           badges?: string[]
           category?: string
+          color?: string
+          cooking?: string
           created_at?: string
           description?: Json
           grade?: string
           id?: string
           images?: string[]
+          ingredients?: string
           is_active?: boolean
           name?: string
           needs?: string[]
@@ -734,6 +796,7 @@ export type Database = {
           sort_order?: number
           status?: string
           stock?: number
+          taste?: string
           unit?: string
           updated_at?: string
         }

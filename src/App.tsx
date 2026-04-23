@@ -13,6 +13,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import TrackingPixels from "@/components/TrackingPixels";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import SmartExitPopup from "@/components/SmartExitPopup";
+import FloatingPopup from "@/components/FloatingPopup";
 
 import Index from "./pages/Index.tsx";
 import ProductsPage from "./pages/ProductsPage.tsx";
@@ -91,6 +92,7 @@ const App = () => (
               <MobileBottomNav />
               <ExitIntentPopup />
               <SmartExitPopup />
+              <FloatingPopup />
               <AbandonedCartTracker />
             </BrowserRouter>
           </HotelProvider>

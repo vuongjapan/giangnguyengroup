@@ -139,6 +139,14 @@ export default function AuctionManager() {
     fetchAuctions();
   };
 
+  const removeBid = async (bidId: string) => {
+    if (!confirm('Xóa khách này khỏi danh sách trả giá?')) return;
+    const { error } = await supabase.from('auction_bids').delete().eq('id', bidId);
+    if (error) return toast.error(error.message);
+    toast.success('Đã xóa');
+    fetchBids();
+  };
+
   return (
     <div className="space-y-6">
       <div className="bg-card border border-border rounded-xl p-4 flex items-center justify-between">
@@ -194,7 +202,7 @@ export default function AuctionManager() {
                       <table className="w-full text-xs">
                         <thead className="text-muted-foreground">
                           <tr className="text-left">
-                            <th className="py-1">Tên</th><th>SĐT</th><th>Giá</th><th>Lúc</th>
+                            <th className="py-1">Tên</th><th>SĐT</th><th>Giá</th><th>Lúc</th><th></th>
                           </tr>
                         </thead>
                         <tbody>
@@ -204,6 +212,15 @@ export default function AuctionManager() {
                               <td><a href={`tel:${b.customer_phone}`} className="text-primary">{b.customer_phone}</a></td>
                               <td className="font-bold text-coral">{formatPrice(b.bid_amount)}</td>
                               <td className="text-muted-foreground">{new Date(b.created_at).toLocaleString('vi-VN')}</td>
+                              <td>
+                                <button
+                                  onClick={() => removeBid(b.id)}
+                                  className="p-1 hover:bg-destructive/10 rounded"
+                                  title="Xóa khách này"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                </button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>

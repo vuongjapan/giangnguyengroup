@@ -13,7 +13,6 @@ import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import RecentlyViewed from '@/components/RecentlyViewed';
-import AISmartHero from '@/components/AISmartHero';
 import HotAuctions from '@/components/HotAuctions';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';

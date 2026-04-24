@@ -699,7 +699,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-1">
                             <button onClick={() => { setEditingProduct(p); setShowProductForm(true); }} className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => deleteProduct(p.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                            <button onClick={() => deleteProduct(p)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
                       </tr>

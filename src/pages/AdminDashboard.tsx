@@ -2131,10 +2131,11 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
     fetchCoupons();
   };
 
-  const deleteCoupon = async (id: string) => {
-    if (!confirm('Xóa mã giảm giá này?')) return;
-    await supabase.from('coupons').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchCoupons();
+  const deleteCoupon = async (c: DBCoupon) => {
+    if (!confirm(`Chuyển mã "${c.code}" vào thùng rác?`)) return;
+    const ok = await softDelete('coupon', c.id, c.code);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchCoupons(); }
+    else toast.error('Không xóa được');
   };
 
   const isExpired = (c: DBCoupon) => c.expires_at && new Date(c.expires_at) < new Date();

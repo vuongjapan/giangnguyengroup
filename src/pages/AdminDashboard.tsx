@@ -744,7 +744,7 @@ export default function AdminDashboard() {
                         {c.is_active ? '✅ Hiện' : '⬜ Ẩn'}
                       </button>
                       <button onClick={() => { setEditingCombo(c); setShowComboForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
-                      <button onClick={() => deleteCombo(c.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                      <button onClick={() => deleteCombo(c)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
                     </div>
                   </div>
                 </div>

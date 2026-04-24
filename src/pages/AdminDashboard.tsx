@@ -166,25 +166,45 @@ export default function AdminDashboard() {
     if (data) setReviews(data as any[]);
   };
   const deleteReview = async (id: string) => {
-    if (!confirm('Xóa đánh giá này?')) return;
-    await supabase.from('product_reviews').delete().eq('id', id);
-    toast.success('Đã xóa đánh giá'); fetchReviews();
+    if (!confirm('Chuyển đánh giá này vào thùng rác?')) return;
+    const r = reviews.find((x: any) => x.id === id);
+    const ok = await softDelete('review', id, r?.reviewer_name || r?.comment?.slice(0, 60) || id);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchReviews(); }
+    else toast.error('Không xóa được');
   };
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm('Xóa sản phẩm này?')) return;
-    await supabase.from('products').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchProducts();
+  const deleteProduct = async (p: DBProduct) => {
+    if (!confirm(`Chuyển "${p.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('product', p.id, p.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchProducts(); }
+    else toast.error('Không xóa được');
   };
-  const deleteStore = async (id: string) => {
-    if (!confirm('Xóa cửa hàng này?')) return;
-    await supabase.from('stores').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchStores();
+  const deleteStore = async (s: DBStore) => {
+    if (!confirm(`Chuyển "${s.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('store', s.id, s.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchStores(); }
   };
-  const deleteHotel = async (id: string) => {
-    if (!confirm('Xóa khách sạn này?')) return;
-    await supabase.from('hotels').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchHotels();
+  const deleteHotel = async (h: DBHotel) => {
+    if (!confirm(`Chuyển "${h.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('hotel', h.id, h.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchHotels(); }
+  };
+  const deleteOrder = async (o: DBOrder) => {
+    if (!confirm(`Chuyển đơn ${o.order_code} vào thùng rác?`)) return;
+    const ok = await softDelete('order', o.id, `${o.order_code} - ${o.customer_name}`);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchOrders(); }
+    else toast.error('Không xóa được');
+  };
+  const deleteMember = async (m: DBProfile) => {
+    if (!confirm(`Chuyển thành viên "${m.name || m.email}" vào thùng rác?`)) return;
+    const ok = await softDelete('member', m.id, m.name || m.email);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchMembers(); }
+    else toast.error('Không xóa được');
+  };
+  const deleteCoupon = async (c: DBCoupon) => {
+    if (!confirm(`Chuyển mã "${c.code}" vào thùng rác?`)) return;
+    const ok = await softDelete('coupon', c.id, c.code);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchCoupons(); }
   };
   const toggleProductActive = async (p: DBProduct) => {
     await supabase.from('products').update({ is_active: !p.is_active }).eq('id', p.id);
@@ -194,10 +214,10 @@ export default function AdminDashboard() {
     await supabase.from('hotels').update({ is_active: !h.is_active }).eq('id', h.id);
     fetchHotels();
   };
-  const deleteCombo = async (id: string) => {
-    if (!confirm('Xóa combo này?')) return;
-    await supabase.from('combos').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchCombos();
+  const deleteCombo = async (c: DBCombo) => {
+    if (!confirm(`Chuyển "${c.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('combo', c.id, c.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchCombos(); }
   };
   const toggleComboActive = async (c: DBCombo) => {
     await supabase.from('combos').update({ is_active: !c.is_active }).eq('id', c.id);

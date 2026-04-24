@@ -55,7 +55,12 @@ function parseCsv(text: string): string[][] {
 export default function ProductCsvTools({ onImported }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
-  const [report, setReport] = useState<{ updated: number; skipped: number; errors: string[] } | null>(null);
+  const [report, setReport] = useState<{
+    updated: number;
+    skipped: number;
+    errors: string[];
+    matchStats: { byId: number; bySku: number; bySlug: number };
+  } | null>(null);
 
   const downloadTemplate = () => {
     const header = FIELDS.join(',');
@@ -232,13 +237,16 @@ export default function ProductCsvTools({ onImported }: Props) {
       </div>
       <p className="text-xs text-muted-foreground mt-2">
         Mở bằng Excel/Google Sheets, điền 4 cột <b>taste / color / ingredients / cooking</b>, lưu lại .csv rồi Import.
-        Khớp theo <b>id</b> (ưu tiên) hoặc <b>slug</b>. Các cột khác được bỏ qua để an toàn.
+        Khớp theo <b>id → sku → slug</b> (ưu tiên trái sang phải). Chỉ <b>cập nhật</b>, không tạo mới — không lo trùng SP.
       </p>
       {report && (
-        <div className="mt-2 text-xs bg-card border border-border rounded p-2">
+        <div className="mt-2 text-xs bg-card border border-border rounded p-2 space-y-1">
           <p>✓ Cập nhật: <b className="text-primary">{report.updated}</b> &nbsp;·&nbsp; ⏭ Bỏ qua: <b>{report.skipped}</b></p>
+          <p className="text-muted-foreground">
+            Khớp theo: id <b>{report.matchStats.byId}</b> · sku <b>{report.matchStats.bySku}</b> · slug <b>{report.matchStats.bySlug}</b>
+          </p>
           {report.errors.length > 0 && (
-            <ul className="mt-1 list-disc list-inside text-destructive">
+            <ul className="list-disc list-inside text-destructive">
               {report.errors.map((e, i) => <li key={i}>{e}</li>)}
             </ul>
           )}

@@ -599,6 +599,7 @@ export default function AdminDashboard() {
                       <th className="text-right px-3 py-2 font-medium">Tổng</th>
                       <th className="text-center px-3 py-2 font-medium">Trạng thái</th>
                       <th className="text-center px-3 py-2 font-medium">Ngày</th>
+                      <th className="text-center px-3 py-2 font-medium">Xóa</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -626,11 +627,17 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2 text-center text-xs text-muted-foreground">
                             {new Date(o.created_at).toLocaleDateString('vi-VN')}
                           </td>
+                          <td className="px-3 py-2 text-center">
+                            <button onClick={() => deleteOrder(o)} title="Xóa đơn"
+                              className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
                     {filteredOrders.length === 0 && (
-                      <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
+                      <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
                     )}
                   </tbody>
                 </table>

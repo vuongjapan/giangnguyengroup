@@ -27,8 +27,10 @@ import GrowthAnalytics from '@/components/admin/GrowthAnalytics';
 import AuctionManager from '@/components/admin/AuctionManager';
 import AgentsManager from '@/components/admin/AgentsManager';
 import ProductCsvTools from '@/components/admin/ProductCsvTools';
+import TrashBinManager from '@/components/admin/TrashBinManager';
+import { softDelete } from '@/lib/trashBin';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -40,7 +42,7 @@ interface DBProduct {
   id: string; name: string; slug: string; price: number; unit: string;
   images: string[]; category: string; grade: string; badges: string[];
   needs: string[]; rating: number; stock: number; is_active: boolean;
-  sort_order: number; description: any;
+  sort_order: number; description: any; sku?: string | null;
 }
 
 interface DBStore {
@@ -164,26 +166,42 @@ export default function AdminDashboard() {
     if (data) setReviews(data as any[]);
   };
   const deleteReview = async (id: string) => {
-    if (!confirm('Xóa đánh giá này?')) return;
-    await supabase.from('product_reviews').delete().eq('id', id);
-    toast.success('Đã xóa đánh giá'); fetchReviews();
+    if (!confirm('Chuyển đánh giá này vào thùng rác?')) return;
+    const r = reviews.find((x: any) => x.id === id);
+    const ok = await softDelete('review', id, r?.reviewer_name || r?.comment?.slice(0, 60) || id);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchReviews(); }
+    else toast.error('Không xóa được');
   };
 
-  const deleteProduct = async (id: string) => {
-    if (!confirm('Xóa sản phẩm này?')) return;
-    await supabase.from('products').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchProducts();
+  const deleteProduct = async (p: DBProduct) => {
+    if (!confirm(`Chuyển "${p.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('product', p.id, p.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchProducts(); }
+    else toast.error('Không xóa được');
   };
-  const deleteStore = async (id: string) => {
-    if (!confirm('Xóa cửa hàng này?')) return;
-    await supabase.from('stores').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchStores();
+  const deleteStore = async (s: DBStore) => {
+    if (!confirm(`Chuyển "${s.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('store', s.id, s.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchStores(); }
   };
-  const deleteHotel = async (id: string) => {
-    if (!confirm('Xóa khách sạn này?')) return;
-    await supabase.from('hotels').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchHotels();
+  const deleteHotel = async (h: DBHotel) => {
+    if (!confirm(`Chuyển "${h.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('hotel', h.id, h.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchHotels(); }
   };
+  const deleteOrder = async (o: DBOrder) => {
+    if (!confirm(`Chuyển đơn ${o.order_code} vào thùng rác?`)) return;
+    const ok = await softDelete('order', o.id, `${o.order_code} - ${o.customer_name}`);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchOrders(); }
+    else toast.error('Không xóa được');
+  };
+  const deleteMember = async (m: DBProfile) => {
+    if (!confirm(`Chuyển thành viên "${m.name || m.email}" vào thùng rác?`)) return;
+    const ok = await softDelete('member', m.id, m.name || m.email);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchMembers(); }
+    else toast.error('Không xóa được');
+  };
+  // (deleteCoupon is defined inside CouponManager)
   const toggleProductActive = async (p: DBProduct) => {
     await supabase.from('products').update({ is_active: !p.is_active }).eq('id', p.id);
     fetchProducts();
@@ -192,10 +210,10 @@ export default function AdminDashboard() {
     await supabase.from('hotels').update({ is_active: !h.is_active }).eq('id', h.id);
     fetchHotels();
   };
-  const deleteCombo = async (id: string) => {
-    if (!confirm('Xóa combo này?')) return;
-    await supabase.from('combos').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchCombos();
+  const deleteCombo = async (c: DBCombo) => {
+    if (!confirm(`Chuyển "${c.name}" vào thùng rác?`)) return;
+    const ok = await softDelete('combo', c.id, c.name);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchCombos(); }
   };
   const toggleComboActive = async (c: DBCombo) => {
     await supabase.from('combos').update({ is_active: !c.is_active }).eq('id', c.id);
@@ -276,6 +294,7 @@ export default function AdminDashboard() {
       { id: 'auctions' as Tab, label: '🔥 Đấu giá', icon: Flame as any },
       { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
+      { id: 'trash' as Tab, label: '🗑️ Thùng rác', icon: Trash2 },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
 
@@ -581,6 +600,7 @@ export default function AdminDashboard() {
                       <th className="text-right px-3 py-2 font-medium">Tổng</th>
                       <th className="text-center px-3 py-2 font-medium">Trạng thái</th>
                       <th className="text-center px-3 py-2 font-medium">Ngày</th>
+                      <th className="text-center px-3 py-2 font-medium">Xóa</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -608,11 +628,17 @@ export default function AdminDashboard() {
                           <td className="px-3 py-2 text-center text-xs text-muted-foreground">
                             {new Date(o.created_at).toLocaleDateString('vi-VN')}
                           </td>
+                          <td className="px-3 py-2 text-center">
+                            <button onClick={() => deleteOrder(o)} title="Xóa đơn"
+                              className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
                     {filteredOrders.length === 0 && (
-                      <tr><td colSpan={7} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
+                      <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -656,7 +682,10 @@ export default function AdminDashboard() {
                             {p.images[0] ? <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-lg object-cover" /> : <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center"><Image className="h-5 w-5 text-muted-foreground" /></div>}
                             <div>
                               <p className="font-medium text-foreground">{p.name}</p>
-                              <p className="text-xs text-muted-foreground">{p.grade} • {p.images.length} ảnh</p>
+                              <p className="text-xs text-muted-foreground">
+                                {p.grade} • {p.images.length} ảnh
+                                {(p as any).sku && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono text-[10px]">SKU: {(p as any).sku}</span>}
+                              </p>
                             </div>
                           </div>
                         </td>
@@ -677,7 +706,7 @@ export default function AdminDashboard() {
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-1">
                             <button onClick={() => { setEditingProduct(p); setShowProductForm(true); }} className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => deleteProduct(p.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                            <button onClick={() => deleteProduct(p)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
                       </tr>
@@ -722,7 +751,7 @@ export default function AdminDashboard() {
                         {c.is_active ? '✅ Hiện' : '⬜ Ẩn'}
                       </button>
                       <button onClick={() => { setEditingCombo(c); setShowComboForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
-                      <button onClick={() => deleteCombo(c.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                      <button onClick={() => deleteCombo(c)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
                     </div>
                   </div>
                 </div>
@@ -763,7 +792,7 @@ export default function AdminDashboard() {
                       {h.is_active ? '✅ Hiện' : '⬜ Ẩn'}
                     </button>
                     <button onClick={() => { setEditingHotel(h); setShowHotelForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
-                    <button onClick={() => deleteHotel(h.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                    <button onClick={() => deleteHotel(h)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
                   </div>
                 </div>
               ))}
@@ -785,6 +814,7 @@ export default function AdminDashboard() {
                       <th className="text-right px-3 py-2 font-medium">Tổng chi</th>
                       <th className="text-right px-3 py-2 font-medium">Điểm</th>
                       <th className="text-center px-3 py-2 font-medium">Ngày tham gia</th>
+                      <th className="text-center px-3 py-2 font-medium">Xóa</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -802,9 +832,15 @@ export default function AdminDashboard() {
                         <td className="px-3 py-2 text-right font-bold text-coral">{formatPrice(m.total_spent)}</td>
                         <td className="px-3 py-2 text-right font-bold text-accent">{m.points.toLocaleString()}</td>
                         <td className="px-3 py-2 text-center text-xs text-muted-foreground">{new Date(m.created_at).toLocaleDateString('vi-VN')}</td>
+                        <td className="px-3 py-2 text-center">
+                          <button onClick={() => deleteMember(m)} title="Xóa thành viên"
+                            className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
                       </tr>
                     ))}
-                    {members.length === 0 && <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Chưa có thành viên</td></tr>}
+                    {members.length === 0 && <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">Chưa có thành viên</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -834,7 +870,7 @@ export default function AdminDashboard() {
                   <p className="text-xs text-muted-foreground mb-3">🕐 {s.hours}</p>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditingStore(s); setShowStoreForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
-                    <button onClick={() => deleteStore(s.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                    <button onClick={() => deleteStore(s)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
                   </div>
                 </div>
               ))}
@@ -939,6 +975,9 @@ export default function AdminDashboard() {
         {/* ===== AGENTS ===== */}
         {tab === 'agents' && <AgentsManager />}
 
+        {/* ===== TRASH BIN ===== */}
+        {tab === 'trash' && <TrashBinManager />}
+
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (
           <div className="space-y-6">
@@ -958,6 +997,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
     unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
     stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
     rating: product?.rating || 5,
+    sku: (product as any)?.sku || '',
     taste: (product as any)?.taste || '', color: (product as any)?.color || '',
     ingredients: (product as any)?.ingredients || '', cooking: (product as any)?.cooking || '',
   });
@@ -1065,6 +1105,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
       badges: form.badges ? form.badges.split(',').map(b => b.trim()).filter(Boolean) : [],
       needs: form.needs ? form.needs.split(',').map(n => n.trim()).filter(Boolean) : [],
       images: allImages, description: descObj,
+      sku: form.sku?.trim() || null,
       taste: form.taste, color: form.color, ingredients: form.ingredients, cooking: form.cooking,
     } as any;
 
@@ -1093,6 +1134,23 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
           <label className="block text-xs font-bold text-foreground mb-1">Slug (URL)</label>
           <input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="tự động tạo"
             className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🔖 Mã SKU (mã sản phẩm)</label>
+          <input value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))}
+            placeholder="VD: MK-001, TOM-DAC-500"
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono" />
+          <p className="text-xs text-muted-foreground mt-1">
+            Dùng cho import CSV — phải là duy nhất. Để trống nếu không cần.
+          </p>
+        </div>
+        <div className="flex items-end">
+          <p className="text-xs text-muted-foreground">
+            💡 SKU giúp khớp đúng sản phẩm khi import CSV hàng loạt theo thứ tự ưu tiên: <strong>ID → SKU → Slug</strong>.
+          </p>
         </div>
       </div>
 
@@ -2109,10 +2167,11 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
     fetchCoupons();
   };
 
-  const deleteCoupon = async (id: string) => {
-    if (!confirm('Xóa mã giảm giá này?')) return;
-    await supabase.from('coupons').delete().eq('id', id);
-    toast.success('Đã xóa'); fetchCoupons();
+  const deleteCoupon = async (c: DBCoupon) => {
+    if (!confirm(`Chuyển mã "${c.code}" vào thùng rác?`)) return;
+    const ok = await softDelete('coupon', c.id, c.code);
+    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchCoupons(); }
+    else toast.error('Không xóa được');
   };
 
   const isExpired = (c: DBCoupon) => c.expires_at && new Date(c.expires_at) < new Date();
@@ -2325,7 +2384,7 @@ function CouponManager({ coupons, fetchCoupons }: { coupons: DBCoupon[]; fetchCo
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
                         <button onClick={() => openEdit(c)} className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
-                        <button onClick={() => deleteCoupon(c.id)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                        <button onClick={() => deleteCoupon(c)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </td>
                   </tr>

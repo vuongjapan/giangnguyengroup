@@ -682,7 +682,10 @@ export default function AdminDashboard() {
                             {p.images[0] ? <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-lg object-cover" /> : <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center"><Image className="h-5 w-5 text-muted-foreground" /></div>}
                             <div>
                               <p className="font-medium text-foreground">{p.name}</p>
-                              <p className="text-xs text-muted-foreground">{p.grade} • {p.images.length} ảnh</p>
+                              <p className="text-xs text-muted-foreground">
+                                {p.grade} • {p.images.length} ảnh
+                                {(p as any).sku && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono text-[10px]">SKU: {(p as any).sku}</span>}
+                              </p>
                             </div>
                           </div>
                         </td>

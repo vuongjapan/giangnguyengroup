@@ -856,7 +856,7 @@ export default function AdminDashboard() {
                   <p className="text-xs text-muted-foreground mb-3">🕐 {s.hours}</p>
                   <div className="flex gap-2">
                     <button onClick={() => { setEditingStore(s); setShowStoreForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
-                    <button onClick={() => deleteStore(s.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                    <button onClick={() => deleteStore(s)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
                   </div>
                 </div>
               ))}

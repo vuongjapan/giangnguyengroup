@@ -16,7 +16,7 @@ interface Props {
   onImported?: () => void;
 }
 
-const FIELDS = ['id', 'slug', 'name', 'taste', 'color', 'ingredients', 'cooking'] as const;
+const FIELDS = ['id', 'sku', 'slug', 'name', 'taste', 'color', 'ingredients', 'cooking'] as const;
 const EDITABLE = ['taste', 'color', 'ingredients', 'cooking'] as const;
 
 function escapeCsv(v: unknown): string {

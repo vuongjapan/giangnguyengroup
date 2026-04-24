@@ -201,11 +201,7 @@ export default function AdminDashboard() {
     if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchMembers(); }
     else toast.error('Không xóa được');
   };
-  const deleteCoupon = async (c: DBCoupon) => {
-    if (!confirm(`Chuyển mã "${c.code}" vào thùng rác?`)) return;
-    const ok = await softDelete('coupon', c.id, c.code);
-    if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchCoupons(); }
-  };
+  // (deleteCoupon is defined inside CouponManager)
   const toggleProductActive = async (p: DBProduct) => {
     await supabase.from('products').update({ is_active: !p.is_active }).eq('id', p.id);
     fetchProducts();

@@ -744,6 +744,7 @@ export type Database = {
           needs: string[]
           price: number
           rating: number
+          sku: string | null
           slug: string
           sort_order: number
           status: string
@@ -768,6 +769,7 @@ export type Database = {
           needs?: string[]
           price: number
           rating?: number
+          sku?: string | null
           slug: string
           sort_order?: number
           status?: string
@@ -792,6 +794,7 @@ export type Database = {
           needs?: string[]
           price?: number
           rating?: number
+          sku?: string | null
           slug?: string
           sort_order?: number
           status?: string

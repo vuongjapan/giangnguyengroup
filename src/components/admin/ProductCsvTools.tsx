@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Download, Upload, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Download, Upload, FileSpreadsheet, Loader2, FileDown } from 'lucide-react';
 
 /**
  * Export/Import CSV cho products — tập trung vào các trường mô tả nhanh:
@@ -154,6 +154,14 @@ export default function ProductCsvTools({ onImported }: Props) {
         <FileSpreadsheet className="h-5 w-5 text-primary" />
         <span className="text-sm font-bold text-foreground">CSV — Mùi vị / Màu sắc / Thành phần / Cách chế biến</span>
         <div className="flex-1" />
+        <button
+          onClick={downloadTemplate}
+          disabled={busy !== null}
+          className="px-3 py-1.5 rounded-lg bg-card border border-border text-sm font-medium hover:bg-muted flex items-center gap-1.5 disabled:opacity-50"
+          title="Tải file CSV mẫu với 3 dòng ví dụ"
+        >
+          <FileDown className="h-4 w-4" /> File mẫu
+        </button>
         <button
           onClick={exportCsv}
           disabled={busy !== null}

@@ -294,6 +294,7 @@ export default function AdminDashboard() {
       { id: 'auctions' as Tab, label: '🔥 Đấu giá', icon: Flame as any },
       { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
+      { id: 'trash' as Tab, label: '🗑️ Thùng rác', icon: Trash2 },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
 

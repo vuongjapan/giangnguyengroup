@@ -972,6 +972,9 @@ export default function AdminDashboard() {
         {/* ===== AGENTS ===== */}
         {tab === 'agents' && <AgentsManager />}
 
+        {/* ===== TRASH BIN ===== */}
+        {tab === 'trash' && <TrashBinManager />}
+
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (
           <div className="space-y-6">

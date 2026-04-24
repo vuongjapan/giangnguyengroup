@@ -42,7 +42,7 @@ interface DBProduct {
   id: string; name: string; slug: string; price: number; unit: string;
   images: string[]; category: string; grade: string; badges: string[];
   needs: string[]; rating: number; stock: number; is_active: boolean;
-  sort_order: number; description: any;
+  sort_order: number; description: any; sku?: string | null;
 }
 
 interface DBStore {

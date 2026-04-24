@@ -810,6 +810,7 @@ export default function AdminDashboard() {
                       <th className="text-right px-3 py-2 font-medium">Tổng chi</th>
                       <th className="text-right px-3 py-2 font-medium">Điểm</th>
                       <th className="text-center px-3 py-2 font-medium">Ngày tham gia</th>
+                      <th className="text-center px-3 py-2 font-medium">Xóa</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -827,9 +828,15 @@ export default function AdminDashboard() {
                         <td className="px-3 py-2 text-right font-bold text-coral">{formatPrice(m.total_spent)}</td>
                         <td className="px-3 py-2 text-right font-bold text-accent">{m.points.toLocaleString()}</td>
                         <td className="px-3 py-2 text-center text-xs text-muted-foreground">{new Date(m.created_at).toLocaleDateString('vi-VN')}</td>
+                        <td className="px-3 py-2 text-center">
+                          <button onClick={() => deleteMember(m)} title="Xóa thành viên"
+                            className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
                       </tr>
                     ))}
-                    {members.length === 0 && <tr><td colSpan={5} className="text-center py-8 text-muted-foreground">Chưa có thành viên</td></tr>}
+                    {members.length === 0 && <tr><td colSpan={6} className="text-center py-8 text-muted-foreground">Chưa có thành viên</td></tr>}
                   </tbody>
                 </table>
               </div>

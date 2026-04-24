@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Download, Upload, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Download, Upload, FileSpreadsheet, Loader2, FileDown } from 'lucide-react';
 
 /**
  * Export/Import CSV cho products — tập trung vào các trường mô tả nhanh:
@@ -56,6 +56,25 @@ export default function ProductCsvTools({ onImported }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
   const [report, setReport] = useState<{ updated: number; skipped: number; errors: string[] } | null>(null);
+
+  const downloadTemplate = () => {
+    const header = FIELDS.join(',');
+    const samples = [
+      ['', 'muc-kho-loai-1', 'Mực khô loại 1', 'Ngọt đậm, hậu vị bùi', 'Hồng cam tự nhiên', 'Mực ống tươi, muối biển', 'Nướng than 2-3 phút mỗi mặt, xé nhỏ chấm tương ớt'],
+      ['', 'tom-kho-dac-biet', 'Tôm khô đặc biệt', 'Ngọt thanh, dai vừa', 'Đỏ cam óng', 'Tôm biển tươi, muối', 'Rang khô 1 phút hoặc nấu canh bí, củ cải'],
+      ['', 'ca-chi-vang-300g', 'Cá chỉ vàng 300g', 'Mặn dịu, thơm nắng biển', 'Vàng nhạt', 'Cá chỉ vàng, muối biển', 'Chiên giòn hoặc nướng giấy bạc 5 phút'],
+    ];
+    const body = samples.map(r => r.map(escapeCsv).join(',')).join('\n');
+    const csv = '\uFEFF' + header + '\n' + body;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'products-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Đã tải file mẫu — mở bằng Excel để chỉnh sửa');
+  };
 
   const exportCsv = async () => {
     setBusy('export');
@@ -154,6 +173,14 @@ export default function ProductCsvTools({ onImported }: Props) {
         <FileSpreadsheet className="h-5 w-5 text-primary" />
         <span className="text-sm font-bold text-foreground">CSV — Mùi vị / Màu sắc / Thành phần / Cách chế biến</span>
         <div className="flex-1" />
+        <button
+          onClick={downloadTemplate}
+          disabled={busy !== null}
+          className="px-3 py-1.5 rounded-lg bg-card border border-border text-sm font-medium hover:bg-muted flex items-center gap-1.5 disabled:opacity-50"
+          title="Tải file CSV mẫu với 3 dòng ví dụ"
+        >
+          <FileDown className="h-4 w-4" /> File mẫu
+        </button>
         <button
           onClick={exportCsv}
           disabled={busy !== null}

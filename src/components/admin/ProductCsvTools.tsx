@@ -57,6 +57,25 @@ export default function ProductCsvTools({ onImported }: Props) {
   const [busy, setBusy] = useState<'export' | 'import' | null>(null);
   const [report, setReport] = useState<{ updated: number; skipped: number; errors: string[] } | null>(null);
 
+  const downloadTemplate = () => {
+    const header = FIELDS.join(',');
+    const samples = [
+      ['', 'muc-kho-loai-1', 'Mực khô loại 1', 'Ngọt đậm, hậu vị bùi', 'Hồng cam tự nhiên', 'Mực ống tươi, muối biển', 'Nướng than 2-3 phút mỗi mặt, xé nhỏ chấm tương ớt'],
+      ['', 'tom-kho-dac-biet', 'Tôm khô đặc biệt', 'Ngọt thanh, dai vừa', 'Đỏ cam óng', 'Tôm biển tươi, muối', 'Rang khô 1 phút hoặc nấu canh bí, củ cải'],
+      ['', 'ca-chi-vang-300g', 'Cá chỉ vàng 300g', 'Mặn dịu, thơm nắng biển', 'Vàng nhạt', 'Cá chỉ vàng, muối biển', 'Chiên giòn hoặc nướng giấy bạc 5 phút'],
+    ];
+    const body = samples.map(r => r.map(escapeCsv).join(',')).join('\n');
+    const csv = '\uFEFF' + header + '\n' + body;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'products-template.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Đã tải file mẫu — mở bằng Excel để chỉnh sửa');
+  };
+
   const exportCsv = async () => {
     setBusy('export');
     try {

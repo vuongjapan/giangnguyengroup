@@ -994,6 +994,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
     unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
     stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
     rating: product?.rating || 5,
+    sku: (product as any)?.sku || '',
     taste: (product as any)?.taste || '', color: (product as any)?.color || '',
     ingredients: (product as any)?.ingredients || '', cooking: (product as any)?.cooking || '',
   });

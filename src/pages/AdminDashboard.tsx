@@ -26,6 +26,7 @@ import PopupCampaignManager from '@/components/admin/PopupCampaignManager';
 import GrowthAnalytics from '@/components/admin/GrowthAnalytics';
 import AuctionManager from '@/components/admin/AuctionManager';
 import AgentsManager from '@/components/admin/AgentsManager';
+import ProductCsvTools from '@/components/admin/ProductCsvTools';
 
 type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents';
 
@@ -630,6 +631,7 @@ export default function AdminDashboard() {
                 <Plus className="h-4 w-4" /> Thêm SP
               </button>
             </div>
+            <ProductCsvTools onImported={fetchProducts} />
             {showProductForm && (
               <ProductForm product={editingProduct} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
             )}

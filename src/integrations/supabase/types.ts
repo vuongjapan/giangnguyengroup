@@ -1006,6 +1006,39 @@ export type Database = {
         }
         Relationships: []
       }
+      trash_bin: {
+        Row: {
+          deleted_at: string
+          deleted_by: string | null
+          display_name: string
+          entity_id: string
+          entity_type: string
+          expires_at: string
+          id: string
+          snapshot: Json
+        }
+        Insert: {
+          deleted_at?: string
+          deleted_by?: string | null
+          display_name?: string
+          entity_id: string
+          entity_type: string
+          expires_at?: string
+          id?: string
+          snapshot?: Json
+        }
+        Update: {
+          deleted_at?: string
+          deleted_by?: string | null
+          display_name?: string
+          entity_id?: string
+          entity_type?: string
+          expires_at?: string
+          id?: string
+          snapshot?: Json
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

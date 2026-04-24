@@ -129,7 +129,7 @@ export default function ProductCsvTools({ onImported }: Props) {
           if (idx !== -1 && r[idx] !== undefined) patch[f] = r[idx];
         });
         if (Object.keys(patch).length === 0) { skipped++; continue; }
-        const { error: upErr } = await supabase.from('products').update(patch).eq('id', pid);
+        const { error: upErr } = await supabase.from('products').update(patch as any).eq('id', pid);
         if (upErr) {
           skipped++;
           if (errors.length < 5) errors.push(`Dòng ${i + 1}: ${upErr.message}`);
@@ -184,7 +184,7 @@ export default function ProductCsvTools({ onImported }: Props) {
       </p>
       {report && (
         <div className="mt-2 text-xs bg-card border border-border rounded p-2">
-          <p>✓ Cập nhật: <b className="text-green-600">{report.updated}</b> &nbsp;·&nbsp; ⏭ Bỏ qua: <b>{report.skipped}</b></p>
+          <p>✓ Cập nhật: <b className="text-primary">{report.updated}</b> &nbsp;·&nbsp; ⏭ Bỏ qua: <b>{report.skipped}</b></p>
           {report.errors.length > 0 && (
             <ul className="mt-1 list-disc list-inside text-destructive">
               {report.errors.map((e, i) => <li key={i}>{e}</li>)}

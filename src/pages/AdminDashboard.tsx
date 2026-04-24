@@ -1134,6 +1134,23 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+        <div>
+          <label className="block text-xs font-bold text-foreground mb-1">🔖 Mã SKU (mã sản phẩm)</label>
+          <input value={form.sku} onChange={e => setForm(f => ({ ...f, sku: e.target.value }))}
+            placeholder="VD: MK-001, TOM-DAC-500"
+            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm font-mono" />
+          <p className="text-xs text-muted-foreground mt-1">
+            Dùng cho import CSV — phải là duy nhất. Để trống nếu không cần.
+          </p>
+        </div>
+        <div className="flex items-end">
+          <p className="text-xs text-muted-foreground">
+            💡 SKU giúp khớp đúng sản phẩm khi import CSV hàng loạt theo thứ tự ưu tiên: <strong>ID → SKU → Slug</strong>.
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">Giá (₫) *</label>

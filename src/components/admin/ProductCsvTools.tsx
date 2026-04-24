@@ -60,9 +60,9 @@ export default function ProductCsvTools({ onImported }: Props) {
   const downloadTemplate = () => {
     const header = FIELDS.join(',');
     const samples = [
-      ['', 'muc-kho-loai-1', 'Mực khô loại 1', 'Ngọt đậm, hậu vị bùi', 'Hồng cam tự nhiên', 'Mực ống tươi, muối biển', 'Nướng than 2-3 phút mỗi mặt, xé nhỏ chấm tương ớt'],
-      ['', 'tom-kho-dac-biet', 'Tôm khô đặc biệt', 'Ngọt thanh, dai vừa', 'Đỏ cam óng', 'Tôm biển tươi, muối', 'Rang khô 1 phút hoặc nấu canh bí, củ cải'],
-      ['', 'ca-chi-vang-300g', 'Cá chỉ vàng 300g', 'Mặn dịu, thơm nắng biển', 'Vàng nhạt', 'Cá chỉ vàng, muối biển', 'Chiên giòn hoặc nướng giấy bạc 5 phút'],
+      ['', 'MUC-001', 'muc-kho-loai-1', 'Mực khô loại 1', 'Ngọt đậm, hậu vị bùi', 'Hồng cam tự nhiên', 'Mực ống tươi, muối biển', 'Nướng than 2-3 phút mỗi mặt, xé nhỏ chấm tương ớt'],
+      ['', 'TOM-001', 'tom-kho-dac-biet', 'Tôm khô đặc biệt', 'Ngọt thanh, dai vừa', 'Đỏ cam óng', 'Tôm biển tươi, muối', 'Rang khô 1 phút hoặc nấu canh bí, củ cải'],
+      ['', 'CCV-300', 'ca-chi-vang-300g', 'Cá chỉ vàng 300g', 'Mặn dịu, thơm nắng biển', 'Vàng nhạt', 'Cá chỉ vàng, muối biển', 'Chiên giòn hoặc nướng giấy bạc 5 phút'],
     ];
     const body = samples.map(r => r.map(escapeCsv).join(',')).join('\n');
     const csv = '\uFEFF' + header + '\n' + body;
@@ -81,7 +81,7 @@ export default function ProductCsvTools({ onImported }: Props) {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, slug, name, taste, color, ingredients, cooking')
+        .select('id, sku, slug, name, taste, color, ingredients, cooking')
         .order('sort_order');
       if (error) throw error;
       const header = FIELDS.join(',');
@@ -113,14 +113,23 @@ export default function ProductCsvTools({ onImported }: Props) {
       if (rows.length < 2) throw new Error('CSV rỗng hoặc không có dòng dữ liệu');
       const header = rows[0].map(h => h.trim().toLowerCase());
       const idIdx = header.indexOf('id');
+      const skuIdx = header.indexOf('sku');
       const slugIdx = header.indexOf('slug');
-      if (idIdx === -1 && slugIdx === -1) throw new Error('CSV phải có cột "id" hoặc "slug" để khớp sản phẩm');
+      if (idIdx === -1 && skuIdx === -1 && slugIdx === -1) {
+        throw new Error('CSV phải có ít nhất 1 cột: "id", "sku" hoặc "slug" để khớp sản phẩm');
+      }
 
-      // Lấy danh sách products để map slug → id (nếu cần)
-      const { data: existing, error: fetchErr } = await supabase.from('products').select('id, slug');
+      // Lấy danh sách products để map sku/slug → id
+      const { data: existing, error: fetchErr } = await supabase.from('products').select('id, sku, slug');
       if (fetchErr) throw fetchErr;
-      const slugToId = new Map((existing || []).map(p => [p.slug, p.id]));
-      const validIds = new Set((existing || []).map(p => p.id));
+      const slugToId = new Map<string, string>();
+      const skuToId = new Map<string, string>();
+      const validIds = new Set<string>();
+      (existing || []).forEach((p: any) => {
+        validIds.add(p.id);
+        if (p.slug) slugToId.set(String(p.slug).trim().toLowerCase(), p.id);
+        if (p.sku) skuToId.set(String(p.sku).trim().toLowerCase(), p.id);
+      });
 
       const fieldIdx: Record<string, number> = {};
       EDITABLE.forEach(f => { fieldIdx[f] = header.indexOf(f); });
@@ -128,18 +137,31 @@ export default function ProductCsvTools({ onImported }: Props) {
       if (!hasAnyEditable) throw new Error('CSV không có cột nào trong: taste, color, ingredients, cooking');
 
       let updated = 0, skipped = 0;
+      const matchStats = { byId: 0, bySku: 0, bySlug: 0 };
       const errors: string[] = [];
 
       for (let i = 1; i < rows.length; i++) {
         const r = rows[i];
-        let pid = idIdx !== -1 ? r[idIdx]?.trim() : '';
-        if (!pid && slugIdx !== -1) {
-          const slug = r[slugIdx]?.trim();
-          pid = slug ? (slugToId.get(slug) || '') : '';
+        let pid = '';
+        let matchedBy: 'id' | 'sku' | 'slug' | '' = '';
+        // Ưu tiên: id → sku → slug
+        if (idIdx !== -1) {
+          const v = r[idIdx]?.trim();
+          if (v && validIds.has(v)) { pid = v; matchedBy = 'id'; }
         }
-        if (!pid || !validIds.has(pid)) {
+        if (!pid && skuIdx !== -1) {
+          const v = r[skuIdx]?.trim().toLowerCase();
+          const found = v ? skuToId.get(v) : undefined;
+          if (found) { pid = found; matchedBy = 'sku'; }
+        }
+        if (!pid && slugIdx !== -1) {
+          const v = r[slugIdx]?.trim().toLowerCase();
+          const found = v ? slugToId.get(v) : undefined;
+          if (found) { pid = found; matchedBy = 'slug'; }
+        }
+        if (!pid) {
           skipped++;
-          if (errors.length < 5) errors.push(`Dòng ${i + 1}: không tìm thấy sản phẩm`);
+          if (errors.length < 5) errors.push(`Dòng ${i + 1}: không khớp sản phẩm nào (id/sku/slug)`);
           continue;
         }
         const patch: Record<string, string> = {};

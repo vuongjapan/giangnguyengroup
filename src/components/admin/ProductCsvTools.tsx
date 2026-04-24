@@ -174,11 +174,14 @@ export default function ProductCsvTools({ onImported }: Props) {
         if (upErr) {
           skipped++;
           if (errors.length < 5) errors.push(`Dòng ${i + 1}: ${upErr.message}`);
-        } else updated++;
+        } else {
+          updated++;
+          if (matchedBy) matchStats[matchedBy]++;
+        }
       }
 
-      setReport({ updated, skipped, errors });
-      if (updated > 0) toast.success(`Đã cập nhật ${updated} sản phẩm`);
+      setReport({ updated, skipped, errors, matchStats });
+      if (updated > 0) toast.success(`Đã cập nhật ${updated} sản phẩm (id:${matchStats.byId} · sku:${matchStats.bySku} · slug:${matchStats.bySlug})`);
       if (skipped > 0 && updated === 0) toast.error(`Bỏ qua ${skipped} dòng — kiểm tra báo cáo bên dưới`);
       onImported?.();
     } catch (e: any) {

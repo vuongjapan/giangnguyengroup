@@ -785,7 +785,7 @@ export default function AdminDashboard() {
                       {h.is_active ? '✅ Hiện' : '⬜ Ẩn'}
                     </button>
                     <button onClick={() => { setEditingHotel(h); setShowHotelForm(true); }} className="text-xs text-primary font-medium hover:underline flex items-center gap-1"><Edit className="h-3 w-3" /> Sửa</button>
-                    <button onClick={() => deleteHotel(h.id)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
+                    <button onClick={() => deleteHotel(h)} className="text-xs text-destructive font-medium hover:underline flex items-center gap-1"><Trash2 className="h-3 w-3" /> Xóa</button>
                   </div>
                 </div>
               ))}

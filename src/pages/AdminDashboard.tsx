@@ -1102,6 +1102,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
       badges: form.badges ? form.badges.split(',').map(b => b.trim()).filter(Boolean) : [],
       needs: form.needs ? form.needs.split(',').map(n => n.trim()).filter(Boolean) : [],
       images: allImages, description: descObj,
+      sku: form.sku?.trim() || null,
       taste: form.taste, color: form.color, ingredients: form.ingredients, cooking: form.cooking,
     } as any;
 

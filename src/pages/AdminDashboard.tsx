@@ -624,6 +624,7 @@ export default function AdminDashboard() {
                       <th className="text-right px-3 py-2 font-medium">Tổng</th>
                       <th className="text-center px-3 py-2 font-medium">Trạng thái</th>
                       <th className="text-center px-3 py-2 font-medium">Ngày</th>
+                      <th className="text-center px-3 py-2 font-medium">PDF</th>
                       <th className="text-center px-3 py-2 font-medium">Xóa</th>
                     </tr>
                   </thead>

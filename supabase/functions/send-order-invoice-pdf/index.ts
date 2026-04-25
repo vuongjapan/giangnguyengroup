@@ -262,6 +262,7 @@ Deno.serve(async (req) => {
 
     // Send email
     let emailSent = false
+    let sendError: string | null = null
     if (shouldSend && order.customer_email && SMTP_PASSWORD) {
       const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -280,9 +281,37 @@ Deno.serve(async (req) => {
           html: emailHtml(order, signed.signedUrl),
         })
         emailSent = true
+      } catch (mailErr: any) {
+        sendError = mailErr?.message || 'SMTP send failed'
       } finally {
         transporter.close()
       }
+    } else if (shouldSend && !order.customer_email) {
+      sendError = 'Đơn hàng không có email khách hàng'
+    } else if (shouldSend && !SMTP_PASSWORD) {
+      sendError = 'Chưa cấu hình SMTP_PASSWORD'
+    }
+
+    // Persist tracking on the order
+    if (shouldSend) {
+      const newStatus = emailSent ? 'sent' : 'failed'
+      const updatePayload: Record<string, any> = {
+        invoice_pdf_status: newStatus,
+        invoice_pdf_last_url: signed.signedUrl,
+        invoice_pdf_last_error: emailSent ? null : sendError,
+      }
+      if (emailSent) {
+        updatePayload.invoice_pdf_sent_at = new Date().toISOString()
+        updatePayload.invoice_pdf_send_count = (order.invoice_pdf_send_count || 0) + 1
+      }
+      await admin.from('orders').update(updatePayload).eq('id', orderId)
+    }
+
+    if (shouldSend && !emailSent && sendError) {
+      return new Response(
+        JSON.stringify({ error: sendError, downloadUrl: signed.signedUrl, filePath, emailSent: false }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
     }
 
     return new Response(

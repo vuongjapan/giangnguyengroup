@@ -55,6 +55,11 @@ interface DBOrder {
   customer_email: string; customer_address: string;
   items: any[]; total: number; status: string; created_at: string;
   user_id: string | null; points_earned: number; points_used: number;
+  invoice_pdf_status?: string | null;
+  invoice_pdf_sent_at?: string | null;
+  invoice_pdf_send_count?: number | null;
+  invoice_pdf_last_error?: string | null;
+  invoice_pdf_last_url?: string | null;
 }
 
 interface DBProfile {

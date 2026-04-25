@@ -223,6 +223,30 @@ export default function AdminDashboard() {
     await supabase.from('orders').update({ status }).eq('id', id);
     toast.success('Đã cập nhật trạng thái'); fetchOrders();
   };
+  const [sendingPdfId, setSendingPdfId] = useState<string | null>(null);
+  const sendInvoicePdf = async (order: DBOrder) => {
+    if (!order.customer_email) {
+      toast.error('Đơn hàng không có email khách hàng');
+      return;
+    }
+    setSendingPdfId(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-order-invoice-pdf', {
+        body: { orderId: order.id, sendEmail: true },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const url = (data as any)?.downloadUrl as string | undefined;
+      toast.success(`Đã gửi hóa đơn PDF tới ${order.customer_email}`, {
+        description: url ? 'Bấm để mở link tải' : undefined,
+        action: url ? { label: 'Mở PDF', onClick: () => window.open(url, '_blank') } : undefined,
+      });
+    } catch (err: any) {
+      toast.error('Gửi PDF thất bại', { description: err?.message || 'Lỗi không xác định' });
+    } finally {
+      setSendingPdfId(null);
+    }
+  };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-6 w-6 animate-spin text-primary" /></div>;
   if (!isAdmin) return null;

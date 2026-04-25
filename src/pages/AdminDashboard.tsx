@@ -654,6 +654,18 @@ export default function AdminDashboard() {
                             {new Date(o.created_at).toLocaleDateString('vi-VN')}
                           </td>
                           <td className="px-3 py-2 text-center">
+                            <button
+                              onClick={() => sendInvoicePdf(o)}
+                              disabled={sendingPdfId === o.id || !o.customer_email}
+                              title={o.customer_email ? `Gửi hóa đơn PDF tới ${o.customer_email}` : 'Đơn không có email khách hàng'}
+                              className="p-1.5 hover:bg-primary/10 rounded-lg text-primary disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center"
+                            >
+                              {sendingPdfId === o.id
+                                ? <RefreshCw className="h-4 w-4 animate-spin" />
+                                : <Mail className="h-4 w-4" />}
+                            </button>
+                          </td>
+                          <td className="px-3 py-2 text-center">
                             <button onClick={() => deleteOrder(o)} title="Xóa đơn"
                               className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
                               <Trash2 className="h-4 w-4" />
@@ -663,7 +675,7 @@ export default function AdminDashboard() {
                       );
                     })}
                     {filteredOrders.length === 0 && (
-                      <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
+                      <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
                     )}
                   </tbody>
                 </table>

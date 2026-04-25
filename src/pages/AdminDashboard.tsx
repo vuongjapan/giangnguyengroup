@@ -665,16 +665,88 @@ export default function AdminDashboard() {
                             {new Date(o.created_at).toLocaleDateString('vi-VN')}
                           </td>
                           <td className="px-3 py-2 text-center">
-                            <button
-                              onClick={() => sendInvoicePdf(o)}
-                              disabled={sendingPdfId === o.id || !o.customer_email}
-                              title={o.customer_email ? `Gửi hóa đơn PDF tới ${o.customer_email}` : 'Đơn không có email khách hàng'}
-                              className="p-1.5 hover:bg-primary/10 rounded-lg text-primary disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center"
-                            >
-                              {sendingPdfId === o.id
-                                ? <RefreshCw className="h-4 w-4 animate-spin" />
-                                : <Mail className="h-4 w-4" />}
-                            </button>
+                            {(() => {
+                              const status = o.invoice_pdf_status || 'not_sent';
+                              const sentAt = o.invoice_pdf_sent_at;
+                              const count = o.invoice_pdf_send_count || 0;
+                              const lastErr = o.invoice_pdf_last_error;
+                              const lastUrl = o.invoice_pdf_last_url;
+                              const isSending = sendingPdfId === o.id;
+
+                              const badge =
+                                status === 'sent'
+                                  ? { text: '✓ Đã gửi', cls: 'bg-green-100 text-green-700 border-green-200' }
+                                  : status === 'failed'
+                                  ? { text: '✗ Lỗi', cls: 'bg-red-100 text-red-700 border-red-200' }
+                                  : { text: 'Chưa gửi', cls: 'bg-muted text-muted-foreground border-border' };
+
+                              const sentLabel = sentAt
+                                ? new Date(sentAt).toLocaleString('vi-VN', {
+                                    day: '2-digit', month: '2-digit',
+                                    hour: '2-digit', minute: '2-digit',
+                                  })
+                                : '';
+
+                              const isResend = status === 'sent' || status === 'failed';
+                              const tooltip = !o.customer_email
+                                ? 'Đơn không có email khách hàng'
+                                : isResend
+                                ? `Gửi lại hóa đơn PDF tới ${o.customer_email}`
+                                : `Gửi hóa đơn PDF tới ${o.customer_email}`;
+
+                              return (
+                                <div className="flex flex-col items-center gap-1">
+                                  <span
+                                    className={`inline-block text-[10px] px-2 py-0.5 rounded-full border font-semibold ${badge.cls}`}
+                                    title={lastErr || ''}
+                                  >
+                                    {badge.text}
+                                  </span>
+                                  {sentAt && (
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {sentLabel}{count > 1 ? ` · ${count}×` : ''}
+                                    </span>
+                                  )}
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => sendInvoicePdf(o, isResend)}
+                                      disabled={isSending || !o.customer_email}
+                                      title={tooltip}
+                                      className={`px-2 py-1 rounded-md text-[11px] font-medium inline-flex items-center gap-1 disabled:opacity-30 disabled:cursor-not-allowed ${
+                                        isResend
+                                          ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
+                                          : 'bg-primary/10 text-primary hover:bg-primary/20'
+                                      }`}
+                                    >
+                                      {isSending ? (
+                                        <RefreshCw className="h-3 w-3 animate-spin" />
+                                      ) : isResend ? (
+                                        <RefreshCw className="h-3 w-3" />
+                                      ) : (
+                                        <Mail className="h-3 w-3" />
+                                      )}
+                                      {isSending ? 'Đang gửi…' : isResend ? 'Gửi lại' : 'Gửi'}
+                                    </button>
+                                    {lastUrl && (
+                                      <a
+                                        href={lastUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="Mở PDF gần nhất"
+                                        className="p-1 rounded-md text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                      >
+                                        <FileText className="h-3 w-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                  {status === 'failed' && lastErr && (
+                                    <span className="text-[10px] text-red-600 max-w-[140px] truncate" title={lastErr}>
+                                      {lastErr}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </td>
                           <td className="px-3 py-2 text-center">
                             <button onClick={() => deleteOrder(o)} title="Xóa đơn"

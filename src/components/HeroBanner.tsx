@@ -1,35 +1,103 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Phone } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useSiteContent } from '@/hooks/useSiteContent';
+import heroSeafood from '@/assets/hero-seafood.jpg';
+import mucKho from '@/assets/products/muc-kho-1.jpg';
+import mucNang from '@/assets/products/muc-1-nang.jpg';
+import caThu from '@/assets/products/ca-thu-1-nang.jpg';
+import caChiVang from '@/assets/products/ca-chi-vang.jpg';
 
 interface HeroSlide {
   title: string;
   subtitle: string;
   slogan: string;
+  image?: string;
+  cta?: string;
+  href?: string;
+}
+
+interface SideBanner {
+  title: string;
+  subtitle?: string;
+  price?: string;
+  image: string;
+  href: string;
+  badge?: string;
+}
+
+interface BottomBanner {
+  title: string;
+  subtitle?: string;
+  image: string;
+  href: string;
 }
 
 interface HeroData {
   videoUrl: string;
   slides: HeroSlide[];
+  sideBanners?: SideBanner[];
+  bottomBanners?: BottomBanner[];
 }
 
 const DEFAULT_DATA: HeroData = {
   videoUrl: '',
   slides: [
     {
-      title: 'Hải Sản Khô Cao Cấp Sầm Sơn',
-      subtitle: '100% hải sản tự nhiên – Không hóa chất',
-      slogan: 'Chọn biển sạch – Chọn Giang Nguyên Group',
+      title: 'MỰC KHÔ SẦM SƠN',
+      subtitle: 'THƯỢNG PHẨM TỪ BIỂN CẢ',
+      slogan: 'Phơi nắng tự nhiên • Chính gốc Sầm Sơn',
+      image: heroSeafood,
+      cta: 'GỌI NGAY 0933.562.286',
+      href: 'tel:0933562286',
     },
     {
-      title: 'Quà Biếu Đặc Sản Biển',
-      subtitle: 'Đóng gói sang trọng – Giao tận nhà',
-      slogan: 'Uy tín – Chất lượng – Đúng giá',
+      title: 'CÁ THU 1 NẮNG',
+      subtitle: 'TƯƠI NGON ĐẬM ĐÀ',
+      slogan: 'Đóng gói sang trọng – Giao tận nhà',
+      image: caThu,
+      cta: 'XEM SẢN PHẨM',
+      href: '/san-pham',
     },
     {
-      title: 'Ship Toàn Quốc – Free Ship 1500K',
-      subtitle: 'Phơi nắng tự nhiên • Cam kết chính gốc',
-      slogan: 'Đặt hàng ngay hôm nay!',
+      title: 'MỰC MỘT NẮNG',
+      subtitle: 'ĐẶC SẢN BIỂN THANH HÓA',
+      slogan: 'Free ship toàn quốc đơn từ 1.5 triệu',
+      image: mucNang,
+      cta: 'MUA NGAY',
+      href: '/san-pham',
+    },
+  ],
+  sideBanners: [
+    {
+      title: 'MỰC KHÔ LOẠI 1',
+      subtitle: 'SẦM SƠN',
+      price: '850K/KG',
+      image: mucKho,
+      href: '/san-pham?category=' + encodeURIComponent('Mực khô'),
+      badge: 'MUA NGAY',
+    },
+    {
+      title: 'CÁ CHỈ VÀNG',
+      subtitle: 'CAO CẤP',
+      price: '420K/KG',
+      image: caChiVang,
+      href: '/san-pham?category=' + encodeURIComponent('Cá khô'),
+      badge: 'MUA NGAY',
+    },
+  ],
+  bottomBanners: [
+    {
+      title: 'MỰC KHÔ SẦM SƠN',
+      subtitle: 'Thượng phẩm từ biển cả',
+      image: mucKho,
+      href: '/san-pham?category=' + encodeURIComponent('Mực khô'),
+    },
+    {
+      title: 'HẢI SẢN MỘT NẮNG',
+      subtitle: 'Tinh túy biển Thanh Hóa',
+      image: mucNang,
+      href: '/san-pham?category=' + encodeURIComponent('Hải sản 1 nắng'),
     },
   ],
 };
@@ -37,6 +105,8 @@ const DEFAULT_DATA: HeroData = {
 export default function HeroBanner() {
   const { data: heroData } = useSiteContent<HeroData>('hero_banner', DEFAULT_DATA);
   const slides = heroData.slides?.length ? heroData.slides : DEFAULT_DATA.slides;
+  const sideBanners = heroData.sideBanners?.length ? heroData.sideBanners : DEFAULT_DATA.sideBanners!;
+  const bottomBanners = heroData.bottomBanners?.length ? heroData.bottomBanners : DEFAULT_DATA.bottomBanners!;
   const videoUrl = heroData.videoUrl || '';
 
   const [current, setCurrent] = useState(0);
@@ -54,90 +124,164 @@ export default function HeroBanner() {
   const slide = slides[current];
 
   return (
-    <section className="relative h-56 sm:h-72 md:h-96 lg:h-[480px] overflow-hidden group">
-      {/* Video or fallback gradient background */}
-      {videoUrl ? (
-        <video
-          key={videoUrl}
-          autoPlay
-          loop
-          muted
-          playsInline
-          width={1920}
-          height={480}
-          preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={videoUrl} type="video/mp4" />
-        </video>
-      ) : (
-        <div className="absolute inset-0 ocean-gradient" />
-      )}
-
-      <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
-
-      <div className="absolute inset-0 flex items-center">
-        <div className="container mx-auto px-4">
-          <div className="max-w-lg animate-slide-up" key={current}>
-            <span className="inline-block bg-accent text-accent-foreground text-[10px] md:text-xs font-bold px-3 py-1 rounded-full mb-3">
-              🏆 GIANG NGUYÊN GROUP
-            </span>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-primary-foreground leading-tight mb-2">
-              {slide.title}
-            </h1>
-            <p className="text-primary-foreground/90 text-sm md:text-base mb-1">
-              {slide.subtitle}
-            </p>
-            <p className="text-accent font-bold text-xs md:text-sm mb-5">
-              {slide.slogan}
-            </p>
-            <div className="flex gap-3">
-              <a
-                href="#products"
-                className="ocean-gradient text-primary-foreground font-bold px-6 py-3 rounded-full text-sm md:text-base hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-lg"
+    <section className="bg-background py-3 md:py-4">
+      <div className="container mx-auto px-2 md:px-4">
+        {/* Top grid: big slider + 2 stacked side banners */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+          {/* Big slider - takes 2/3 on desktop */}
+          <div className="md:col-span-2 relative h-56 sm:h-72 md:h-[360px] lg:h-[420px] rounded-xl overflow-hidden group shadow-lg">
+            {videoUrl ? (
+              <video
+                key={videoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                className="absolute inset-0 w-full h-full object-cover"
               >
-                Xem sản phẩm
-              </a>
-              <a
-                href="#products"
-                className="bg-accent text-accent-foreground font-bold px-6 py-3 rounded-full text-sm md:text-base hover:opacity-90 transition-opacity inline-flex items-center gap-2 shadow-lg"
-              >
-                <ShoppingCart className="h-4 w-4" /> Mua ngay
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {slides.length > 1 && (
-        <>
-          <button
-            onClick={prev}
-            className="absolute left-3 top-1/2 -translate-y-1/2 bg-foreground/30 hover:bg-foreground/50 text-primary-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-foreground/30 hover:bg-foreground/50 text-primary-foreground p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${i === current ? 'bg-accent w-8' : 'bg-primary-foreground/50 hover:bg-primary-foreground/70'}`}
-                aria-label={`Slide ${i + 1}`}
+                <source src={videoUrl} type="video/mp4" />
+              </video>
+            ) : (
+              <img
+                key={current}
+                src={slide.image || heroSeafood}
+                alt={slide.title}
+                className="absolute inset-0 w-full h-full object-cover animate-fade-in"
+                loading="eager"
               />
+            )}
+
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent" />
+
+            {/* Title block top */}
+            <div className="absolute top-4 md:top-8 left-4 md:left-8 right-4 md:right-1/3" key={`txt-${current}`}>
+              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-accent leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-slide-up">
+                {slide.title}
+              </h2>
+              <p className="text-primary-foreground text-sm md:text-xl font-bold mt-1 md:mt-2 drop-shadow-md animate-slide-up">
+                {slide.subtitle}
+              </p>
+              <p className="text-primary-foreground/90 text-xs md:text-sm mt-1 md:mt-2 drop-shadow animate-slide-up">
+                {slide.slogan}
+              </p>
+            </div>
+
+            {/* CTA bottom-left */}
+            {slide.cta && (
+              <a
+                href={slide.href || '#'}
+                className="absolute bottom-4 left-4 md:bottom-6 md:left-8 inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm shadow-xl hover:scale-105 transition-transform"
+              >
+                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" /> {slide.cta}
+              </a>
+            )}
+
+            {/* Nav arrows */}
+            {slides.length > 1 && (
+              <>
+                <button
+                  onClick={prev}
+                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Previous slide"
+                >
+                  <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+                </button>
+                <button
+                  onClick={next}
+                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Next slide"
+                >
+                  <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
+                </button>
+
+                {/* Dots */}
+                <div className="absolute bottom-3 right-4 flex gap-1.5">
+                  {slides.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrent(i)}
+                      className={`h-2 rounded-full transition-all ${
+                        i === current ? 'bg-accent w-6' : 'bg-primary-foreground/50 w-2 hover:bg-primary-foreground/80'
+                      }`}
+                      aria-label={`Slide ${i + 1}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Side banners stacked */}
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3">
+            {sideBanners.slice(0, 2).map((b, i) => (
+              <Link
+                key={i}
+                to={b.href}
+                className="relative h-28 sm:h-36 md:h-[174px] lg:h-[204px] rounded-xl overflow-hidden shadow-lg group block"
+              >
+                <img
+                  src={b.image}
+                  alt={b.title}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-l from-foreground/70 via-foreground/30 to-transparent" />
+                <div className="absolute top-2 right-2 md:top-4 md:right-4 text-right max-w-[70%]">
+                  <p className="text-accent font-black text-sm md:text-2xl leading-tight drop-shadow-lg">
+                    {b.title}
+                  </p>
+                  {b.subtitle && (
+                    <p className="text-primary-foreground font-bold text-[10px] md:text-sm drop-shadow">
+                      {b.subtitle}
+                    </p>
+                  )}
+                  {b.price && (
+                    <p className="text-accent font-black text-base md:text-xl mt-0.5 md:mt-1 drop-shadow">
+                      {b.price}
+                    </p>
+                  )}
+                </div>
+                {b.badge && (
+                  <span className="absolute bottom-2 right-2 md:bottom-3 md:right-4 bg-coral text-primary-foreground text-[9px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow">
+                    {b.badge}
+                  </span>
+                )}
+              </Link>
             ))}
           </div>
-        </>
-      )}
+        </div>
+
+        {/* Bottom row: 2 horizontal banners */}
+        <div className="grid grid-cols-2 gap-2 md:gap-3 mt-2 md:mt-3">
+          {bottomBanners.slice(0, 2).map((b, i) => (
+            <Link
+              key={i}
+              to={b.href}
+              className="relative h-20 sm:h-28 md:h-32 rounded-xl overflow-hidden shadow-lg group block"
+            >
+              <img
+                src={b.image}
+                alt={b.title}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/30 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-center px-3 md:px-6">
+                <p className="text-accent font-black text-sm md:text-2xl leading-tight drop-shadow-lg">
+                  {b.title}
+                </p>
+                {b.subtitle && (
+                  <p className="text-primary-foreground text-[10px] md:text-sm font-medium drop-shadow">
+                    {b.subtitle}
+                  </p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

@@ -8,7 +8,7 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame
+  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame, Mail
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
@@ -222,6 +222,30 @@ export default function AdminDashboard() {
   const updateOrderStatus = async (id: string, status: string) => {
     await supabase.from('orders').update({ status }).eq('id', id);
     toast.success('Đã cập nhật trạng thái'); fetchOrders();
+  };
+  const [sendingPdfId, setSendingPdfId] = useState<string | null>(null);
+  const sendInvoicePdf = async (order: DBOrder) => {
+    if (!order.customer_email) {
+      toast.error('Đơn hàng không có email khách hàng');
+      return;
+    }
+    setSendingPdfId(order.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-order-invoice-pdf', {
+        body: { orderId: order.id, sendEmail: true },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const url = (data as any)?.downloadUrl as string | undefined;
+      toast.success(`Đã gửi hóa đơn PDF tới ${order.customer_email}`, {
+        description: url ? 'Bấm để mở link tải' : undefined,
+        action: url ? { label: 'Mở PDF', onClick: () => window.open(url, '_blank') } : undefined,
+      });
+    } catch (err: any) {
+      toast.error('Gửi PDF thất bại', { description: err?.message || 'Lỗi không xác định' });
+    } finally {
+      setSendingPdfId(null);
+    }
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><RefreshCw className="h-6 w-6 animate-spin text-primary" /></div>;
@@ -600,6 +624,7 @@ export default function AdminDashboard() {
                       <th className="text-right px-3 py-2 font-medium">Tổng</th>
                       <th className="text-center px-3 py-2 font-medium">Trạng thái</th>
                       <th className="text-center px-3 py-2 font-medium">Ngày</th>
+                      <th className="text-center px-3 py-2 font-medium">PDF</th>
                       <th className="text-center px-3 py-2 font-medium">Xóa</th>
                     </tr>
                   </thead>
@@ -629,6 +654,18 @@ export default function AdminDashboard() {
                             {new Date(o.created_at).toLocaleDateString('vi-VN')}
                           </td>
                           <td className="px-3 py-2 text-center">
+                            <button
+                              onClick={() => sendInvoicePdf(o)}
+                              disabled={sendingPdfId === o.id || !o.customer_email}
+                              title={o.customer_email ? `Gửi hóa đơn PDF tới ${o.customer_email}` : 'Đơn không có email khách hàng'}
+                              className="p-1.5 hover:bg-primary/10 rounded-lg text-primary disabled:opacity-30 disabled:cursor-not-allowed inline-flex items-center"
+                            >
+                              {sendingPdfId === o.id
+                                ? <RefreshCw className="h-4 w-4 animate-spin" />
+                                : <Mail className="h-4 w-4" />}
+                            </button>
+                          </td>
+                          <td className="px-3 py-2 text-center">
                             <button onClick={() => deleteOrder(o)} title="Xóa đơn"
                               className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
                               <Trash2 className="h-4 w-4" />
@@ -638,7 +675,7 @@ export default function AdminDashboard() {
                       );
                     })}
                     {filteredOrders.length === 0 && (
-                      <tr><td colSpan={8} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
+                      <tr><td colSpan={9} className="text-center py-8 text-muted-foreground">Không có đơn hàng</td></tr>
                     )}
                   </tbody>
                 </table>

@@ -564,6 +564,11 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id: string
+          invoice_pdf_last_error: string | null
+          invoice_pdf_last_url: string | null
+          invoice_pdf_send_count: number
+          invoice_pdf_sent_at: string | null
+          invoice_pdf_status: string
           items: Json
           order_code: string
           points_earned: number
@@ -580,6 +585,11 @@ export type Database = {
           customer_name: string
           customer_phone: string
           id?: string
+          invoice_pdf_last_error?: string | null
+          invoice_pdf_last_url?: string | null
+          invoice_pdf_send_count?: number
+          invoice_pdf_sent_at?: string | null
+          invoice_pdf_status?: string
           items?: Json
           order_code: string
           points_earned?: number
@@ -596,6 +606,11 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           id?: string
+          invoice_pdf_last_error?: string | null
+          invoice_pdf_last_url?: string | null
+          invoice_pdf_send_count?: number
+          invoice_pdf_sent_at?: string | null
+          invoice_pdf_status?: string
           items?: Json
           order_code?: string
           points_earned?: number

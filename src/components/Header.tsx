@@ -139,14 +139,37 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Company name bar */}
-      <div className={`bg-white text-center transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 py-0' : 'max-h-16 py-1.5'}`}>
-        <p className="text-xs md:text-sm font-bold text-[#444] tracking-wider leading-tight">
-          CÔNG TY TNHH GIANG NGUYÊN GROUP
-        </p>
-        <p className="text-[9px] md:text-[11px] text-[#777] tracking-widest leading-tight">
-          Hải sản khô – Hải sản một nắng
-        </p>
+      {/* Company name + slogan bar with logo (Hai San Hoang Gia style) */}
+      <div className={`ocean-gradient transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 py-0' : 'max-h-32 py-2 md:py-3'}`}>
+        <div className="container mx-auto px-4 flex items-center justify-center md:justify-between gap-4">
+          {/* Logo + company name (desktop) */}
+          <Link to="/" className="hidden md:flex items-center gap-3 flex-shrink-0">
+            <img
+              src={logoUrl || defaultLogo}
+              alt="Giang Nguyên Group"
+              className="h-12 lg:h-14 w-auto rounded-md bg-white/95 p-1 shadow-md"
+              loading="eager"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultLogo; }}
+            />
+            <div className="leading-tight">
+              <p className="text-[10px] lg:text-xs font-semibold text-primary-foreground/80 tracking-wider">CÔNG TY TNHH</p>
+              <p className="text-sm lg:text-base font-black text-primary-foreground tracking-wide">GIANG NGUYÊN GROUP</p>
+            </div>
+          </Link>
+
+          {/* Center slogan */}
+          <div className="text-center flex-1 md:flex-initial">
+            <p className="text-base md:text-2xl lg:text-3xl font-black text-accent tracking-[0.15em] drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
+              TƯƠI NGON TỪ NGUỒN
+            </p>
+            <p className="text-[10px] md:text-xs text-primary-foreground/85 tracking-widest hidden md:block">
+              Hải sản khô – Hải sản một nắng – Đặc sản Sầm Sơn
+            </p>
+          </div>
+
+          {/* Spacer to balance on desktop */}
+          <div className="hidden md:block flex-shrink-0 w-[220px] lg:w-[260px]" />
+        </div>
       </div>
 
       {/* Top info bar - desktop only */}
@@ -258,7 +281,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Desktop navigation bar with LOGO IN CENTER */}
+      {/* Desktop navigation bar - logo only shows when scrolled (compact) */}
       <nav className="bg-white border-b border-gray-100 hidden md:block">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center">
@@ -267,12 +290,17 @@ export default function Header() {
               {LEFT_MENU.map(item => renderMenuItem(item))}
             </div>
 
-            {/* Center: Logo */}
-            <Link to="/" className="flex-shrink-0 mx-4">
+            {/* Center: Logo (only when scrolled — saves space) */}
+            <Link
+              to="/"
+              className={`flex-shrink-0 transition-all duration-300 overflow-hidden ${
+                scrolled ? 'w-auto opacity-100 mx-3' : 'w-0 opacity-0 mx-0'
+              }`}
+            >
               <img
                 src={logoUrl || defaultLogo}
                 alt="Giang Nguyên Group"
-                className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-12' : 'h-16 lg:h-20'}`}
+                className="h-10 w-auto rounded-md"
                 loading="eager"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultLogo; }}
               />

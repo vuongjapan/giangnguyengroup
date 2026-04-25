@@ -281,7 +281,7 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Desktop navigation bar with LOGO IN CENTER */}
+      {/* Desktop navigation bar - logo only shows when scrolled (compact) */}
       <nav className="bg-white border-b border-gray-100 hidden md:block">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center">
@@ -290,12 +290,17 @@ export default function Header() {
               {LEFT_MENU.map(item => renderMenuItem(item))}
             </div>
 
-            {/* Center: Logo */}
-            <Link to="/" className="flex-shrink-0 mx-4">
+            {/* Center: Logo (only when scrolled — saves space) */}
+            <Link
+              to="/"
+              className={`flex-shrink-0 transition-all duration-300 overflow-hidden ${
+                scrolled ? 'w-auto opacity-100 mx-3' : 'w-0 opacity-0 mx-0'
+              }`}
+            >
               <img
                 src={logoUrl || defaultLogo}
                 alt="Giang Nguyên Group"
-                className={`rounded-lg transition-all duration-300 ${scrolled ? 'h-12' : 'h-16 lg:h-20'}`}
+                className="h-10 w-auto rounded-md"
                 loading="eager"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultLogo; }}
               />

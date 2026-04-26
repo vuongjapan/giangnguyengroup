@@ -102,7 +102,8 @@ const DEFAULT_DATA: HeroData = {
   ],
 };
 
-const AUTOPLAY_INTERVAL = 5000; // 5s per slide
+const AUTOPLAY_INTERVAL = 5000;
+const TRANSITION_MS = 800;
 
 export default function HeroBanner() {
   const { data: heroData } = useSiteContent<HeroData>('hero_banner', DEFAULT_DATA);
@@ -127,7 +128,6 @@ export default function HeroBanner() {
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
   const next = useCallback(() => goTo(current + 1), [current, goTo]);
 
-  // Autoplay with explicit timeout + progress tracking
   useEffect(() => {
     if (slides.length <= 1 || isPaused || videoUrl) return;
 
@@ -135,7 +135,7 @@ export default function HeroBanner() {
     setProgress(0);
 
     timerRef.current = window.setTimeout(() => {
-      setCurrent(prev => (prev + 1) % slides.length);
+      setCurrent(p => (p + 1) % slides.length);
     }, AUTOPLAY_INTERVAL);
 
     const tick = () => {
@@ -153,20 +153,19 @@ export default function HeroBanner() {
     };
   }, [current, slides.length, isPaused, videoUrl]);
 
-  // Keyboard navigation
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') prev();
     else if (e.key === 'ArrowRight') next();
   };
 
   return (
-    <section className="bg-background py-3 md:py-4">
+    <section className="bg-background py-2 md:py-4">
       <div className="container mx-auto px-2 md:px-4">
-        {/* Top grid: big slider + 2 stacked side banners */}
+        {/* Top grid: big slider + side banners */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-          {/* Big slider - takes 2/3 on desktop */}
+          {/* Big slider */}
           <div
-            className="md:col-span-2 relative h-56 sm:h-72 md:h-[360px] lg:h-[420px] rounded-xl overflow-hidden group shadow-lg"
+            className="md:col-span-2 relative h-48 sm:h-64 md:h-[360px] lg:h-[420px] rounded-xl overflow-hidden group shadow-lg bg-muted"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onFocus={() => setIsPaused(true)}
@@ -191,51 +190,78 @@ export default function HeroBanner() {
               </video>
             ) : (
               <div className="absolute inset-0 w-full h-full">
-                {/* Sliding track */}
-                <div
-                  className="flex h-full transition-transform duration-700 ease-out will-change-transform"
-                  style={{ transform: `translateX(-${current * 100}%)`, width: `${slides.length * 100}%` }}
-                >
-                  {slides.map((s, i) => (
+                {/* Crossfade stack — each slide is absolute, fades in/out with subtle scale */}
+                {slides.map((s, i) => {
+                  const active = i === current;
+                  return (
                     <div
                       key={i}
-                      className="relative h-full shrink-0"
-                      style={{ width: `${100 / slides.length}%` }}
-                      aria-hidden={i !== current}
+                      className="absolute inset-0 will-change-[opacity,transform]"
+                      style={{
+                        opacity: active ? 1 : 0,
+                        transform: active ? 'scale(1)' : 'scale(1.04)',
+                        transition: `opacity ${TRANSITION_MS}ms ease-in-out, transform ${TRANSITION_MS + 400}ms ease-out`,
+                        zIndex: active ? 2 : 1,
+                      }}
+                      aria-hidden={!active}
                     >
                       <img
                         src={s.image || heroSeafood}
                         alt={s.title}
                         className="absolute inset-0 w-full h-full object-cover"
                         loading={i === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
                       />
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             )}
 
             {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/35 to-foreground/10 pointer-events-none z-[3]" />
 
-            {/* Title block top - re-animates on slide change */}
-            <div className="absolute top-4 md:top-8 left-4 md:left-8 right-4 md:right-1/3" key={`txt-${current}`}>
-              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-accent leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-fade-in">
-                {slides[current].title}
-              </h2>
-              <p className="text-primary-foreground text-sm md:text-xl font-bold mt-1 md:mt-2 drop-shadow-md animate-fade-in">
-                {slides[current].subtitle}
-              </p>
-              <p className="text-primary-foreground/90 text-xs md:text-sm mt-1 md:mt-2 drop-shadow animate-fade-in">
-                {slides[current].slogan}
-              </p>
+            {/* Title block - crossfade text per slide */}
+            <div className="absolute top-3 md:top-8 left-3 md:left-8 right-3 md:right-1/3 z-[4] pointer-events-none">
+              {slides.map((s, i) => {
+                const active = i === current;
+                return (
+                  <div
+                    key={i}
+                    className="absolute inset-0"
+                    style={{
+                      opacity: active ? 1 : 0,
+                      transform: active ? 'translateY(0)' : 'translateY(8px)',
+                      transition: `opacity ${TRANSITION_MS}ms ease-in-out, transform ${TRANSITION_MS}ms ease-out`,
+                    }}
+                    aria-hidden={!active}
+                  >
+                    <h2 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-accent leading-[1.05] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                      {s.title}
+                    </h2>
+                    <p className="text-primary-foreground text-xs sm:text-sm md:text-xl font-bold mt-1 md:mt-2 drop-shadow-md">
+                      {s.subtitle}
+                    </p>
+                    <p className="text-primary-foreground/90 text-[11px] sm:text-xs md:text-sm mt-1 md:mt-2 drop-shadow line-clamp-2">
+                      {s.slogan}
+                    </p>
+                  </div>
+                );
+              })}
+              {/* invisible spacer to reserve height (avoids layout jump from absolute children) */}
+              <div className="invisible">
+                <h2 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black leading-[1.05]">A</h2>
+                <p className="text-xs sm:text-sm md:text-xl font-bold mt-1 md:mt-2">A</p>
+                <p className="text-[11px] sm:text-xs md:text-sm mt-1 md:mt-2">A</p>
+              </div>
             </div>
 
             {/* CTA bottom-left */}
             {slides[current].cta && (
               <a
+                key={`cta-${current}`}
                 href={slides[current].href || '#'}
-                className="absolute bottom-6 left-4 md:bottom-8 md:left-8 inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm shadow-xl hover:scale-105 transition-transform z-10"
+                className="absolute bottom-5 left-3 md:bottom-8 md:left-8 inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold px-3 md:px-6 py-2 md:py-3 rounded-full text-[11px] md:text-sm shadow-xl hover:scale-105 transition-transform z-[5] animate-fade-in"
               >
                 <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" /> {slides[current].cta}
               </a>
@@ -246,63 +272,62 @@ export default function HeroBanner() {
               <>
                 <button
                   onClick={prev}
-                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-10"
+                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-[6]"
                   aria-label="Slide trước"
                 >
                   <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
                 <button
                   onClick={next}
-                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-10"
+                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-[6]"
                   aria-label="Slide kế tiếp"
                 >
                   <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
 
-                {/* Play/Pause */}
                 <button
                   onClick={() => setIsPaused(p => !p)}
-                  className="absolute top-3 right-3 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-10"
-                  aria-label={isPaused ? 'Tiếp tục tự chạy' : 'Tạm dừng tự chạy'}
+                  className="absolute top-2 right-2 md:top-3 md:right-3 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 rounded-full opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-[6]"
+                  aria-label={isPaused ? 'Tiếp tục' : 'Tạm dừng'}
                 >
                   {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
                 </button>
 
                 {/* Dots */}
-                <div className="absolute bottom-3 right-4 flex gap-1.5 z-10">
+                <div className="absolute bottom-2.5 right-3 md:right-4 flex gap-1.5 z-[6]">
                   {slides.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => goTo(i)}
-                      className={`h-2 rounded-full transition-all ${
+                      className={`h-2 rounded-full transition-all duration-300 ${
                         i === current
                           ? 'bg-accent w-6 shadow'
                           : 'bg-primary-foreground/50 w-2 hover:bg-primary-foreground/80'
                       }`}
-                      aria-label={`Đi tới slide ${i + 1}`}
+                      aria-label={`Slide ${i + 1}`}
                       aria-current={i === current}
                     />
                   ))}
                 </div>
 
                 {/* Progress bar */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-foreground/20 z-10">
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-foreground/20 z-[6]">
                   <div
-                    className="h-full bg-accent transition-[width] duration-100 ease-linear"
-                    style={{ width: `${isPaused ? progress : progress}%` }}
+                    className="h-full bg-accent ease-linear"
+                    style={{ width: `${progress}%`, transition: isPaused ? 'none' : 'width 100ms linear' }}
                   />
                 </div>
               </>
             )}
           </div>
 
-          {/* Side banners stacked */}
+          {/* Side banners */}
           <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3">
             {sideBanners.slice(0, 2).map((b, i) => (
               <Link
                 key={i}
                 to={b.href}
-                className="relative h-28 sm:h-36 md:h-[174px] lg:h-[204px] rounded-xl overflow-hidden shadow-lg group block"
+                className="relative h-24 sm:h-32 md:h-[174px] lg:h-[204px] rounded-xl overflow-hidden shadow-lg group block"
               >
                 <img
                   src={b.image}
@@ -310,24 +335,24 @@ export default function HeroBanner() {
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-l from-foreground/70 via-foreground/30 to-transparent" />
-                <div className="absolute top-2 right-2 md:top-4 md:right-4 text-right max-w-[70%]">
-                  <p className="text-accent font-black text-sm md:text-2xl leading-tight drop-shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-l from-foreground/75 via-foreground/30 to-transparent" />
+                <div className="absolute top-2 right-2 md:top-4 md:right-4 text-right max-w-[75%]">
+                  <p className="text-accent font-black text-xs sm:text-sm md:text-2xl leading-tight drop-shadow-lg">
                     {b.title}
                   </p>
                   {b.subtitle && (
-                    <p className="text-primary-foreground font-bold text-[10px] md:text-sm drop-shadow">
+                    <p className="text-primary-foreground font-bold text-[9px] sm:text-[10px] md:text-sm drop-shadow">
                       {b.subtitle}
                     </p>
                   )}
                   {b.price && (
-                    <p className="text-accent font-black text-base md:text-xl mt-0.5 md:mt-1 drop-shadow">
+                    <p className="text-accent font-black text-sm sm:text-base md:text-xl mt-0.5 md:mt-1 drop-shadow">
                       {b.price}
                     </p>
                   )}
                 </div>
                 {b.badge && (
-                  <span className="absolute bottom-2 right-2 md:bottom-3 md:right-4 bg-coral text-primary-foreground text-[9px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow">
+                  <span className="absolute bottom-1.5 right-2 md:bottom-3 md:right-4 bg-coral text-primary-foreground text-[8px] sm:text-[9px] md:text-xs font-bold px-1.5 sm:px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow">
                     {b.badge}
                   </span>
                 )}
@@ -336,13 +361,13 @@ export default function HeroBanner() {
           </div>
         </div>
 
-        {/* Bottom row: 2 horizontal banners */}
+        {/* Bottom banners */}
         <div className="grid grid-cols-2 gap-2 md:gap-3 mt-2 md:mt-3">
           {bottomBanners.slice(0, 2).map((b, i) => (
             <Link
               key={i}
               to={b.href}
-              className="relative h-20 sm:h-28 md:h-32 rounded-xl overflow-hidden shadow-lg group block"
+              className="relative h-16 sm:h-24 md:h-32 rounded-xl overflow-hidden shadow-lg group block"
             >
               <img
                 src={b.image}
@@ -350,13 +375,13 @@ export default function HeroBanner() {
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/30 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-center px-3 md:px-6">
-                <p className="text-accent font-black text-sm md:text-2xl leading-tight drop-shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/30 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-center px-2.5 md:px-6">
+                <p className="text-accent font-black text-xs sm:text-sm md:text-2xl leading-tight drop-shadow-lg">
                   {b.title}
                 </p>
                 {b.subtitle && (
-                  <p className="text-primary-foreground text-[10px] md:text-sm font-medium drop-shadow">
+                  <p className="text-primary-foreground text-[9px] sm:text-[10px] md:text-sm font-medium drop-shadow line-clamp-1">
                     {b.subtitle}
                   </p>
                 )}

@@ -59,7 +59,7 @@ export default function ChatHistoryManager() {
     if (error) {
       toast({ title: 'Lỗi tải tin nhắn', description: error.message, variant: 'destructive' });
     } else {
-      setMessages((data as ChatMessage[]) || []);
+      setMessages((data as unknown as ChatMessage[]) || []);
     }
   };
 

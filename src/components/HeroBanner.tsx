@@ -345,13 +345,14 @@ export default function HeroBanner() {
             )}
           </div>
 
-          {/* Side banners */}
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3">
+          {/* Side banners — aspect ratios so they scale proportionally with column width.
+              Mobile: 2 cols → wider 16/9. Desktop stacked: each ~half the slider height → ~16/8.5/2 ≈ 16/4.25 */}
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3 md:content-between">
             {sideBanners.slice(0, 2).map((b, i) => (
               <Link
                 key={i}
                 to={b.href}
-                className="relative h-24 sm:h-32 md:h-[174px] lg:h-[204px] rounded-xl overflow-hidden shadow-lg group block"
+                className="relative w-full aspect-[16/9] sm:aspect-[16/8] md:aspect-auto md:h-[calc((100%-0.75rem)/2)] rounded-xl overflow-hidden shadow-lg group block"
               >
                 <img
                   src={b.image}
@@ -360,23 +361,47 @@ export default function HeroBanner() {
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-l from-foreground/75 via-foreground/30 to-transparent" />
-                <div className="absolute top-2 right-2 md:top-4 md:right-4 text-right max-w-[75%]">
-                  <p className="text-accent font-black text-xs sm:text-sm md:text-2xl leading-tight drop-shadow-lg">
+                <div
+                  className="absolute text-right max-w-[75%]"
+                  style={{
+                    top: 'clamp(0.5rem, 6%, 1rem)',
+                    right: 'clamp(0.5rem, 6%, 1rem)',
+                  }}
+                >
+                  <p
+                    className="text-accent font-black leading-tight drop-shadow-lg"
+                    style={{ fontSize: 'clamp(0.75rem, 1.6vw, 1.5rem)' }}
+                  >
                     {b.title}
                   </p>
                   {b.subtitle && (
-                    <p className="text-primary-foreground font-bold text-[9px] sm:text-[10px] md:text-sm drop-shadow">
+                    <p
+                      className="text-primary-foreground font-bold drop-shadow"
+                      style={{ fontSize: 'clamp(0.5625rem, 0.9vw, 0.875rem)' }}
+                    >
                       {b.subtitle}
                     </p>
                   )}
                   {b.price && (
-                    <p className="text-accent font-black text-sm sm:text-base md:text-xl mt-0.5 md:mt-1 drop-shadow">
+                    <p
+                      className="text-accent font-black drop-shadow"
+                      style={{ fontSize: 'clamp(0.875rem, 1.4vw, 1.25rem)', marginTop: '0.125rem' }}
+                    >
                       {b.price}
                     </p>
                   )}
                 </div>
                 {b.badge && (
-                  <span className="absolute bottom-1.5 right-2 md:bottom-3 md:right-4 bg-coral text-primary-foreground text-[8px] sm:text-[9px] md:text-xs font-bold px-1.5 sm:px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow">
+                  <span
+                    className="absolute bg-coral text-primary-foreground font-bold rounded-full shadow whitespace-nowrap"
+                    style={{
+                      bottom: 'clamp(0.375rem, 5%, 0.75rem)',
+                      right: 'clamp(0.5rem, 6%, 1rem)',
+                      fontSize: 'clamp(0.5rem, 0.75vw, 0.75rem)',
+                      paddingInline: 'clamp(0.375rem, 0.8vw, 0.75rem)',
+                      paddingBlock: 'clamp(0.125rem, 0.3vw, 0.25rem)',
+                    }}
+                  >
                     {b.badge}
                   </span>
                 )}
@@ -385,13 +410,13 @@ export default function HeroBanner() {
           </div>
         </div>
 
-        {/* Bottom banners */}
+        {/* Bottom banners — wide horizontal aspect, scales with width */}
         <div className="grid grid-cols-2 gap-2 md:gap-3 mt-2 md:mt-3">
           {bottomBanners.slice(0, 2).map((b, i) => (
             <Link
               key={i}
               to={b.href}
-              className="relative h-16 sm:h-24 md:h-32 rounded-xl overflow-hidden shadow-lg group block"
+              className="relative w-full aspect-[16/5] sm:aspect-[16/4.5] md:aspect-[16/4] rounded-xl overflow-hidden shadow-lg group block"
             >
               <img
                 src={b.image}
@@ -400,12 +425,21 @@ export default function HeroBanner() {
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/30 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-center px-2.5 md:px-6">
-                <p className="text-accent font-black text-xs sm:text-sm md:text-2xl leading-tight drop-shadow-lg">
+              <div
+                className="absolute inset-0 flex flex-col justify-center"
+                style={{ paddingInline: 'clamp(0.625rem, 2.5vw, 1.5rem)' }}
+              >
+                <p
+                  className="text-accent font-black leading-tight drop-shadow-lg"
+                  style={{ fontSize: 'clamp(0.75rem, 1.8vw, 1.5rem)' }}
+                >
                   {b.title}
                 </p>
                 {b.subtitle && (
-                  <p className="text-primary-foreground text-[9px] sm:text-[10px] md:text-sm font-medium drop-shadow line-clamp-1">
+                  <p
+                    className="text-primary-foreground font-medium drop-shadow line-clamp-1"
+                    style={{ fontSize: 'clamp(0.5625rem, 1vw, 0.875rem)' }}
+                  >
                     {b.subtitle}
                   </p>
                 )}

@@ -140,35 +140,43 @@ export default function Header() {
       </div>
 
       {/* Company name + slogan bar with logo (Hai San Hoang Gia style) */}
-      <div className={`ocean-gradient transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 py-0' : 'max-h-32 py-2 md:py-3'}`}>
-        <div className="container mx-auto px-4 flex items-center justify-center md:justify-between gap-4">
-          {/* Logo + company name (desktop) */}
-          <Link to="/" className="hidden md:flex items-center gap-3 flex-shrink-0">
+      <div className={`ocean-gradient transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-40 py-2.5 md:py-3 opacity-100'}`}>
+        <div className="container mx-auto px-3 md:px-4 grid grid-cols-[auto_1fr_auto] md:grid-cols-3 items-center gap-2 md:gap-4">
+          {/* Logo + company name */}
+          <Link to="/" className="flex items-center gap-2 md:gap-3 flex-shrink-0 min-w-0">
             <img
               src={logoUrl || defaultLogo}
               alt="Giang Nguyên Group"
-              className="h-12 lg:h-14 w-auto rounded-md bg-white/95 p-1 shadow-md"
+              className="h-10 md:h-12 lg:h-14 w-auto rounded-md bg-white/95 p-1 shadow-md flex-shrink-0"
               loading="eager"
               onError={(e) => { (e.currentTarget as HTMLImageElement).src = defaultLogo; }}
             />
-            <div className="leading-tight">
-              <p className="text-[10px] lg:text-xs font-semibold text-primary-foreground/80 tracking-wider">CÔNG TY TNHH</p>
-              <p className="text-sm lg:text-base font-black text-primary-foreground tracking-wide">GIANG NGUYÊN GROUP</p>
+            <div className="leading-tight hidden sm:block min-w-0">
+              <p className="text-[9px] md:text-[10px] lg:text-xs font-semibold text-primary-foreground/80 tracking-wider truncate">CÔNG TY TNHH</p>
+              <p className="text-xs md:text-sm lg:text-base font-black text-primary-foreground tracking-wide truncate">GIANG NGUYÊN GROUP</p>
             </div>
           </Link>
 
           {/* Center slogan */}
-          <div className="text-center flex-1 md:flex-initial">
-            <p className="text-base md:text-2xl lg:text-3xl font-black text-accent tracking-[0.15em] drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
+          <div className="text-center min-w-0">
+            <p className="text-sm sm:text-lg md:text-2xl lg:text-3xl font-black text-accent tracking-[0.1em] md:tracking-[0.15em] drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)] leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
               TƯƠI NGON TỪ NGUỒN
             </p>
-            <p className="text-[10px] md:text-xs text-primary-foreground/85 tracking-widest hidden md:block">
+            <p className="text-[9px] md:text-xs text-primary-foreground/85 tracking-wider md:tracking-widest hidden md:block mt-0.5">
               Hải sản khô – Hải sản một nắng – Đặc sản Sầm Sơn
             </p>
           </div>
 
-          {/* Spacer to balance on desktop */}
-          <div className="hidden md:block flex-shrink-0 w-[220px] lg:w-[260px]" />
+          {/* Right hotline (desktop balances grid) */}
+          <a href="tel:0933562286" className="hidden md:flex items-center justify-end gap-2 text-primary-foreground hover:text-accent transition-colors flex-shrink-0">
+            <Phone className="h-4 w-4 lg:h-5 lg:w-5" />
+            <div className="leading-tight text-right">
+              <p className="text-[9px] lg:text-[10px] text-primary-foreground/80 font-semibold tracking-wider">HOTLINE</p>
+              <p className="text-sm lg:text-base font-black">0933.562.286</p>
+            </div>
+          </a>
+          {/* Mobile: empty cell to keep grid balanced */}
+          <div className="md:hidden w-10" />
         </div>
       </div>
 

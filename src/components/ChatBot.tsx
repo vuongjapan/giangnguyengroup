@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Sparkles } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -9,17 +10,38 @@ interface Message {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-const QUICK_REPLIES = ['Xem giá mực khô', 'Combo quà biếu', 'Tư vấn mua hàng', 'Free ship không?'];
+const QUICK_REPLIES = [
+  'Giá mực khô hôm nay',
+  'Thời tiết Sầm Sơn',
+  'Combo quà biếu',
+  'Free ship không?',
+];
+
+// Persistent chat session id for this browser
+function getSessionId(): string {
+  try {
+    let id = localStorage.getItem('gn_chat_session');
+    if (!id) {
+      id = (crypto.randomUUID?.() || `s_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+      localStorage.setItem('gn_chat_session', id);
+    }
+    return id;
+  } catch {
+    return `s_${Date.now()}`;
+  }
+}
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
   const { products } = useProducts();
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Xin chào 👋 Công ty TNHH Giang Nguyên Group chuyên hải sản khô & hải sản một nắng Sầm Sơn.\nBạn muốn xem giá mực khô, tôm khô hay cá khô hôm nay ạ?' },
+    { role: 'assistant', content: 'Xin chào 👋 Em là trợ lý AI của Giang Nguyên Group – chuyên hải sản khô Sầm Sơn.\nEm có thể tư vấn sản phẩm, kiểm tra thời tiết – giá vàng – tin tức hôm nay, gợi ý món ăn, du lịch Sầm Sơn… Anh/chị cần em giúp gì ạ? 🌊' },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef<string>(getSessionId());
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -59,6 +81,8 @@ export default function ChatBot() {
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           productContext: systemContext,
+          sessionId: sessionIdRef.current,
+          userId: user?.id || null,
         }),
       });
 
@@ -153,9 +177,14 @@ export default function ChatBot() {
       {open && (
         <div className="fixed bottom-20 md:bottom-6 right-4 z-40 w-[calc(100vw-2rem)] max-w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[60vh] md:max-h-[500px] animate-fade-in">
           <div className="ocean-gradient rounded-t-2xl p-3 flex items-center justify-between">
-            <div>
-              <p className="font-bold text-primary-foreground text-sm">Giang Nguyên Group</p>
-              <p className="text-primary-foreground/80 text-xs">🟢 Online – Trả lời ngay</p>
+            <div className="flex items-center gap-2">
+              <div className="bg-accent/90 rounded-full p-1.5">
+                <Sparkles className="h-4 w-4 text-accent-foreground" />
+              </div>
+              <div>
+                <p className="font-bold text-primary-foreground text-sm leading-tight">Trợ lý AI Giang Nguyên</p>
+                <p className="text-primary-foreground/80 text-[10px]">🟢 Online · Web search · Đa lĩnh vực</p>
+              </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">
               <X className="h-5 w-5" />

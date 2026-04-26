@@ -177,9 +177,14 @@ export default function ChatBot() {
       {open && (
         <div className="fixed bottom-20 md:bottom-6 right-4 z-40 w-[calc(100vw-2rem)] max-w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[60vh] md:max-h-[500px] animate-fade-in">
           <div className="ocean-gradient rounded-t-2xl p-3 flex items-center justify-between">
-            <div>
-              <p className="font-bold text-primary-foreground text-sm">Giang Nguyên Group</p>
-              <p className="text-primary-foreground/80 text-xs">🟢 Online – Trả lời ngay</p>
+            <div className="flex items-center gap-2">
+              <div className="bg-accent/90 rounded-full p-1.5">
+                <Sparkles className="h-4 w-4 text-accent-foreground" />
+              </div>
+              <div>
+                <p className="font-bold text-primary-foreground text-sm leading-tight">Trợ lý AI Giang Nguyên</p>
+                <p className="text-primary-foreground/80 text-[10px]">🟢 Online · Web search · Đa lĩnh vực</p>
+              </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">
               <X className="h-5 w-5" />

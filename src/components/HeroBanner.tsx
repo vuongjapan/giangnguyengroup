@@ -160,12 +160,12 @@ export default function HeroBanner() {
 
   return (
     <section className="bg-background py-2 md:py-4">
-      <div className="container mx-auto px-2 md:px-4">
-        {/* Top grid: big slider + side banners */}
+      <div className="container mx-auto px-2 sm:px-3 md:px-4">
+        {/* Top grid: big slider + side banners. Aspect ratios keep proportions at every width */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-          {/* Big slider */}
+          {/* Big slider — fluid via aspect ratio */}
           <div
-            className="md:col-span-2 relative h-48 sm:h-64 md:h-[360px] lg:h-[420px] rounded-xl overflow-hidden group shadow-lg bg-muted"
+            className="md:col-span-2 relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8.5] lg:aspect-[16/8] rounded-xl overflow-hidden group shadow-lg bg-muted"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onFocus={() => setIsPaused(true)}
@@ -190,7 +190,6 @@ export default function HeroBanner() {
               </video>
             ) : (
               <div className="absolute inset-0 w-full h-full">
-                {/* Crossfade stack — each slide is absolute, fades in/out with subtle scale */}
                 {slides.map((s, i) => {
                   const active = i === current;
                   return (
@@ -208,7 +207,7 @@ export default function HeroBanner() {
                       <img
                         src={s.image || heroSeafood}
                         alt={s.title}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover object-center"
                         loading={i === 0 ? 'eager' : 'lazy'}
                         decoding="async"
                       />
@@ -221,8 +220,15 @@ export default function HeroBanner() {
             {/* Gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/35 to-foreground/10 pointer-events-none z-[3]" />
 
-            {/* Title block - crossfade text per slide */}
-            <div className="absolute top-3 md:top-8 left-3 md:left-8 right-3 md:right-1/3 z-[4] pointer-events-none">
+            {/* Title block — fluid sizes via clamp() so text scales smoothly */}
+            <div
+              className="absolute z-[4] pointer-events-none"
+              style={{
+                top: 'clamp(0.75rem, 3.5%, 2rem)',
+                left: 'clamp(0.75rem, 3.5%, 2rem)',
+                right: 'clamp(0.75rem, 3.5%, 33%)',
+              }}
+            >
               {slides.map((s, i) => {
                 const active = i === current;
                 return (
@@ -236,34 +242,52 @@ export default function HeroBanner() {
                     }}
                     aria-hidden={!active}
                   >
-                    <h2 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-accent leading-[1.05] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                    <h2
+                      className="font-black text-accent leading-[1.05] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
+                      style={{ fontSize: 'clamp(1.25rem, 4.5vw, 3.75rem)' }}
+                    >
                       {s.title}
                     </h2>
-                    <p className="text-primary-foreground text-xs sm:text-sm md:text-xl font-bold mt-1 md:mt-2 drop-shadow-md">
+                    <p
+                      className="text-primary-foreground font-bold drop-shadow-md"
+                      style={{ fontSize: 'clamp(0.75rem, 1.6vw, 1.25rem)', marginTop: 'clamp(0.25rem, 0.6vw, 0.5rem)' }}
+                    >
                       {s.subtitle}
                     </p>
-                    <p className="text-primary-foreground/90 text-[11px] sm:text-xs md:text-sm mt-1 md:mt-2 drop-shadow line-clamp-2">
+                    <p
+                      className="text-primary-foreground/90 drop-shadow line-clamp-2"
+                      style={{ fontSize: 'clamp(0.6875rem, 1.1vw, 0.875rem)', marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}
+                    >
                       {s.slogan}
                     </p>
                   </div>
                 );
               })}
-              {/* invisible spacer to reserve height (avoids layout jump from absolute children) */}
-              <div className="invisible">
-                <h2 className="text-xl sm:text-3xl md:text-5xl lg:text-6xl font-black leading-[1.05]">A</h2>
-                <p className="text-xs sm:text-sm md:text-xl font-bold mt-1 md:mt-2">A</p>
-                <p className="text-[11px] sm:text-xs md:text-sm mt-1 md:mt-2">A</p>
+              {/* invisible spacer to reserve height */}
+              <div className="invisible" aria-hidden>
+                <h2 className="font-black leading-[1.05]" style={{ fontSize: 'clamp(1.25rem, 4.5vw, 3.75rem)' }}>A</h2>
+                <p className="font-bold" style={{ fontSize: 'clamp(0.75rem, 1.6vw, 1.25rem)', marginTop: 'clamp(0.25rem, 0.6vw, 0.5rem)' }}>A</p>
+                <p style={{ fontSize: 'clamp(0.6875rem, 1.1vw, 0.875rem)', marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}>A</p>
               </div>
             </div>
 
-            {/* CTA bottom-left */}
+            {/* CTA bottom-left — fluid padding & font */}
             {slides[current].cta && (
               <a
                 key={`cta-${current}`}
                 href={slides[current].href || '#'}
-                className="absolute bottom-5 left-3 md:bottom-8 md:left-8 inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold px-3 md:px-6 py-2 md:py-3 rounded-full text-[11px] md:text-sm shadow-xl hover:scale-105 transition-transform z-[5] animate-fade-in"
+                className="absolute inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold rounded-full shadow-xl hover:scale-105 transition-transform z-[5] animate-fade-in whitespace-nowrap"
+                style={{
+                  bottom: 'clamp(1rem, 4%, 2rem)',
+                  left: 'clamp(0.75rem, 3.5%, 2rem)',
+                  fontSize: 'clamp(0.6875rem, 1.1vw, 0.875rem)',
+                  paddingInline: 'clamp(0.75rem, 1.6vw, 1.5rem)',
+                  paddingBlock: 'clamp(0.5rem, 0.9vw, 0.75rem)',
+                  maxWidth: 'calc(100% - 1.5rem)',
+                }}
               >
-                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" /> {slides[current].cta}
+                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
+                <span className="truncate">{slides[current].cta}</span>
               </a>
             )}
 

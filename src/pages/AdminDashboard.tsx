@@ -30,7 +30,7 @@ import ProductCsvTools from '@/components/admin/ProductCsvTools';
 import TrashBinManager from '@/components/admin/TrashBinManager';
 import { softDelete } from '@/lib/trashBin';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;

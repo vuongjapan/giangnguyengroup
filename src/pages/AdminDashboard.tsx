@@ -28,6 +28,7 @@ import AuctionManager from '@/components/admin/AuctionManager';
 import AgentsManager from '@/components/admin/AgentsManager';
 import ProductCsvTools from '@/components/admin/ProductCsvTools';
 import TrashBinManager from '@/components/admin/TrashBinManager';
+import ChatHistoryManager from '@/components/admin/ChatHistoryManager';
 import { softDelete } from '@/lib/trashBin';
 
 type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history';
@@ -329,6 +330,7 @@ export default function AdminDashboard() {
       { id: 'auctions' as Tab, label: '🔥 Đấu giá', icon: Flame as any },
       { id: 'abandoned-carts' as Tab, label: 'Cart Recovery', icon: BellRing },
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
+      { id: 'chat-history' as Tab, label: '💬 Lịch sử chat AI', icon: Sparkles },
       { id: 'trash' as Tab, label: '🗑️ Thùng rác', icon: Trash2 },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
@@ -1097,6 +1099,7 @@ export default function AdminDashboard() {
 
         {/* ===== TRASH BIN ===== */}
         {tab === 'trash' && <TrashBinManager />}
+        {tab === 'chat-history' && <ChatHistoryManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

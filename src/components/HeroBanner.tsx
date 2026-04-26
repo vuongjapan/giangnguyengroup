@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Phone } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Phone, Pause, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import heroSeafood from '@/assets/hero-seafood.jpg';
@@ -102,6 +102,8 @@ const DEFAULT_DATA: HeroData = {
   ],
 };
 
+const AUTOPLAY_INTERVAL = 5000; // 5s per slide
+
 export default function HeroBanner() {
   const { data: heroData } = useSiteContent<HeroData>('hero_banner', DEFAULT_DATA);
   const slides = heroData.slides?.length ? heroData.slides : DEFAULT_DATA.slides;
@@ -110,18 +112,52 @@ export default function HeroBanner() {
   const videoUrl = heroData.videoUrl || '';
 
   const [current, setCurrent] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const timerRef = useRef<number | null>(null);
+  const startRef = useRef<number>(Date.now());
+  const rafRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (slides.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrent(prev => (prev + 1) % slides.length);
-    }, 5000);
-    return () => clearInterval(timer);
+  const goTo = useCallback((index: number) => {
+    setCurrent(((index % slides.length) + slides.length) % slides.length);
+    startRef.current = Date.now();
+    setProgress(0);
   }, [slides.length]);
 
-  const prev = () => setCurrent(c => (c - 1 + slides.length) % slides.length);
-  const next = () => setCurrent(c => (c + 1) % slides.length);
-  const slide = slides[current];
+  const prev = useCallback(() => goTo(current - 1), [current, goTo]);
+  const next = useCallback(() => goTo(current + 1), [current, goTo]);
+
+  // Autoplay with explicit timeout + progress tracking
+  useEffect(() => {
+    if (slides.length <= 1 || isPaused || videoUrl) return;
+
+    startRef.current = Date.now();
+    setProgress(0);
+
+    timerRef.current = window.setTimeout(() => {
+      setCurrent(prev => (prev + 1) % slides.length);
+    }, AUTOPLAY_INTERVAL);
+
+    const tick = () => {
+      const elapsed = Date.now() - startRef.current;
+      setProgress(Math.min(100, (elapsed / AUTOPLAY_INTERVAL) * 100));
+      if (elapsed < AUTOPLAY_INTERVAL) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [current, slides.length, isPaused, videoUrl]);
+
+  // Keyboard navigation
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') prev();
+    else if (e.key === 'ArrowRight') next();
+  };
 
   return (
     <section className="bg-background py-3 md:py-4">
@@ -129,7 +165,18 @@ export default function HeroBanner() {
         {/* Top grid: big slider + 2 stacked side banners */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
           {/* Big slider - takes 2/3 on desktop */}
-          <div className="md:col-span-2 relative h-56 sm:h-72 md:h-[360px] lg:h-[420px] rounded-xl overflow-hidden group shadow-lg">
+          <div
+            className="md:col-span-2 relative h-56 sm:h-72 md:h-[360px] lg:h-[420px] rounded-xl overflow-hidden group shadow-lg"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onFocus={() => setIsPaused(true)}
+            onBlur={() => setIsPaused(false)}
+            onKeyDown={onKeyDown}
+            tabIndex={0}
+            role="region"
+            aria-roledescription="carousel"
+            aria-label="Hero banner"
+          >
             {videoUrl ? (
               <video
                 key={videoUrl}
@@ -143,71 +190,107 @@ export default function HeroBanner() {
                 <source src={videoUrl} type="video/mp4" />
               </video>
             ) : (
-              <img
-                key={current}
-                src={slide.image || heroSeafood}
-                alt={slide.title}
-                className="absolute inset-0 w-full h-full object-cover animate-fade-in"
-                loading="eager"
-              />
+              <div className="absolute inset-0 w-full h-full">
+                {/* Sliding track */}
+                <div
+                  className="flex h-full transition-transform duration-700 ease-out will-change-transform"
+                  style={{ transform: `translateX(-${current * 100}%)`, width: `${slides.length * 100}%` }}
+                >
+                  {slides.map((s, i) => (
+                    <div
+                      key={i}
+                      className="relative h-full shrink-0"
+                      style={{ width: `${100 / slides.length}%` }}
+                      aria-hidden={i !== current}
+                    >
+                      <img
+                        src={s.image || heroSeafood}
+                        alt={s.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
 
             {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/30 to-transparent pointer-events-none" />
 
-            {/* Title block top */}
+            {/* Title block top - re-animates on slide change */}
             <div className="absolute top-4 md:top-8 left-4 md:left-8 right-4 md:right-1/3" key={`txt-${current}`}>
-              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-accent leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-slide-up">
-                {slide.title}
+              <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-black text-accent leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] animate-fade-in">
+                {slides[current].title}
               </h2>
-              <p className="text-primary-foreground text-sm md:text-xl font-bold mt-1 md:mt-2 drop-shadow-md animate-slide-up">
-                {slide.subtitle}
+              <p className="text-primary-foreground text-sm md:text-xl font-bold mt-1 md:mt-2 drop-shadow-md animate-fade-in">
+                {slides[current].subtitle}
               </p>
-              <p className="text-primary-foreground/90 text-xs md:text-sm mt-1 md:mt-2 drop-shadow animate-slide-up">
-                {slide.slogan}
+              <p className="text-primary-foreground/90 text-xs md:text-sm mt-1 md:mt-2 drop-shadow animate-fade-in">
+                {slides[current].slogan}
               </p>
             </div>
 
             {/* CTA bottom-left */}
-            {slide.cta && (
+            {slides[current].cta && (
               <a
-                href={slide.href || '#'}
-                className="absolute bottom-4 left-4 md:bottom-6 md:left-8 inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm shadow-xl hover:scale-105 transition-transform"
+                href={slides[current].href || '#'}
+                className="absolute bottom-6 left-4 md:bottom-8 md:left-8 inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm shadow-xl hover:scale-105 transition-transform z-10"
               >
-                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" /> {slide.cta}
+                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4" /> {slides[current].cta}
               </a>
             )}
 
-            {/* Nav arrows */}
+            {/* Nav arrows + controls */}
             {slides.length > 1 && (
               <>
                 <button
                   onClick={prev}
-                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  aria-label="Previous slide"
+                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-10"
+                  aria-label="Slide trước"
                 >
                   <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
                 <button
                   onClick={next}
-                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  aria-label="Next slide"
+                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-10"
+                  aria-label="Slide kế tiếp"
                 >
                   <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                 </button>
 
+                {/* Play/Pause */}
+                <button
+                  onClick={() => setIsPaused(p => !p)}
+                  className="absolute top-3 right-3 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-10"
+                  aria-label={isPaused ? 'Tiếp tục tự chạy' : 'Tạm dừng tự chạy'}
+                >
+                  {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+                </button>
+
                 {/* Dots */}
-                <div className="absolute bottom-3 right-4 flex gap-1.5">
+                <div className="absolute bottom-3 right-4 flex gap-1.5 z-10">
                   {slides.map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => setCurrent(i)}
+                      onClick={() => goTo(i)}
                       className={`h-2 rounded-full transition-all ${
-                        i === current ? 'bg-accent w-6' : 'bg-primary-foreground/50 w-2 hover:bg-primary-foreground/80'
+                        i === current
+                          ? 'bg-accent w-6 shadow'
+                          : 'bg-primary-foreground/50 w-2 hover:bg-primary-foreground/80'
                       }`}
-                      aria-label={`Slide ${i + 1}`}
+                      aria-label={`Đi tới slide ${i + 1}`}
+                      aria-current={i === current}
                     />
                   ))}
+                </div>
+
+                {/* Progress bar */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-foreground/20 z-10">
+                  <div
+                    className="h-full bg-accent transition-[width] duration-100 ease-linear"
+                    style={{ width: `${isPaused ? progress : progress}%` }}
+                  />
                 </div>
               </>
             )}

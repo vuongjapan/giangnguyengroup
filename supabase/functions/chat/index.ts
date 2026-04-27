@@ -21,14 +21,17 @@ const SYSTEM_PROMPT = () => `Bạn là **NHÂN VIÊN SALE CAO CẤP** của CÔN
 
 🎯 NGUYÊN TẮC TRẢ LỜI:
 1. **NGẮN GỌN, ĐÚNG TRỌNG TÂM** — không lan man, không lặp lại câu hỏi. Tối đa 4–6 câu cho mỗi lượt trừ khi khách yêu cầu chi tiết.
-2. **GIỚI THIỆU SẢN PHẨM NHƯ NGƯỜI THẬT**: nói về xuất xứ, cách phơi, cảm nhận khi ăn, cách bảo quản — không liệt kê khô khan. Ví dụ: "Mực khô loại 1 nhà em là mực ống câu đêm tại biển Sầm Sơn, phơi 2 nắng to, thịt ngọt dai, nướng lên thơm đặc trưng. Anh/chị mua về nhậu hoặc làm quà đều rất chuẩn ạ."
-3. **CHỦ ĐỘNG CHỐT ĐƠN** sau 1–2 lượt tư vấn:
-   - "Em chốt cho mình [SP] bao nhiêu kg ạ?"
-   - "Em lên đơn luôn cho anh/chị nhé, mình cho em xin tên – SĐT – địa chỉ ạ?"
-4. **TỰ TẠO ĐƠN KHI ĐỦ THÔNG TIN**: Khi có đủ tên + SĐT + địa chỉ + sản phẩm + số lượng → BẮT BUỘC gọi tool \`create_order\` ngay, không hỏi lại. Sau khi tạo xong, báo mã đơn + tổng tiền + QR cọc 50%.
-5. **GỬI EMAIL/HOÁ ĐƠN**: Nếu khách có email và đồng ý/yêu cầu gửi → gọi tool \`send_invoice_email\`.
-6. **TRA CỨU THÔNG TIN MỚI**: Khi câu hỏi liên quan tới hôm nay (thời tiết, giá vàng, tỷ giá, tin tức, du lịch Sầm Sơn hôm nay…) → BẮT BUỘC gọi \`web_search\` để lấy dữ liệu mới nhất, không trả lời từ trí nhớ.
-7. **TRÍCH NGUỒN**: Khi dùng web_search, dẫn nguồn dạng [1], [2] inline trong câu trả lời. Hệ thống sẽ tự đính kèm card nguồn ở cuối.
+2. **GIỚI THIỆU SẢN PHẨM NHƯ NGƯỜI THẬT**: nói về xuất xứ, cách phơi, cảm nhận khi ăn, cách bảo quản — không liệt kê khô khan.
+3. **CHỦ ĐỘNG CHỐT ĐƠN** sau 1–2 lượt tư vấn: hỏi tên – SĐT – địa chỉ.
+4. **XÁC THỰC THÔNG TIN TRƯỚC KHI TẠO ĐƠN** (rất quan trọng):
+   - SĐT: phải là số Việt Nam 10 chữ số bắt đầu bằng 03/05/07/08/09 (vd: 0933562286). Nếu khách ghi sai/thiếu → ĐỌC LẠI cho khách xác nhận trước khi gọi tool.
+   - Địa chỉ: phải có đầy đủ **số nhà – đường – phường/xã – quận/huyện – tỉnh/thành phố**. Nếu thiếu (vd chỉ ghi "Hà Nội") → hỏi lại cụ thể.
+   - Email (nếu có): phải đúng định dạng abc@xyz.com.
+   - CHỈ gọi \`create_order\` khi đã đủ và đúng định dạng. Nếu tool trả về \`validation_errors\`, đọc lại lỗi cho khách bằng giọng tự nhiên và xin lại thông tin.
+5. **TỰ TẠO ĐƠN KHI ĐỦ**: tên + SĐT hợp lệ + địa chỉ đầy đủ + sản phẩm + số lượng → gọi \`create_order\`. Sau khi tạo xong, báo mã đơn + tổng tiền + QR cọc 50% + link **/tra-cuu-don?code=MÃ** để khách theo dõi.
+6. **GỬI EMAIL/HOÁ ĐƠN**: Nếu khách có email và đồng ý → gọi \`send_invoice_email\`.
+7. **TRA CỨU MỚI**: thời tiết, giá vàng, tin tức hôm nay → BẮT BUỘC \`web_search\`.
+8. **TRÍCH NGUỒN**: dẫn [1], [2] inline khi dùng web_search.
 
 🏪 CỬA HÀNG GIANG NGUYÊN GROUP:
 - Cửa hàng 1: Quầy 7A–7B Chợ Cột Đỏ, Sầm Sơn
@@ -158,7 +161,43 @@ async function createOrderTool(
     note?: string;
   },
   supabaseUrl: string, anonKey: string,
-): Promise<{ ok: boolean; order_code?: string; total?: number; deposit?: number; remaining?: number; emailSent?: boolean; error?: string }> {
+): Promise<{ ok: boolean; order_code?: string; total?: number; deposit?: number; remaining?: number; emailSent?: boolean; error?: string; validation_errors?: string[] }> {
+  // ===== VALIDATE TRƯỚC KHI TẠO =====
+  const errors: string[] = [];
+  const name = String(args.customer_name || '').trim();
+  if (name.length < 2) errors.push('Tên khách hàng quá ngắn (cần ≥ 2 ký tự)');
+
+  // SĐT VN: 10 số bắt đầu bằng 0, hoặc +84/84 + 9 số. Cho phép khoảng trắng/dấu chấm.
+  const rawPhone = String(args.customer_phone || '').replace(/[\s.\-()]/g, '');
+  const phoneNorm = rawPhone.replace(/^(\+?84)/, '0');
+  const phoneOk = /^0(3|5|7|8|9)\d{8}$/.test(phoneNorm);
+  if (!phoneOk) errors.push(`Số điện thoại "${args.customer_phone}" không hợp lệ. Cần 10 số bắt đầu bằng 03/05/07/08/09`);
+
+  // Địa chỉ: tối thiểu 10 ký tự + có ít nhất 2 phần ngăn cách bằng dấu phẩy hoặc 2 từ địa danh
+  const addr = String(args.customer_address || '').trim();
+  if (addr.length < 10) errors.push('Địa chỉ quá ngắn — cần ghi rõ số nhà, đường, phường/xã, quận/huyện, tỉnh/thành');
+  else if (!/[,\/]|(phường|xã|quận|huyện|tỉnh|thành phố|tp\.?|tx\.?|tt\.?)/i.test(addr) && addr.split(/\s+/).length < 4) {
+    errors.push('Địa chỉ thiếu đơn vị hành chính (phường/xã, quận/huyện, tỉnh/thành phố)');
+  }
+
+  if (args.customer_email) {
+    const em = args.customer_email.trim();
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) errors.push(`Email "${em}" không đúng định dạng`);
+  }
+
+  if (!Array.isArray(args.items) || args.items.length === 0) errors.push('Chưa có sản phẩm trong đơn');
+  else {
+    args.items.forEach((it, idx) => {
+      if (!it.name) errors.push(`SP #${idx + 1} thiếu tên`);
+      if (!Number(it.price) || Number(it.price) <= 0) errors.push(`SP "${it.name || idx + 1}" thiếu/sai giá`);
+      if (!Number(it.quantity) || Number(it.quantity) <= 0) errors.push(`SP "${it.name || idx + 1}" thiếu/sai số lượng`);
+    });
+  }
+
+  if (errors.length > 0) {
+    return { ok: false, error: 'VALIDATION_FAILED', validation_errors: errors };
+  }
+
   try {
     const totalPrice = args.items.reduce((s, it) => s + (Number(it.price) || 0) * (Number(it.quantity) || 1), 0);
     const itemsForOrder = args.items.map(it => ({
@@ -177,8 +216,8 @@ async function createOrderTool(
       },
       body: JSON.stringify({
         customer: {
-          name: args.customer_name, phone: args.customer_phone,
-          address: args.customer_address, email: args.customer_email || '',
+          name, phone: phoneNorm,
+          address: addr, email: args.customer_email || '',
         },
         items: itemsForOrder,
         totalPrice,

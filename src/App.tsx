@@ -42,6 +42,7 @@ import AuctionsPage from "./pages/AuctionsPage.tsx";
 import AuctionDetail from "./pages/AuctionDetail.tsx";
 import LivePage from "./pages/LivePage.tsx";
 import AgentsPage from "./pages/AgentsPage.tsx";
+import OrderTracking from "./pages/OrderTracking.tsx";
 import AbandonedCartTracker from "./components/AbandonedCartTracker.tsx";
 
 const queryClient = new QueryClient();
@@ -87,6 +88,7 @@ const App = () => (
                 <Route path="/dau-gia/:slug" element={<AuctionDetail />} />
                 <Route path="/live" element={<LivePage />} />
                 <Route path="/dai-ly-phan-phoi" element={<AgentsPage />} />
+                <Route path="/tra-cuu-don" element={<OrderTracking />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TrackingPixels />

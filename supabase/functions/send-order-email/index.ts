@@ -43,6 +43,19 @@ async function sendEmail(
   return info
 }
 
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  pending:      { label: 'ĐƠN MỚI - CHỜ XÁC NHẬN', color: '#92400e', bg: '#fef3c7', icon: '⏳' },
+  confirmed:    { label: 'ĐÃ XÁC NHẬN',             color: '#1d4ed8', bg: '#dbeafe', icon: '✅' },
+  deposit_paid: { label: 'ĐÃ CỌC 50%',                color: '#15803d', bg: '#dcfce7', icon: '💰' },
+  shipping:     { label: 'ĐANG GIAO HÀNG',            color: '#6d28d9', bg: '#ede9fe', icon: '🚚' },
+  delivered:    { label: 'HOÀN TẤT',                  color: '#166534', bg: '#bbf7d0', icon: '🎉' },
+  cancelled:    { label: 'ĐÃ HUỶ',                    color: '#b91c1c', bg: '#fee2e2', icon: '✖️' },
+}
+
+function getSiteOrigin() {
+  return Deno.env.get('SITE_ORIGIN') || 'https://giangnguyengroup.lovable.app'
+}
+
 function generateInvoiceHtml(order: any) {
   const items = order.items || []
   const totalAmount = order.total || 0
@@ -50,8 +63,9 @@ function generateInvoiceHtml(order: any) {
   const remainingAmount = totalAmount - depositAmount
   const orderCode = order.order_code || ''
   const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${depositAmount}&des=${encodeURIComponent(orderCode)}`
-  const status = order.status === 'deposit_paid' ? '✅ ĐÃ CỌC 50%' : '⏳ CHƯA THANH TOÁN'
-  const statusColor = order.status === 'deposit_paid' ? '#16a34a' : '#ea580c'
+  const st = STATUS_MAP[order.status as string] || STATUS_MAP.pending
+  const trackUrl = `${getSiteOrigin()}/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}`
+  const confirmDepositUrl = `${getSiteOrigin()}/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}&action=confirm_deposit`
 
   const itemRows = items.map((item: any, i: number) => `
     <tr style="border-bottom:1px solid #e5e7eb;">
@@ -70,19 +84,22 @@ function generateInvoiceHtml(order: any) {
 <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;">
 <div style="max-width:650px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);">
   
-  <!-- Header with gradient -->
-  <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9);padding:35px 30px;text-align:center;">
-    <div style="margin-bottom:8px;">
-      <span style="display:block;font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;letter-spacing:2px;text-transform:uppercase;">CÔNG TY TNHH</span>
-      <span style="display:block;font-size:26px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1.1;">GIANG NGUYÊN</span>
-      <span style="display:block;font-size:20px;color:#fbbf24;font-weight:900;letter-spacing:3px;line-height:1.2;">GROUP</span>
+  <!-- Header with gradient + logo emblem -->
+  <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9);padding:30px 30px 25px;text-align:center;">
+    <div style="display:inline-block;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.3);border-radius:50%;width:56px;height:56px;line-height:52px;font-size:28px;margin-bottom:10px;">🦑</div>
+    <div>
+      <span style="display:block;font-size:10px;color:rgba(255,255,255,0.75);font-weight:700;letter-spacing:2px;text-transform:uppercase;">CÔNG TY TNHH</span>
+      <span style="display:block;font-size:24px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1.1;">GIANG NGUYÊN</span>
+      <span style="display:block;font-size:18px;color:#fbbf24;font-weight:900;letter-spacing:3px;line-height:1.2;">GROUP</span>
     </div>
-    <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:12px;letter-spacing:1px;">★ Hải sản khô Sầm Sơn – Chất lượng tận tâm ★</p>
+    <p style="margin:10px 0 0;color:rgba(255,255,255,0.9);font-size:11px;letter-spacing:1px;">★ Hải sản khô Sầm Sơn – Chất lượng tận tâm ★</p>
+    <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:11px;">📍 Quầy 7A–7B Chợ Cột Đỏ · 50 Nguyễn Thị Minh Khai, Sầm Sơn · 7:00–21:00</p>
+    <p style="margin:2px 0 0;color:rgba(255,255,255,0.75);font-size:11px;">📞 0933.562.286 · giangnguyendriedseafood@gmail.com</p>
   </div>
 
   <!-- Invoice title -->
-  <div style="text-align:center;padding:25px 30px 15px;">
-    <div style="display:inline-block;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;padding:10px 30px;border-radius:30px;font-size:18px;font-weight:800;letter-spacing:1px;">
+  <div style="text-align:center;padding:22px 30px 10px;">
+    <div style="display:inline-block;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;padding:9px 28px;border-radius:30px;font-size:17px;font-weight:800;letter-spacing:1px;">
       📋 HÓA ĐƠN ĐẶT HÀNG
     </div>
     <p style="margin:12px 0 0;font-size:14px;color:#64748b;">Mã đơn: <strong style="color:#0369a1;font-size:16px;">${orderCode}</strong></p>
@@ -91,7 +108,7 @@ function generateInvoiceHtml(order: any) {
 
   <!-- Status badge -->
   <div style="text-align:center;padding:5px 30px 15px;">
-    <span style="display:inline-block;padding:8px 24px;border-radius:25px;background:${statusColor};color:#fff;font-size:14px;font-weight:700;letter-spacing:0.5px;">${status}</span>
+    <span style="display:inline-block;padding:9px 26px;border-radius:25px;background:${st.bg};color:${st.color};border:1.5px solid ${st.color}33;font-size:14px;font-weight:800;letter-spacing:0.5px;">${st.icon} ${st.label}</span>
   </div>
 
   <!-- Customer info -->
@@ -122,12 +139,16 @@ function generateInvoiceHtml(order: any) {
       </thead>
       <tbody>${items.map((item: any, i: number) => `
         <tr style="background:${i % 2 === 0 ? '#ffffff' : '#f8fafc'};border-bottom:1px solid #e2e8f0;">
-          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;">${i + 1}</td>
-          <td style="padding:10px 8px;font-size:13px;font-weight:600;color:#1e293b;">${item.name || ''}</td>
-          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;">${item.unit || 'kg'}</td>
-          <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#0369a1;">${item.quantity || 1}</td>
-          <td style="padding:10px 8px;text-align:right;font-size:13px;color:#475569;">${(item.price || 0).toLocaleString('vi-VN')}₫</td>
-          <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:700;color:#1e293b;">${((item.price || 0) * (item.quantity || 1)).toLocaleString('vi-VN')}₫</td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;vertical-align:top;">${i + 1}</td>
+          <td style="padding:10px 8px;font-size:13px;font-weight:600;color:#1e293b;">
+            ${item.name || ''}
+            ${item.description || item.note ? `<div style="margin-top:3px;font-size:11px;font-weight:400;color:#64748b;line-height:1.4;">${item.description || item.note}</div>` : ''}
+            ${item.grade ? `<span style="display:inline-block;margin-top:4px;font-size:10px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 8px;border-radius:10px;">${item.grade}</span>` : ''}
+          </td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;vertical-align:top;">${item.unit || 'kg'}</td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#0369a1;vertical-align:top;">${item.quantity || 1}</td>
+          <td style="padding:10px 8px;text-align:right;font-size:13px;color:#475569;vertical-align:top;">${(item.price || 0).toLocaleString('vi-VN')}₫</td>
+          <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:700;color:#1e293b;vertical-align:top;">${((item.price || 0) * (item.quantity || 1)).toLocaleString('vi-VN')}₫</td>
         </tr>
       `).join('')}</tbody>
     </table>
@@ -160,6 +181,19 @@ function generateInvoiceHtml(order: any) {
       </div>
     </div>
   </div>` : ''}
+
+  <!-- CTA buttons -->
+  <div style="padding:5px 30px 25px;text-align:center;">
+    ${order.status !== 'deposit_paid' && order.status !== 'delivered' && order.status !== 'cancelled' ? `
+      <a href="${confirmDepositUrl}" style="display:inline-block;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;text-decoration:none;padding:13px 28px;border-radius:30px;font-weight:800;font-size:14px;margin:6px 4px;box-shadow:0 4px 12px rgba(22,163,74,0.3);">
+        ✅ Tôi đã chuyển cọc
+      </a>
+    ` : ''}
+    <a href="${trackUrl}" style="display:inline-block;background:#fff;color:#0369a1;text-decoration:none;padding:12px 26px;border-radius:30px;font-weight:700;font-size:14px;margin:6px 4px;border:2px solid #0ea5e9;">
+      📦 Theo dõi đơn
+    </a>
+    <p style="margin:10px 0 0;font-size:11px;color:#94a3b8;">Hoặc nhắn Zalo <strong style="color:#0369a1;">0933.562.286</strong> kèm mã <strong>${orderCode}</strong></p>
+  </div>
 
   <!-- Footer -->
   <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1);padding:25px 30px;text-align:center;">
@@ -195,16 +229,14 @@ Deno.serve(async (req) => {
 
     const emailPromises: Promise<unknown>[] = []
 
+    const stLabel = (STATUS_MAP[order.status as string] || STATUS_MAP.pending).label
+
     if (order.customer_email) {
-      const customerSubject = type === 'deposit_paid'
-        ? `Hóa đơn ${order.order_code} - Đã cọc 50%`
-        : `Hóa đơn ${order.order_code} - Chưa thanh toán`
+      const customerSubject = `[Giang Nguyên] Đơn ${order.order_code} – ${stLabel}`
       emailPromises.push(sendEmail(transporter, order.customer_email, customerSubject, invoiceHtml))
     }
 
-    const adminSubject = type === 'deposit_paid'
-      ? `Đã cọc 50% ${order.order_code}`
-      : `Đơn mới ${order.order_code}`
+    const adminSubject = `🔔 [${stLabel}] ${order.order_code} – ${order.customer_name || ''}`
     emailPromises.push(sendEmail(transporter, SMTP_EMAIL, adminSubject, invoiceHtml))
 
     const results = await Promise.allSettled(emailPromises)

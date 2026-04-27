@@ -1,23 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Sparkles } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Sparkles, ExternalLink, Clock } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useProducts } from '@/hooks/useProducts';
 import { useAuth } from '@/contexts/AuthContext';
+
+interface Source {
+  title: string;
+  url: string;
+  fetched_at: string;
+}
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  sources?: Source[];
+  generated_at?: string;
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 const QUICK_REPLIES = [
-  'Giá mực khô hôm nay',
-  'Thời tiết Sầm Sơn',
-  'Combo quà biếu',
-  'Free ship không?',
+  'Tư vấn mực khô loại 1',
+  'Combo quà biếu Tết',
+  'Thời tiết Sầm Sơn hôm nay',
+  'Chốt đơn 1kg mực + 1kg cá chỉ vàng',
 ];
 
-// Persistent chat session id for this browser
 function getSessionId(): string {
   try {
     let id = localStorage.getItem('gn_chat_session');
@@ -31,12 +40,28 @@ function getSessionId(): string {
   }
 }
 
+function formatTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString('vi-VN', {
+      hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric',
+      timeZone: 'Asia/Ho_Chi_Minh',
+    });
+  } catch { return iso; }
+}
+
+function getDomain(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
+
 export default function ChatBot() {
   const [open, setOpen] = useState(false);
   const { products } = useProducts();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Xin chào 👋 Em là trợ lý AI của Giang Nguyên Group – chuyên hải sản khô Sầm Sơn.\nEm có thể tư vấn sản phẩm, kiểm tra thời tiết – giá vàng – tin tức hôm nay, gợi ý món ăn, du lịch Sầm Sơn… Anh/chị cần em giúp gì ạ? 🌊' },
+    {
+      role: 'assistant',
+      content: 'Chào anh/chị 👋 Em là **trợ lý sale** của Giang Nguyên Group – hải sản khô Sầm Sơn.\n\nEm có thể tư vấn sản phẩm, **chốt đơn và lên hoá đơn ngay tại đây**. Anh/chị cần gì em hỗ trợ ạ?',
+    },
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,8 +77,7 @@ export default function ChatBot() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Build product context for AI
-  const productContext = products.map(p => 
+  const productContext = products.map(p =>
     `- ${p.name}: ${p.price.toLocaleString('vi-VN')}₫/${p.unit} (${p.category}, ${p.grade})`
   ).join('\n');
 
@@ -68,10 +92,11 @@ export default function ChatBot() {
     setIsLoading(true);
 
     let assistantSoFar = '';
+    let pendingMeta: { sources?: Source[]; generated_at?: string } = {};
 
     try {
-      const systemContext = productContext ? `\n\nSẢN PHẨM HIỆN CÓ TRÊN WEBSITE:\n${productContext}` : '';
-      
+      const systemContext = productContext ? `\n\nDANH MỤC SẢN PHẨM HIỆN CÓ (dùng để chốt đơn — lấy đúng tên & giá):\n${productContext}` : '';
+
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
@@ -93,6 +118,23 @@ export default function ChatBot() {
       let textBuffer = '';
       let streamDone = false;
 
+      const upsert = () => {
+        setMessages(prev => {
+          const last = prev[prev.length - 1];
+          const isAssistantStreaming = last?.role === 'assistant' && prev.length > newMessages.length;
+          const updated: Message = {
+            role: 'assistant',
+            content: assistantSoFar,
+            sources: pendingMeta.sources,
+            generated_at: pendingMeta.generated_at,
+          };
+          if (isAssistantStreaming) {
+            return prev.map((m, i) => (i === prev.length - 1 ? updated : m));
+          }
+          return [...prev, updated];
+        });
+      };
+
       while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -109,54 +151,24 @@ export default function ChatBot() {
           if (jsonStr === '[DONE]') { streamDone = true; break; }
           try {
             const parsed = JSON.parse(jsonStr);
+            if (parsed.meta) {
+              pendingMeta = parsed.meta;
+              upsert();
+              continue;
+            }
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantSoFar += content;
-              setMessages(prev => {
-                const last = prev[prev.length - 1];
-                if (last?.role === 'assistant' && prev.length > newMessages.length) {
-                  return prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m));
-                }
-                return [...prev, { role: 'assistant', content: assistantSoFar }];
-              });
+              upsert();
             }
           } catch { textBuffer = line + '\n' + textBuffer; break; }
         }
       }
-
-      // Final flush
-      if (textBuffer.trim()) {
-        for (let raw of textBuffer.split('\n')) {
-          if (!raw) continue;
-          if (raw.endsWith('\r')) raw = raw.slice(0, -1);
-          if (raw.startsWith(':') || raw.trim() === '') continue;
-          if (!raw.startsWith('data: ')) continue;
-          const jsonStr = raw.slice(6).trim();
-          if (jsonStr === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantSoFar += content;
-              setMessages(prev => prev.map((m, i) => (i === prev.length - 1 ? { ...m, content: assistantSoFar } : m)));
-            }
-          } catch { /* ignore */ }
-        }
-      }
     } catch {
-      const lower = userText.toLowerCase();
-      let reply = 'Cảm ơn bạn! Để em tư vấn thêm, bạn cho em xin tên và số điện thoại nhé ạ? 😊';
-      if (lower.includes('mực khô') || lower.includes('giá mực')) {
-        const mucProducts = products.filter(p => p.name.toLowerCase().includes('mực'));
-        if (mucProducts.length > 0) {
-          reply = '🦑 Mực khô Sầm Sơn:\n' + mucProducts.map(p => `• ${p.name}: ${p.price.toLocaleString('vi-VN')}₫/${p.unit}`).join('\n') + '\n\nAnh/chị muốn em giữ hàng cho mình không ạ?';
-        }
-      } else if (lower.includes('combo') || lower.includes('quà')) {
-        reply = '🎁 Combo quà biếu HOT:\nVui lòng xem trang Combo để chọn gói phù hợp ạ!\n\nAnh/chị muốn em tư vấn thêm không ạ?';
-      } else if (lower.includes('ship') || lower.includes('giao')) {
-        reply = '🚚 Ship toàn quốc!\n• FREE ship đơn từ 500K\n• HN, HCM: 1-2 ngày\n\nAnh/chị ở đâu để em báo phí ship ạ?';
-      }
-      setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: 'Em đang gặp chút sự cố kết nối 😔. Anh/chị gọi hotline **0933.562.286** giúp em nhé!',
+      }]);
     }
 
     setIsLoading(false);
@@ -175,15 +187,15 @@ export default function ChatBot() {
       )}
 
       {open && (
-        <div className="fixed bottom-20 md:bottom-6 right-4 z-40 w-[calc(100vw-2rem)] max-w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[60vh] md:max-h-[500px] animate-fade-in">
+        <div className="fixed bottom-20 md:bottom-6 right-4 z-40 w-[calc(100vw-2rem)] max-w-96 bg-card rounded-2xl shadow-2xl border border-border flex flex-col max-h-[70vh] md:max-h-[560px] animate-fade-in">
           <div className="ocean-gradient rounded-t-2xl p-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="bg-accent/90 rounded-full p-1.5">
                 <Sparkles className="h-4 w-4 text-accent-foreground" />
               </div>
               <div>
-                <p className="font-bold text-primary-foreground text-sm leading-tight">Trợ lý AI Giang Nguyên</p>
-                <p className="text-primary-foreground/80 text-[10px]">🟢 Online · Web search · Đa lĩnh vực</p>
+                <p className="font-bold text-primary-foreground text-sm leading-tight">Trợ lý Sale Giang Nguyên</p>
+                <p className="text-primary-foreground/80 text-[10px]">🟢 GPT-5.2 · Chốt đơn · Trích nguồn</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-primary-foreground/80 hover:text-primary-foreground">
@@ -191,11 +203,47 @@ export default function ChatBot() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[150px]">
+          <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px]">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm whitespace-pre-line ${m.role === 'user' ? 'ocean-gradient text-primary-foreground' : 'bg-muted text-foreground'}`}>
-                  {m.content}
+                <div className={`max-w-[88%] rounded-2xl px-3 py-2 text-sm ${m.role === 'user' ? 'ocean-gradient text-primary-foreground' : 'bg-muted text-foreground'}`}>
+                  {m.role === 'assistant' ? (
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-headings:my-1 prose-strong:text-foreground prose-a:text-primary">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content || '…'}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <span className="whitespace-pre-line">{m.content}</span>
+                  )}
+
+                  {m.role === 'assistant' && m.sources && m.sources.length > 0 && (
+                    <div className="mt-2 pt-2 border-t border-border/50 space-y-1">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">📎 Nguồn tham khảo</p>
+                      {m.sources.map((s, idx) => (
+                        <a key={idx} href={s.url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-start gap-1.5 text-[11px] hover:bg-background/50 rounded p-1 -mx-1 transition-colors group">
+                          <span className="text-primary font-semibold">[{idx + 1}]</span>
+                          <img
+                            src={`https://www.google.com/s2/favicons?domain=${getDomain(s.url)}&sz=32`}
+                            alt="" width={14} height={14}
+                            className="mt-0.5 rounded flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                          <span className="flex-1 min-w-0">
+                            <span className="block font-medium text-foreground line-clamp-1 group-hover:text-primary">{s.title || getDomain(s.url)}</span>
+                            <span className="text-muted-foreground text-[10px]">{getDomain(s.url)}</span>
+                          </span>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {m.role === 'assistant' && m.generated_at && (
+                    <div className="mt-1.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Clock className="h-2.5 w-2.5" />
+                      <span>Truy vấn lúc {formatTime(m.generated_at)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

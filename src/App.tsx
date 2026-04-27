@@ -42,6 +42,7 @@ import AuctionsPage from "./pages/AuctionsPage.tsx";
 import AuctionDetail from "./pages/AuctionDetail.tsx";
 import LivePage from "./pages/LivePage.tsx";
 import AgentsPage from "./pages/AgentsPage.tsx";
+import OrderTracking from "./pages/OrderTracking.tsx";
 import AbandonedCartTracker from "./components/AbandonedCartTracker.tsx";
 
 const queryClient = new QueryClient();

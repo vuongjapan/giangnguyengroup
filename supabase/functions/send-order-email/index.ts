@@ -229,16 +229,14 @@ Deno.serve(async (req) => {
 
     const emailPromises: Promise<unknown>[] = []
 
+    const stLabel = (STATUS_MAP[order.status as string] || STATUS_MAP.pending).label
+
     if (order.customer_email) {
-      const customerSubject = type === 'deposit_paid'
-        ? `Hóa đơn ${order.order_code} - Đã cọc 50%`
-        : `Hóa đơn ${order.order_code} - Chưa thanh toán`
+      const customerSubject = `[Giang Nguyên] Đơn ${order.order_code} – ${stLabel}`
       emailPromises.push(sendEmail(transporter, order.customer_email, customerSubject, invoiceHtml))
     }
 
-    const adminSubject = type === 'deposit_paid'
-      ? `Đã cọc 50% ${order.order_code}`
-      : `Đơn mới ${order.order_code}`
+    const adminSubject = `🔔 [${stLabel}] ${order.order_code} – ${order.customer_name || ''}`
     emailPromises.push(sendEmail(transporter, SMTP_EMAIL, adminSubject, invoiceHtml))
 
     const results = await Promise.allSettled(emailPromises)

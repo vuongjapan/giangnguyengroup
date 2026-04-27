@@ -43,6 +43,19 @@ async function sendEmail(
   return info
 }
 
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string; icon: string }> = {
+  pending:      { label: 'ĐƠN MỚI - CHỜ XÁC NHẬN', color: '#92400e', bg: '#fef3c7', icon: '⏳' },
+  confirmed:    { label: 'ĐÃ XÁC NHẬN',             color: '#1d4ed8', bg: '#dbeafe', icon: '✅' },
+  deposit_paid: { label: 'ĐÃ CỌC 50%',                color: '#15803d', bg: '#dcfce7', icon: '💰' },
+  shipping:     { label: 'ĐANG GIAO HÀNG',            color: '#6d28d9', bg: '#ede9fe', icon: '🚚' },
+  delivered:    { label: 'HOÀN TẤT',                  color: '#166534', bg: '#bbf7d0', icon: '🎉' },
+  cancelled:    { label: 'ĐÃ HUỶ',                    color: '#b91c1c', bg: '#fee2e2', icon: '✖️' },
+}
+
+function getSiteOrigin() {
+  return Deno.env.get('SITE_ORIGIN') || 'https://giangnguyengroup.lovable.app'
+}
+
 function generateInvoiceHtml(order: any) {
   const items = order.items || []
   const totalAmount = order.total || 0
@@ -50,8 +63,9 @@ function generateInvoiceHtml(order: any) {
   const remainingAmount = totalAmount - depositAmount
   const orderCode = order.order_code || ''
   const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${depositAmount}&des=${encodeURIComponent(orderCode)}`
-  const status = order.status === 'deposit_paid' ? '✅ ĐÃ CỌC 50%' : '⏳ CHƯA THANH TOÁN'
-  const statusColor = order.status === 'deposit_paid' ? '#16a34a' : '#ea580c'
+  const st = STATUS_MAP[order.status as string] || STATUS_MAP.pending
+  const trackUrl = `${getSiteOrigin()}/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}`
+  const confirmDepositUrl = `${getSiteOrigin()}/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}&action=confirm_deposit`
 
   const itemRows = items.map((item: any, i: number) => `
     <tr style="border-bottom:1px solid #e5e7eb;">

@@ -139,12 +139,16 @@ function generateInvoiceHtml(order: any) {
       </thead>
       <tbody>${items.map((item: any, i: number) => `
         <tr style="background:${i % 2 === 0 ? '#ffffff' : '#f8fafc'};border-bottom:1px solid #e2e8f0;">
-          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;">${i + 1}</td>
-          <td style="padding:10px 8px;font-size:13px;font-weight:600;color:#1e293b;">${item.name || ''}</td>
-          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;">${item.unit || 'kg'}</td>
-          <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#0369a1;">${item.quantity || 1}</td>
-          <td style="padding:10px 8px;text-align:right;font-size:13px;color:#475569;">${(item.price || 0).toLocaleString('vi-VN')}₫</td>
-          <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:700;color:#1e293b;">${((item.price || 0) * (item.quantity || 1)).toLocaleString('vi-VN')}₫</td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;vertical-align:top;">${i + 1}</td>
+          <td style="padding:10px 8px;font-size:13px;font-weight:600;color:#1e293b;">
+            ${item.name || ''}
+            ${item.description || item.note ? `<div style="margin-top:3px;font-size:11px;font-weight:400;color:#64748b;line-height:1.4;">${item.description || item.note}</div>` : ''}
+            ${item.grade ? `<span style="display:inline-block;margin-top:4px;font-size:10px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 8px;border-radius:10px;">${item.grade}</span>` : ''}
+          </td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;color:#475569;vertical-align:top;">${item.unit || 'kg'}</td>
+          <td style="padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#0369a1;vertical-align:top;">${item.quantity || 1}</td>
+          <td style="padding:10px 8px;text-align:right;font-size:13px;color:#475569;vertical-align:top;">${(item.price || 0).toLocaleString('vi-VN')}₫</td>
+          <td style="padding:10px 8px;text-align:right;font-size:13px;font-weight:700;color:#1e293b;vertical-align:top;">${((item.price || 0) * (item.quantity || 1)).toLocaleString('vi-VN')}₫</td>
         </tr>
       `).join('')}</tbody>
     </table>

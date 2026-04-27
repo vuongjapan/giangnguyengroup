@@ -84,19 +84,22 @@ function generateInvoiceHtml(order: any) {
 <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f8;">
 <div style="max-width:650px;margin:20px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.1);">
   
-  <!-- Header with gradient -->
-  <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9);padding:35px 30px;text-align:center;">
-    <div style="margin-bottom:8px;">
-      <span style="display:block;font-size:10px;color:rgba(255,255,255,0.7);font-weight:700;letter-spacing:2px;text-transform:uppercase;">CÔNG TY TNHH</span>
-      <span style="display:block;font-size:26px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1.1;">GIANG NGUYÊN</span>
-      <span style="display:block;font-size:20px;color:#fbbf24;font-weight:900;letter-spacing:3px;line-height:1.2;">GROUP</span>
+  <!-- Header with gradient + logo emblem -->
+  <div style="background:linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9);padding:30px 30px 25px;text-align:center;">
+    <div style="display:inline-block;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.3);border-radius:50%;width:56px;height:56px;line-height:52px;font-size:28px;margin-bottom:10px;">🦑</div>
+    <div>
+      <span style="display:block;font-size:10px;color:rgba(255,255,255,0.75);font-weight:700;letter-spacing:2px;text-transform:uppercase;">CÔNG TY TNHH</span>
+      <span style="display:block;font-size:24px;color:#fff;font-weight:900;letter-spacing:2px;line-height:1.1;">GIANG NGUYÊN</span>
+      <span style="display:block;font-size:18px;color:#fbbf24;font-weight:900;letter-spacing:3px;line-height:1.2;">GROUP</span>
     </div>
-    <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:12px;letter-spacing:1px;">★ Hải sản khô Sầm Sơn – Chất lượng tận tâm ★</p>
+    <p style="margin:10px 0 0;color:rgba(255,255,255,0.9);font-size:11px;letter-spacing:1px;">★ Hải sản khô Sầm Sơn – Chất lượng tận tâm ★</p>
+    <p style="margin:6px 0 0;color:rgba(255,255,255,0.75);font-size:11px;">📍 Quầy 7A–7B Chợ Cột Đỏ · 50 Nguyễn Thị Minh Khai, Sầm Sơn · 7:00–21:00</p>
+    <p style="margin:2px 0 0;color:rgba(255,255,255,0.75);font-size:11px;">📞 0933.562.286 · giangnguyendriedseafood@gmail.com</p>
   </div>
 
   <!-- Invoice title -->
-  <div style="text-align:center;padding:25px 30px 15px;">
-    <div style="display:inline-block;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;padding:10px 30px;border-radius:30px;font-size:18px;font-weight:800;letter-spacing:1px;">
+  <div style="text-align:center;padding:22px 30px 10px;">
+    <div style="display:inline-block;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;padding:9px 28px;border-radius:30px;font-size:17px;font-weight:800;letter-spacing:1px;">
       📋 HÓA ĐƠN ĐẶT HÀNG
     </div>
     <p style="margin:12px 0 0;font-size:14px;color:#64748b;">Mã đơn: <strong style="color:#0369a1;font-size:16px;">${orderCode}</strong></p>
@@ -105,7 +108,7 @@ function generateInvoiceHtml(order: any) {
 
   <!-- Status badge -->
   <div style="text-align:center;padding:5px 30px 15px;">
-    <span style="display:inline-block;padding:8px 24px;border-radius:25px;background:${statusColor};color:#fff;font-size:14px;font-weight:700;letter-spacing:0.5px;">${status}</span>
+    <span style="display:inline-block;padding:9px 26px;border-radius:25px;background:${st.bg};color:${st.color};border:1.5px solid ${st.color}33;font-size:14px;font-weight:800;letter-spacing:0.5px;">${st.icon} ${st.label}</span>
   </div>
 
   <!-- Customer info -->

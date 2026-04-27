@@ -219,6 +219,7 @@ async function createOrderTool(
         items: itemsForOrder,
         totalPrice,
       }),
+    });
     const data = await resp.json();
     if (!resp.ok || !data.success) return { ok: false, error: data.error || 'Tạo đơn thất bại' };
     return {

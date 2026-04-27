@@ -88,6 +88,7 @@ const App = () => (
                 <Route path="/dau-gia/:slug" element={<AuctionDetail />} />
                 <Route path="/live" element={<LivePage />} />
                 <Route path="/dai-ly-phan-phoi" element={<AgentsPage />} />
+                <Route path="/tra-cuu-don" element={<OrderTracking />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TrackingPixels />

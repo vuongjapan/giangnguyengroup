@@ -219,30 +219,6 @@ async function createOrderTool(
         items: itemsForOrder,
         totalPrice,
       }),
-    });
-    const itemsForOrder = args.items.map(it => ({
-      productId: '',
-      name: it.name,
-      price: Math.round(Number(it.price) || 0),
-      unit: it.unit || 'kg',
-      quantity: Math.round(Number(it.quantity) || 1),
-      image: '',
-    }));
-    const resp = await fetch(`${supabaseUrl}/functions/v1/create-order`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${anonKey}`,
-      },
-      body: JSON.stringify({
-        customer: {
-          name: args.customer_name, phone: args.customer_phone,
-          address: args.customer_address, email: args.customer_email || '',
-        },
-        items: itemsForOrder,
-        totalPrice,
-      }),
-    });
     const data = await resp.json();
     if (!resp.ok || !data.success) return { ok: false, error: data.error || 'Tạo đơn thất bại' };
     return {

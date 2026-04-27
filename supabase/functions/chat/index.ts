@@ -158,9 +158,68 @@ async function createOrderTool(
     note?: string;
   },
   supabaseUrl: string, anonKey: string,
-): Promise<{ ok: boolean; order_code?: string; total?: number; deposit?: number; remaining?: number; emailSent?: boolean; error?: string }> {
+): Promise<{ ok: boolean; order_code?: string; total?: number; deposit?: number; remaining?: number; emailSent?: boolean; error?: string; validation_errors?: string[] }> {
+  // ===== VALIDATE TRƯỚC KHI TẠO =====
+  const errors: string[] = [];
+  const name = String(args.customer_name || '').trim();
+  if (name.length < 2) errors.push('Tên khách hàng quá ngắn (cần ≥ 2 ký tự)');
+
+  // SĐT VN: 10 số bắt đầu bằng 0, hoặc +84/84 + 9 số. Cho phép khoảng trắng/dấu chấm.
+  const rawPhone = String(args.customer_phone || '').replace(/[\s.\-()]/g, '');
+  const phoneNorm = rawPhone.replace(/^(\+?84)/, '0');
+  const phoneOk = /^0(3|5|7|8|9)\d{8}$/.test(phoneNorm);
+  if (!phoneOk) errors.push(`Số điện thoại "${args.customer_phone}" không hợp lệ. Cần 10 số bắt đầu bằng 03/05/07/08/09`);
+
+  // Địa chỉ: tối thiểu 10 ký tự + có ít nhất 2 phần ngăn cách bằng dấu phẩy hoặc 2 từ địa danh
+  const addr = String(args.customer_address || '').trim();
+  if (addr.length < 10) errors.push('Địa chỉ quá ngắn — cần ghi rõ số nhà, đường, phường/xã, quận/huyện, tỉnh/thành');
+  else if (!/[,\/]|(phường|xã|quận|huyện|tỉnh|thành phố|tp\.?|tx\.?|tt\.?)/i.test(addr) && addr.split(/\s+/).length < 4) {
+    errors.push('Địa chỉ thiếu đơn vị hành chính (phường/xã, quận/huyện, tỉnh/thành phố)');
+  }
+
+  if (args.customer_email) {
+    const em = args.customer_email.trim();
+    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) errors.push(`Email "${em}" không đúng định dạng`);
+  }
+
+  if (!Array.isArray(args.items) || args.items.length === 0) errors.push('Chưa có sản phẩm trong đơn');
+  else {
+    args.items.forEach((it, idx) => {
+      if (!it.name) errors.push(`SP #${idx + 1} thiếu tên`);
+      if (!Number(it.price) || Number(it.price) <= 0) errors.push(`SP "${it.name || idx + 1}" thiếu/sai giá`);
+      if (!Number(it.quantity) || Number(it.quantity) <= 0) errors.push(`SP "${it.name || idx + 1}" thiếu/sai số lượng`);
+    });
+  }
+
+  if (errors.length > 0) {
+    return { ok: false, error: 'VALIDATION_FAILED', validation_errors: errors };
+  }
+
   try {
     const totalPrice = args.items.reduce((s, it) => s + (Number(it.price) || 0) * (Number(it.quantity) || 1), 0);
+    const itemsForOrder = args.items.map(it => ({
+      productId: '',
+      name: it.name,
+      price: Math.round(Number(it.price) || 0),
+      unit: it.unit || 'kg',
+      quantity: Math.round(Number(it.quantity) || 1),
+      image: '',
+    }));
+    const resp = await fetch(`${supabaseUrl}/functions/v1/create-order`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${anonKey}`,
+      },
+      body: JSON.stringify({
+        customer: {
+          name, phone: phoneNorm,
+          address: addr, email: args.customer_email || '',
+        },
+        items: itemsForOrder,
+        totalPrice,
+      }),
+    });
     const itemsForOrder = args.items.map(it => ({
       productId: '',
       name: it.name,

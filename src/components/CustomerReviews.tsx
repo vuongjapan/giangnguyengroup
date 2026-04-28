@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star, Quote, Send } from 'lucide-react';
+import { Star, Send, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -9,7 +9,6 @@ const STATIC_REVIEWS = [
   {
     name: 'Chị Hương',
     location: 'Hà Nội',
-    avatar: '👩',
     rating: 5,
     product: 'Mực Khô Loại 1',
     text: 'Mực khô loại 1 rất ngon, nướng lên thơm lừng cả nhà. Ship nhanh, đóng gói cẩn thận. Lần sau nhất định mua lại!',
@@ -18,7 +17,6 @@ const STATIC_REVIEWS = [
   {
     name: 'Anh Tuấn',
     location: 'TP.HCM',
-    avatar: '👨',
     rating: 5,
     product: 'Combo Quà Biếu',
     text: 'Mua làm quà biếu sếp dịp Tết, được khen hết lời. Hộp quà sang trọng, hải sản tươi ngon. Rất đáng tiền!',
@@ -27,7 +25,6 @@ const STATIC_REVIEWS = [
   {
     name: 'Chị Mai',
     location: 'Đà Nẵng',
-    avatar: '👩‍🍳',
     rating: 5,
     product: 'Cá Thu 1 Nắng',
     text: 'Cá thu 1 nắng chiên lên vàng giòn, cả nhà ai cũng mê. Giá rất hợp lý, chất lượng tuyệt vời!',
@@ -36,7 +33,6 @@ const STATIC_REVIEWS = [
   {
     name: 'Anh Đức',
     location: 'Hải Phòng',
-    avatar: '🧑',
     rating: 5,
     product: 'Mực Trứng',
     text: 'Mực trứng béo ngậy, nướng lên trứng nở bung ra. Lần đầu ăn mà nghiện luôn, đã mua lần 3 rồi!',
@@ -45,7 +41,6 @@ const STATIC_REVIEWS = [
   {
     name: 'Chị Lan',
     location: 'Nghệ An',
-    avatar: '👩‍💼',
     rating: 5,
     product: 'Nem Chua Thanh Hóa',
     text: 'Nem chua chua ngọt vừa miệng, ăn kèm tỏi ớt thì hết sảy. Con gái mình mê lắm, cứ đòi mua thêm hoài!',

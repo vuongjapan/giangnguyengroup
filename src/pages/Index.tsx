@@ -307,19 +307,10 @@ export default function Index() {
       </Suspense>
 
       {/* CTA banner */}
-      <section className="ocean-gradient py-8 scroll-animate">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-xl md:text-2xl font-black text-primary-foreground mb-2">
-            Đặt hàng ngay – Ship tận nhà!
-          </h2>
-          <p className="text-primary-foreground/80 text-sm mb-4">
-            Hotline: <a href="tel:0933562286" className="font-bold text-accent hover:underline">0933.562.286</a> • Zalo: <a href="https://zalo.me/0933562286" className="font-bold text-accent hover:underline">0933.562.286</a>
-          </p>
-          <a href="tel:0933562286" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
-            📞 GỌI ĐẶT HÀNG NGAY
-          </a>
-        </div>
-      </section>
+      <CTABanner />
+
+      {/* Location thumbnails */}
+      <LocationThumbnails />
 
       <WhyChooseUs />
 

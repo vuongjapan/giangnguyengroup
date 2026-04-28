@@ -37,6 +37,33 @@ export default function OrderTracking() {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [confirming, setConfirming] = useState(false);
+
+  const confirmDeposit = async () => {
+    if (!order) return;
+    // Check if customer already confirmed (prevent duplicate)
+    const alreadyConfirmed = history.some((h) => (h.note || '').includes('[Khách xác nhận đã chuyển cọc]'));
+    if (alreadyConfirmed) {
+      toast.info('Bạn đã xác nhận trước đó. Cửa hàng sẽ kiểm tra và cập nhật sớm.');
+      return;
+    }
+    setConfirming(true);
+    try {
+      const { error: insErr } = await supabase.from('order_status_history').insert({
+        order_id: order.id,
+        order_code: order.order_code,
+        from_status: order.status,
+        to_status: order.status,
+        note: `[Khách xác nhận đã chuyển cọc] ${order.customer_name} – ${order.customer_phone} báo đã chuyển khoản cọc ${formatPrice(deposit)} lúc ${new Date().toLocaleString('vi-VN')}. Vui lòng kiểm tra giao dịch SePay và cập nhật trạng thái.`,
+      });
+      if (insErr) throw insErr;
+      toast.success('Đã gửi xác nhận! Cửa hàng sẽ kiểm tra giao dịch trong 5–10 phút.', { duration: 5000 });
+    } catch (err: any) {
+      toast.error(err.message || 'Không gửi được xác nhận, vui lòng thử lại');
+    } finally {
+      setConfirming(false);
+    }
+  };
 
   const search = async (c?: string, p?: string) => {
     const oc = (c ?? code).trim();

@@ -159,13 +159,13 @@ export default function HeroBanner() {
   };
 
   return (
-    <section className="bg-background py-2 md:py-4">
-      <div className="container mx-auto px-2 sm:px-3 md:px-4">
-        {/* Top grid: big slider + side banners. Aspect ratios keep proportions at every width */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+    <section className="bg-background w-full">
+      <div className="w-full px-0">
+        {/* Top grid: big slider + side banners. Full-width edge-to-edge */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
           {/* Big slider — fluid via aspect ratio */}
           <div
-            className="md:col-span-2 relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8.5] lg:aspect-[16/8] rounded-xl overflow-hidden group shadow-lg bg-muted"
+            className="md:col-span-2 relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8.5] lg:aspect-[16/8] overflow-hidden group shadow-lg bg-muted"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onFocus={() => setIsPaused(true)}
@@ -345,14 +345,13 @@ export default function HeroBanner() {
             )}
           </div>
 
-          {/* Side banners — aspect ratios so they scale proportionally with column width.
-              Mobile: 2 cols → wider 16/9. Desktop stacked: each ~half the slider height → ~16/8.5/2 ≈ 16/4.25 */}
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3 md:content-between">
+          {/* Side banners — full width, no rounded corners for edge-to-edge look */}
+          <div className="grid grid-cols-2 md:grid-cols-1 gap-0 md:content-between">
             {sideBanners.slice(0, 2).map((b, i) => (
               <Link
                 key={i}
                 to={b.href}
-                className="relative w-full aspect-[16/9] sm:aspect-[16/8] md:aspect-auto md:h-[calc((100%-0.75rem)/2)] rounded-xl overflow-hidden shadow-lg group block"
+                className="relative w-full aspect-[16/9] sm:aspect-[16/8] md:aspect-auto md:h-[calc(50%)] overflow-hidden shadow-lg group block"
               >
                 <img
                   src={b.image}
@@ -410,13 +409,13 @@ export default function HeroBanner() {
           </div>
         </div>
 
-        {/* Bottom banners — wide horizontal aspect, scales with width */}
-        <div className="grid grid-cols-2 gap-2 md:gap-3 mt-2 md:mt-3">
+        {/* Bottom banners — full width, 50/50 split, edge to edge */}
+        <div className="grid grid-cols-2 gap-0 mt-0">
           {bottomBanners.slice(0, 2).map((b, i) => (
             <Link
               key={i}
               to={b.href}
-              className="relative w-full aspect-[16/5] sm:aspect-[16/4.5] md:aspect-[16/4] rounded-xl overflow-hidden shadow-lg group block"
+              className="relative w-full aspect-[16/5] sm:aspect-[16/4.5] md:aspect-[16/4] overflow-hidden shadow-lg group block"
             >
               <img
                 src={b.image}

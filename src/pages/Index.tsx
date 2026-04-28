@@ -13,6 +13,8 @@ import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import StatsBar from '@/components/StatsBar';
+import CTABanner from '@/components/CTABanner';
+import LocationThumbnails from '@/components/LocationThumbnails';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import HotAuctions from '@/components/HotAuctions';
 import { useCart } from '@/contexts/CartContext';

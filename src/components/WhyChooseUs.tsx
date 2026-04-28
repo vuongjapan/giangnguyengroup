@@ -1,10 +1,9 @@
 import { useSiteContent } from '@/hooks/useSiteContent';
-import { ShieldCheck, Truck, RefreshCw, Award, Leaf, HeadphonesIcon, Package } from 'lucide-react';
 
 interface Reason {
   icon: string;
   title: string;
-  details: string[];
+  desc: string;
 }
 
 interface WhyChooseData {
@@ -13,82 +12,29 @@ interface WhyChooseData {
 }
 
 const DEFAULT_DATA: WhyChooseData = {
-  heading: '7 LÝ DO NÊN CHỌN GIANG NGUYÊN GROUP',
+  heading: 'TẠI SAO NÊN CHỌN GIANG NGUYÊN SEAFOOD',
   reasons: [
     {
-      icon: 'package',
-      title: 'ĐA DẠNG HÀNG HÓA',
-      details: [
-        'Hải sản TƯƠI SỐNG, ĐÔNG LẠNH, KHÔ đa dạng chủng loại',
-        'Hơn 50+ sản phẩm chính gốc Sầm Sơn',
-        'Đặc sản theo mùa, quà biếu cao cấp',
-      ],
+      icon: '🌊',
+      title: 'Nguồn Gốc Sầm Sơn',
+      desc: 'Thu mua trực tiếp từ ngư dân Sầm Sơn – Thanh Hóa, đảm bảo nguồn gốc rõ ràng và minh bạch.',
     },
     {
-      icon: 'shield',
-      title: 'CAM KẾT CHẤT LƯỢNG',
-      details: [
-        'CHẤT LƯỢNG SẢN PHẨM ĐƯỢC CAM KẾT với chính sách đổi trả minh bạch',
-        '100% hải sản sạch, không hóa chất, không chất bảo quản',
-        'HOÀN TIỀN NHANH CHÓNG nếu sản phẩm không đạt yêu cầu',
-      ],
+      icon: '✅',
+      title: 'Kiểm Định Sạch',
+      desc: '100% hải sản đạt chứng nhận ATTP, không hóa chất, không chất bảo quản, an toàn cho cả gia đình.',
     },
     {
-      icon: 'truck',
-      title: 'THANH TOÁN LINH HOẠT',
-      details: [
-        'Thanh toán COD, chuyển khoản, quét QR tiện lợi',
-        'CAM KẾT BẢO MẬT thông tin khách hàng tuyệt đối',
-        'Hỗ trợ cọc 50% cho đơn hàng từ xa',
-      ],
+      icon: '📦',
+      title: 'Đóng Gói Chân Không',
+      desc: 'Đóng gói chân không cao cấp, giữ trọn hương vị tươi ngon, sang trọng – phù hợp làm quà biếu.',
     },
     {
-      icon: 'award',
-      title: 'QUYỀN LỢI KHÁCH HÀNG',
-      details: [
-        'Tích điểm khi mua hàng, đổi quà giá trị',
-        'Giảm thêm 5% cho khách hàng thân thiết',
-        'Ưu đãi sinh nhật, quà tặng bất ngờ',
-      ],
-    },
-    {
-      icon: 'refresh',
-      title: 'DỄ DÀNG MUA SẮM',
-      details: [
-        'Website thân thiện, dễ sử dụng trên mọi thiết bị',
-        'Đặt hàng online 24/7, giao tận cửa nhà',
-        'Chat tư vấn trực tuyến, phản hồi nhanh',
-      ],
-    },
-    {
-      icon: 'headphones',
-      title: 'GIAO HÀNG NHANH',
-      details: [
-        'Giao HỎA TỐC nội thành trong 2H',
-        'MIỄN PHÍ VẬN CHUYỂN cho đơn hàng từ 500K',
-        'Đóng gói cẩn thận, giữ độ tươi nguyên vẹn',
-      ],
-    },
-    {
-      icon: 'leaf',
-      title: 'NGUỒN GỐC SẢN PHẨM',
-      details: [
-        '100% NGUỒN GỐC RÕ RÀNG, minh bạch',
-        'Thu mua trực tiếp từ ngư dân Sầm Sơn',
-        'Quy trình phơi sấy truyền thống, đảm bảo vệ sinh ATTP',
-      ],
+      icon: '🚚',
+      title: 'Giao Toàn Quốc',
+      desc: 'Free ship đơn từ 1.5 triệu, giao hỏa tốc nội thành 2H, đổi trả 24h hoàn tiền 100%.',
     },
   ],
-};
-
-const ICON_MAP: Record<string, React.ElementType> = {
-  package: Package,
-  shield: ShieldCheck,
-  truck: Truck,
-  award: Award,
-  refresh: RefreshCw,
-  headphones: HeadphonesIcon,
-  leaf: Leaf,
 };
 
 export default function WhyChooseUs() {
@@ -97,49 +43,30 @@ export default function WhyChooseUs() {
   const heading = data.heading || DEFAULT_DATA.heading;
 
   return (
-    <section className="py-8 md:py-12">
+    <section className="py-10 md:py-14 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-6">
-          <h2 className="text-xl md:text-2xl font-black text-primary mb-1">
+        <div className="text-center mb-8">
+          <h2 className="text-xl md:text-3xl font-black text-primary mb-2">
             {heading}
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto rounded-full" />
         </div>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="border border-border rounded-2xl overflow-hidden bg-card shadow-lg">
-            {/* Table header */}
-            <div className="ocean-gradient px-4 py-3 grid grid-cols-[140px_1fr] md:grid-cols-[200px_1fr]">
-              <span className="text-primary-foreground font-bold text-sm md:text-base">TIÊU CHÍ</span>
-              <span className="text-primary-foreground font-bold text-sm md:text-base">MUA HÀNG TẠI GIANG NGUYÊN GROUP</span>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
+          {reasons.slice(0, 4).map((r, i) => (
+            <div
+              key={i}
+              className="relative bg-card rounded-2xl p-5 md:p-6 border-t-4 border-t-primary border border-border shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center"
+            >
+              <div className="text-5xl md:text-[48px] mb-3 leading-none">{r.icon}</div>
+              <h3 className="font-bold text-foreground text-sm md:text-base mb-2 leading-tight">
+                {r.title}
+              </h3>
+              <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+                {r.desc}
+              </p>
             </div>
-
-            {/* Rows */}
-            {reasons.map((reason, i) => {
-              const IconComp = ICON_MAP[reason.icon] || Package;
-              return (
-                <div
-                  key={i}
-                  className={`grid grid-cols-[140px_1fr] md:grid-cols-[200px_1fr] border-t border-border ${
-                    i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'
-                  }`}
-                >
-                  <div className="px-4 py-3 flex flex-col items-center justify-center text-center border-r border-border">
-                    <IconComp className="h-5 w-5 text-primary mb-1" />
-                    <span className="text-xs md:text-sm font-bold text-foreground leading-tight">{reason.title}</span>
-                  </div>
-                  <div className="px-4 py-3 space-y-1">
-                    {reason.details.map((d, j) => (
-                      <p key={j} className="text-xs md:text-sm text-muted-foreground flex items-start gap-1.5">
-                        <span className="text-primary mt-0.5 flex-shrink-0">✓</span>
-                        <span dangerouslySetInnerHTML={{ __html: d.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          ))}
         </div>
       </div>
     </section>

@@ -193,6 +193,21 @@ export default function OrderTracking() {
                   <div className="flex justify-between"><span className="text-muted-foreground">Cọc 50%:</span><span className="font-bold text-orange-600">{formatPrice(deposit)}</span></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Còn lại khi nhận:</span><span className="font-bold">{formatPrice(remaining)}</span></div>
                 </div>
+                {['pending', 'confirmed'].includes(order.status) && (
+                  <button
+                    onClick={confirmDeposit}
+                    disabled={confirming}
+                    className="mt-4 w-full ocean-gradient text-primary-foreground font-semibold px-4 py-2.5 rounded-lg inline-flex items-center justify-center gap-2 disabled:opacity-60 hover:opacity-95 transition"
+                  >
+                    {confirming ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    {confirming ? 'Đang gửi xác nhận...' : 'Tôi đã thanh toán cọc'}
+                  </button>
+                )}
+                {order.status === 'deposit_paid' && (
+                  <div className="mt-4 flex items-center gap-2 text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 text-sm font-semibold">
+                    <CheckCircle2 className="h-4 w-4" /> Cửa hàng đã nhận cọc – đang chuẩn bị hàng
+                  </div>
+                )}
               </div>
               <div className="bg-card border border-border rounded-2xl p-5">
                 <h3 className="text-sm font-bold text-foreground mb-3">🚚 Lịch giao dự kiến</h3>

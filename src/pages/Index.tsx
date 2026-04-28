@@ -12,6 +12,7 @@ import { organizationLD, localBusinessLD, breadcrumbLD } from '@/lib/seo';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
+import StatsBar from '@/components/StatsBar';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import HotAuctions from '@/components/HotAuctions';
 import { useCart } from '@/contexts/CartContext';
@@ -115,6 +116,9 @@ export default function Index() {
 
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
+
+      {/* Unified stats bar — single source of truth */}
+      <StatsBar />
 
       {/* Phiên đấu giá hot nhất - widget realtime ngay dưới hero */}
       <HotAuctions />

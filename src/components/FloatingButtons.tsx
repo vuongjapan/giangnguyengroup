@@ -1,73 +1,75 @@
-import { Phone, ShoppingCart, MessageCircle } from 'lucide-react';
-import { useCart } from '@/contexts/CartContext';
+import { useState } from 'react';
+import { MessageCircle, Phone, X, Facebook } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function FloatingButtons() {
-  const { totalItems, setIsOpen } = useCart();
+  const [open, setOpen] = useState(false);
   const isMobile = useIsMobile();
-
-  if (isMobile) return null;
-
-  const buttons = [
-    {
-      href: 'tel:0933562286',
-      label: 'Gọi điện',
-      icon: <Phone className="h-5 w-5" />,
-      className: 'bg-success text-primary-foreground animate-pulse-soft',
-      tooltip: '📞 Gọi điện',
-    },
-    {
-      href: 'https://zalo.me/0933562286',
-      label: 'Zalo',
-      icon: <span className="text-xs font-black">Zalo</span>,
-      className: 'bg-primary text-primary-foreground',
-      tooltip: '💬 Zalo',
-      external: true,
-    },
-    {
-      href: 'https://facebook.com',
-      label: 'Facebook',
-      icon: <span className="text-xs font-black">FB</span>,
-      className: 'ocean-gradient text-primary-foreground',
-      tooltip: '📘 Facebook',
-      external: true,
-    },
-  ];
+  const size = isMobile ? 48 : 56;
 
   return (
-    <div className="fixed bottom-4 left-4 z-30 flex flex-col gap-2.5">
-      {buttons.map(btn => (
-        <a
-          key={btn.label}
-          href={btn.href}
-          target={btn.external ? '_blank' : undefined}
-          rel={btn.external ? 'noopener noreferrer' : undefined}
-          className={`relative group w-[46px] h-[46px] rounded-full shadow-lg hover:scale-110 transition-transform flex items-center justify-center ${btn.className}`}
-          aria-label={btn.label}
+    <div
+      className="fixed z-[9999]"
+      style={{ bottom: isMobile ? '76px' : '16px', right: '16px' }}
+    >
+      {/* Contact options card */}
+      {open && (
+        <div
+          className="absolute bottom-full right-0 mb-3 w-72 bg-card rounded-2xl shadow-2xl border border-border overflow-hidden animate-slide-up"
+          style={{ animation: 'slideUp 0.3s ease-out' }}
         >
-          {btn.icon}
-          <span className="absolute left-full ml-2 px-2.5 py-1 bg-foreground text-primary-foreground text-[10px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            {btn.tooltip}
-          </span>
-        </a>
-      ))}
-
-      {/* Cart quick access */}
-      {totalItems > 0 && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="relative coral-gradient text-primary-foreground w-[46px] h-[46px] rounded-full shadow-lg hover:scale-110 transition-transform flex items-center justify-center animate-bounce-soft group"
-          aria-label="Mở giỏ hàng"
-        >
-          <ShoppingCart className="h-5 w-5" />
-          <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-            {totalItems}
-          </span>
-          <span className="absolute left-full ml-2 px-2.5 py-1 bg-foreground text-primary-foreground text-[10px] font-bold rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            🛒 Mua nhanh
-          </span>
-        </button>
+          <div className="ocean-gradient px-4 py-3 flex items-center justify-between">
+            <h3 className="text-primary-foreground font-black text-base">💬 Liên Hệ Hỗ Trợ</h3>
+            <button
+              onClick={() => setOpen(false)}
+              className="text-primary-foreground hover:bg-white/20 rounded-full w-7 h-7 flex items-center justify-center transition-colors"
+              aria-label="Đóng"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="p-4 space-y-2.5">
+            <a
+              href="https://zalo.me/0933562286"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-sm transition-colors shadow"
+            >
+              <span className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-xs font-black">Z</span>
+              <span>Chat Zalo Ngay</span>
+            </a>
+            <a
+              href="tel:0933562286"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm transition-colors shadow"
+            >
+              <Phone className="h-5 w-5" />
+              <span>Gọi Hotline</span>
+            </a>
+            <a
+              href="https://m.me/giangnguyengroup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-bold text-sm transition-colors shadow"
+            >
+              <Facebook className="h-5 w-5" />
+              <span>Nhắn Facebook</span>
+            </a>
+          </div>
+          <p className="text-[11px] text-center text-muted-foreground pb-3">
+            Phản hồi trong vòng 5 phút ⚡
+          </p>
+        </div>
       )}
+
+      {/* Main floating button */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="ocean-gradient rounded-full shadow-2xl flex items-center justify-center text-primary-foreground hover:scale-110 transition-transform animate-pulse-soft"
+        style={{ width: size, height: size }}
+        aria-label="Mở menu liên hệ"
+      >
+        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+      </button>
     </div>
   );
 }

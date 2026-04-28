@@ -1,73 +1,78 @@
 import { useState } from 'react';
-import { Send, Gift, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { Mail, CheckCircle } from 'lucide-react';
 
 export default function NewsletterSignup() {
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.match(/^0\d{9}$/)) {
-      toast.error('Vui lòng nhập số điện thoại hợp lệ (10 số)');
+    setError('');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Vui lòng nhập email hợp lệ');
       return;
     }
     setSubmitted(true);
-    toast.success('Đăng ký thành công! Mã giảm giá: THANHVIEN5');
+    try {
+      const list = JSON.parse(localStorage.getItem('gn-newsletter') || '[]');
+      list.push({ email, date: new Date().toISOString() });
+      localStorage.setItem('gn-newsletter', JSON.stringify(list));
+    } catch {}
   };
 
   return (
-    <section className="py-8 md:py-10 ocean-gradient relative overflow-hidden">
-      {/* Decorative bubbles */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-4 left-[10%] w-20 h-20 rounded-full bg-primary-foreground animate-pulse-soft" />
-        <div className="absolute bottom-6 right-[15%] w-14 h-14 rounded-full bg-primary-foreground animate-bounce-soft" />
-        <div className="absolute top-1/2 left-[60%] w-8 h-8 rounded-full bg-primary-foreground animate-pulse-soft" />
-      </div>
-
+    <section
+      className="py-14 md:py-16 relative overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)' }}
+    >
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-accent/20 text-accent px-3 py-1 rounded-full text-[11px] md:text-xs font-bold mb-3">
-            <Gift className="h-3.5 w-3.5" /> NHẬN ƯU ĐÃI ĐỘC QUYỀN
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Mail className="h-8 w-8 md:h-10 md:w-10 text-white" />
           </div>
-
-          <h2 className="text-lg md:text-2xl font-black text-primary-foreground mb-2">
-            Đăng ký nhận tin – Giảm ngay 5%
+          <h2 className="text-2xl md:text-4xl font-black text-white mb-2 drop-shadow">
+            Đăng Ký Nhận Ưu Đãi Độc Quyền
           </h2>
-          <p className="text-primary-foreground/80 text-xs md:text-sm mb-4">
-            Nhận mã giảm giá, khuyến mãi flash sale, và tin tức hải sản mới nhất
+          <p className="text-white/90 text-sm md:text-base mb-6">
+            Nhận ngay voucher <strong>50,000đ</strong> khi đăng ký email
           </p>
 
           {submitted ? (
-            <div className="bg-primary-foreground/10 backdrop-blur-sm rounded-2xl p-4 md:p-6 border border-primary-foreground/20">
-              <CheckCircle className="h-8 w-8 text-accent mx-auto mb-2" />
-              <p className="text-primary-foreground font-bold text-base mb-1">Đăng ký thành công!</p>
-              <p className="text-primary-foreground/80 text-xs mb-2">Mã giảm giá của bạn:</p>
-              <div className="bg-accent text-accent-foreground font-black text-lg px-5 py-2.5 rounded-xl inline-block tracking-wider">
-                THANHVIEN5
-              </div>
-              <p className="text-primary-foreground/60 text-[10px] mt-2">Áp dụng cho đơn từ 300.000₫</p>
+            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-5 border border-white/30 max-w-md mx-auto">
+              <CheckCircle className="h-10 w-10 text-white mx-auto mb-2" />
+              <p className="text-white font-bold text-base md:text-lg">
+                ✅ Đăng ký thành công! Kiểm tra email nhé
+              </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
-              <input
-                type="tel"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                placeholder="Nhập số điện thoại..."
-                className="flex-1 px-4 py-2.5 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm focus:outline-none focus:ring-2 focus:ring-accent backdrop-blur-sm min-w-0"
-              />
-              <button
-                type="submit"
-                className="bg-accent text-accent-foreground font-bold px-5 py-2.5 rounded-full text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5 flex-shrink-0"
-              >
-                <Send className="h-4 w-4" /> Nhận mã
-              </button>
+            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+              <div className="flex h-12 md:h-14 shadow-xl rounded-full overflow-hidden bg-white">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => { setEmail(e.target.value); setError(''); }}
+                  placeholder="Nhập email của bạn..."
+                  className="flex-1 px-5 text-foreground text-sm md:text-base placeholder:text-muted-foreground focus:outline-none min-w-0 bg-white"
+                />
+                <button
+                  type="submit"
+                  className="bg-primary hover:opacity-90 text-primary-foreground font-black px-5 md:px-7 text-sm md:text-base transition-opacity"
+                >
+                  Đăng Ký
+                </button>
+              </div>
+              {error && (
+                <p className="text-white bg-destructive/80 inline-block px-3 py-1 rounded-full text-xs mt-3 font-semibold">
+                  ⚠ {error}
+                </p>
+              )}
             </form>
           )}
 
-          <p className="text-primary-foreground/50 text-[10px] mt-3">
-            🔒 Thông tin được bảo mật 100% • Hủy đăng ký bất cứ lúc nào
+          <p className="text-white/70 text-[11px] md:text-xs mt-4">
+            🔒 Chúng tôi cam kết không spam
           </p>
         </div>
       </div>

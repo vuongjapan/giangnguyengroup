@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react';
-import { X, Copy, Check } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { X, Gift, Copy, Check } from 'lucide-react';
 
-const DISCOUNT_CODE = 'SAMSONTUOI';
-const POPUP_KEY = 'gn_popup_shown';
+const DISCOUNT_CODE = 'CHAOMOI10';
+const POPUP_KEY = 'gn-welcome-shown';
 
 export default function WelcomePopup() {
   const [show, setShow] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [phone, setPhone] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const shown = sessionStorage.getItem(POPUP_KEY);
+    const shown = localStorage.getItem(POPUP_KEY);
     if (!shown) {
-      const timer = setTimeout(() => setShow(true), 2000);
+      const timer = setTimeout(() => setShow(true), 3000);
       return () => clearTimeout(timer);
     }
   }, []);
 
   const handleClose = () => {
     setShow(false);
-    sessionStorage.setItem(POPUP_KEY, '1');
+    localStorage.setItem(POPUP_KEY, '1');
   };
 
   const handleCopy = () => {
@@ -29,58 +29,82 @@ export default function WelcomePopup() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSubmit = () => {
+    if (phone.length >= 9) {
+      // Save lead to localStorage (can be synced to DB later)
+      const leads = JSON.parse(localStorage.getItem('gn-leads') || '[]');
+      leads.push({ phone, source: 'welcome-popup', date: new Date().toISOString() });
+      localStorage.setItem('gn-leads', JSON.stringify(leads));
+      setSubmitted(true);
+    }
+  };
+
   if (!show) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in"
-      style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)' }}
-      onClick={handleClose}
-    >
-      <div
-        className="relative max-w-md w-full rounded-3xl shadow-2xl overflow-hidden animate-scale-in"
-        style={{ background: 'linear-gradient(135deg, hsl(180, 70%, 25%) 0%, hsl(200, 80%, 40%) 100%)' }}
-        onClick={e => e.stopPropagation()}
-      >
-        <button
-          onClick={handleClose}
-          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
-          aria-label="Đóng"
-        >
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 animate-fade-in p-4">
+      <div className="bg-card rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden relative animate-slide-up">
+        <button onClick={handleClose} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground z-10">
           <X className="h-5 w-5" />
         </button>
 
-        <div className="p-8 text-center text-white">
-          <div className="text-5xl mb-3">🎁</div>
-          <h3 className="text-2xl md:text-3xl font-black mb-2">Ưu Đãi Chào Mừng!</h3>
-          <p className="text-white/90 text-sm md:text-base mb-5">
-            Nhập mã <strong>{DISCOUNT_CODE}</strong> – Giảm ngay <strong>15%</strong> đơn hàng đầu tiên
-          </p>
-
-          <div className="bg-white/15 border-2 border-dashed border-white/40 rounded-xl p-4 mb-5 flex items-center justify-between gap-3">
-            <span className="font-mono font-black text-xl md:text-2xl text-white tracking-wider flex-1 text-center">
-              {DISCOUNT_CODE}
-            </span>
-            <button
-              onClick={handleCopy}
-              className="bg-white text-primary font-bold px-3 py-2 rounded-lg flex items-center gap-1.5 hover:scale-105 transition-transform text-sm"
-            >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? 'Đã copy' : 'Copy'}
-            </button>
+        <div className="ocean-gradient p-6 text-center">
+          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+            <Gift className="h-8 w-8 text-primary-foreground" />
           </div>
+          <h3 className="text-xl font-black text-primary-foreground">CHÀO MỪNG BẠN MỚI!</h3>
+          <p className="text-primary-foreground/80 text-sm mt-1">Giang Nguyên Group tặng bạn</p>
+        </div>
 
-          <Link
-            to="/san-pham"
-            onClick={handleClose}
-            className="block w-full bg-accent text-accent-foreground font-black py-3.5 rounded-full text-base hover:opacity-90 transition-opacity shadow-lg"
-          >
-            🛒 MUA NGAY
-          </Link>
+        <div className="p-6">
+          {!submitted ? (
+            <>
+              <div className="text-center mb-4">
+                <p className="text-3xl font-black text-primary">GIẢM 10%</p>
+                <p className="text-sm text-muted-foreground">cho đơn hàng đầu tiên</p>
+              </div>
 
-          <p className="text-[11px] text-white/60 mt-4">
-            * Áp dụng cho đơn từ 300.000₫. Không kèm khuyến mãi khác.
-          </p>
+              <div className="flex items-center justify-center gap-2 bg-secondary rounded-lg p-3 mb-4">
+                <span className="font-mono font-bold text-lg text-foreground tracking-wider">{DISCOUNT_CODE}</span>
+                <button onClick={handleCopy} className="text-primary hover:text-primary/80">
+                  {copied ? <Check className="h-5 w-5 text-green-600" /> : <Copy className="h-5 w-5" />}
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  placeholder="Nhập SĐT để nhận thêm ưu đãi..."
+                  className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/40"
+                />
+                <button
+                  onClick={handleSubmit}
+                  disabled={phone.length < 9}
+                  className="w-full ocean-gradient text-primary-foreground font-bold py-2.5 rounded-lg text-sm hover:opacity-90 disabled:opacity-50 transition-all"
+                >
+                  NHẬN MÃ GIẢM GIÁ
+                </button>
+              </div>
+
+              <p className="text-[10px] text-muted-foreground text-center mt-3">
+                * Áp dụng cho đơn từ 300.000₫. Không kèm KM khác.
+              </p>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <div className="text-4xl mb-3">🎉</div>
+              <p className="font-bold text-foreground text-lg mb-1">Tuyệt vời!</p>
+              <p className="text-sm text-muted-foreground mb-3">Mã <strong>{DISCOUNT_CODE}</strong> đã sẵn sàng.</p>
+              <button
+                onClick={handleClose}
+                className="ocean-gradient text-primary-foreground font-bold px-6 py-2 rounded-full text-sm hover:opacity-90"
+              >
+                MUA SẮM NGAY
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

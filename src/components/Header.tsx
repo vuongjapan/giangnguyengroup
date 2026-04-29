@@ -9,14 +9,11 @@ import { useSiteContent } from '@/hooks/useSiteContent';
 import defaultLogo from '@/assets/logo-giang-nguyen.jpg';
 
 const DEFAULT_TICKER = [
-  '🚚 FREESHIP đơn từ 500k toàn quốc',
-  '🎁 Quà tặng đơn từ 1 triệu',
-  '⭐ Hải sản khô nguyên chất Sầm Sơn Thanh Hóa',
-  '📞 Hotline: 0933.562.286',
-  '🔥 Sale 30% sản phẩm mới',
+  '🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên',
+  '🚚 FREE SHIP toàn quốc đơn từ 1500K',
+  '⭐ Cam kết 100% hải sản sạch, hoàn tiền nếu không hài lòng',
+  '🎁 Mua 2 tặng 1 Nem chua Thanh Hóa',
 ];
-
-const TICKER_DISMISS_KEY = 'gn_ticker_dismissed';
 
 const BEST_SELLERS = [
   { name: 'Mực khô loại 1', slug: 'muc-kho-loai-1' },
@@ -55,7 +52,6 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
   const [mobileProductExpanded, setMobileProductExpanded] = useState(false);
-  const [tickerDismissed, setTickerDismissed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { data: tickerItems } = useSiteContent<string[]>('ticker_banner', DEFAULT_TICKER);
@@ -66,16 +62,6 @@ export default function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (localStorage.getItem(TICKER_DISMISS_KEY) === '1') setTickerDismissed(true);
-  }, []);
-
-  const dismissTicker = () => {
-    setTickerDismissed(true);
-    try { localStorage.setItem(TICKER_DISMISS_KEY, '1'); } catch {}
-  };
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -139,31 +125,19 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Promo announcement ticker bar - dismissible */}
-      {!tickerDismissed && (
-        <div
-          className="relative text-white overflow-hidden"
-          style={{ backgroundColor: '#0f766e', height: '36px' }}
-        >
-          <div className="promo-ticker h-full flex items-center pr-9">
-            <div className="promo-ticker-content" style={{ fontSize: '13px', fontWeight: 500 }}>
-              {(tickerItems || DEFAULT_TICKER).map((t, i) => (
-                <span key={i} className="mx-6">{t}</span>
-              ))}
-              {(tickerItems || DEFAULT_TICKER).map((t, i) => (
-                <span key={`dup-${i}`} className="mx-6">{t}</span>
-              ))}
-            </div>
+      {/* Promo ticker bar */}
+      <div className="bg-coral text-primary-foreground py-1 overflow-hidden">
+        <div className="promo-ticker">
+          <div className="promo-ticker-content text-xs font-medium">
+            {(tickerItems || DEFAULT_TICKER).map((t, i) => (
+              <span key={i}>{t} &nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            ))}
+            {(tickerItems || DEFAULT_TICKER).map((t, i) => (
+              <span key={`dup-${i}`}>{t} &nbsp;&nbsp;|&nbsp;&nbsp;</span>
+            ))}
           </div>
-          <button
-            onClick={dismissTicker}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full hover:bg-white/15 text-white flex items-center justify-center transition-colors"
-            aria-label="Đóng thông báo"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
         </div>
-      )}
+      </div>
 
       {/* Company name + slogan bar with logo (Hai San Hoang Gia style) */}
       <div className={`ocean-gradient transition-all duration-300 overflow-hidden ${scrolled ? 'max-h-0 py-0 opacity-0' : 'max-h-40 py-2.5 md:py-3 opacity-100'}`}>

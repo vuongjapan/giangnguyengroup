@@ -14,7 +14,6 @@ import TrackingPixels from "@/components/TrackingPixels";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import SmartExitPopup from "@/components/SmartExitPopup";
 import FloatingPopup from "@/components/FloatingPopup";
-import WelcomePopup from "@/components/WelcomePopup";
 
 import Index from "./pages/Index.tsx";
 import ProductsPage from "./pages/ProductsPage.tsx";
@@ -100,7 +99,6 @@ const App = () => (
               <ExitIntentPopup />
               <SmartExitPopup />
               <FloatingPopup />
-              <WelcomePopup />
               <AbandonedCartTracker />
             </BrowserRouter>
           </HotelProvider>

@@ -12,9 +12,6 @@ import { organizationLD, localBusinessLD, breadcrumbLD } from '@/lib/seo';
 import FlashSaleBanner from '@/components/FlashSaleBanner';
 import PromoBanners from '@/components/PromoBanners';
 import WhyChooseUs from '@/components/WhyChooseUs';
-import StatsBar from '@/components/StatsBar';
-import CTABanner from '@/components/CTABanner';
-import LocationThumbnails from '@/components/LocationThumbnails';
 import RecentlyViewed from '@/components/RecentlyViewed';
 import HotAuctions from '@/components/HotAuctions';
 import { useCart } from '@/contexts/CartContext';
@@ -118,9 +115,6 @@ export default function Index() {
 
       {/* I. Hero Banner with Slider */}
       <HeroBanner />
-
-      {/* Unified stats bar — single source of truth */}
-      <StatsBar />
 
       {/* Phiên đấu giá hot nhất - widget realtime ngay dưới hero */}
       <HotAuctions />
@@ -307,10 +301,19 @@ export default function Index() {
       </Suspense>
 
       {/* CTA banner */}
-      <CTABanner />
-
-      {/* Location thumbnails */}
-      <LocationThumbnails />
+      <section className="ocean-gradient py-8 scroll-animate">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-xl md:text-2xl font-black text-primary-foreground mb-2">
+            Đặt hàng ngay – Ship tận nhà!
+          </h2>
+          <p className="text-primary-foreground/80 text-sm mb-4">
+            Hotline: <a href="tel:0933562286" className="font-bold text-accent hover:underline">0933.562.286</a> • Zalo: <a href="https://zalo.me/0933562286" className="font-bold text-accent hover:underline">0933.562.286</a>
+          </p>
+          <a href="tel:0933562286" className="inline-flex items-center gap-2 bg-accent text-accent-foreground font-bold px-8 py-3 rounded-full text-sm hover:opacity-90 transition-opacity">
+            📞 GỌI ĐẶT HÀNG NGAY
+          </a>
+        </div>
+      </section>
 
       <WhyChooseUs />
 

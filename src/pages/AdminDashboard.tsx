@@ -341,6 +341,7 @@ export default function AdminDashboard() {
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
       { id: 'chat-history' as Tab, label: '💬 Lịch sử chat AI', icon: Sparkles },
       { id: 'trash' as Tab, label: '🗑️ Thùng rác', icon: Trash2 },
+      { id: 'customer-chat' as Tab, label: '💬 Chat khách hàng', icon: MessageSquare },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
 

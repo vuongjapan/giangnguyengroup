@@ -236,12 +236,15 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Right: Account + Phone + Cart */}
             <div className="flex items-center gap-2">
-              <Link to={user ? '/account' : '/auth'} className="flex items-center gap-1.5 p-2 hover:bg-gray-50 rounded-lg transition-colors" title={user ? 'Tài khoản' : 'Đăng nhập'}>
-                <User className="h-5 w-5 text-gray-600" />
-                <span className="hidden lg:inline text-xs text-gray-600 font-medium">{user ? 'Tài khoản' : 'Đăng nhập'}</span>
-              </Link>
+              {user ? (
+                <UserMenu />
+              ) : (
+                <Link to="/auth" className="flex items-center gap-1.5 p-2 hover:bg-gray-50 rounded-lg transition-colors" title="Đăng nhập">
+                  <User className="h-5 w-5 text-gray-600" />
+                  <span className="hidden lg:inline text-xs text-gray-600 font-medium">Đăng nhập</span>
+                </Link>
+              )}
               <a href="tel:0933562286" className="flex items-center gap-1.5 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                 <Phone className="h-5 w-5 text-primary" />
                 <span className="hidden lg:inline text-xs text-primary font-bold">0933.562.286</span>

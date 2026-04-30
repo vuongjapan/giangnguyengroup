@@ -1117,6 +1117,7 @@ export default function AdminDashboard() {
         {/* ===== TRASH BIN ===== */}
         {tab === 'trash' && <TrashBinManager />}
         {tab === 'chat-history' && <ChatHistoryManager />}
+        {tab === 'customer-chat' && <CustomerChatManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

@@ -760,10 +760,17 @@ export default function AdminDashboard() {
                             })()}
                           </td>
                           <td className="px-3 py-2 text-center">
-                            <button onClick={() => deleteOrder(o)} title="Xóa đơn"
-                              className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => toggleOrderHidden(o)}
+                                title={o.is_hidden ? 'Đang ẩn (khách không thấy) - bấm để hiện lại' : 'Ẩn đơn này khỏi khách'}
+                                className={`p-1.5 rounded-lg ${o.is_hidden ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'hover:bg-muted text-muted-foreground'}`}>
+                                {o.is_hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                              <button onClick={() => deleteOrder(o)} title="Xóa đơn"
+                                className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );

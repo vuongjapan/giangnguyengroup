@@ -62,6 +62,7 @@ interface DBOrder {
   invoice_pdf_send_count?: number | null;
   invoice_pdf_last_error?: string | null;
   invoice_pdf_last_url?: string | null;
+  is_hidden?: boolean;
 }
 
 interface DBProfile {

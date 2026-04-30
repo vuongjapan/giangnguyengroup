@@ -29,9 +29,10 @@ import AgentsManager from '@/components/admin/AgentsManager';
 import ProductCsvTools from '@/components/admin/ProductCsvTools';
 import TrashBinManager from '@/components/admin/TrashBinManager';
 import ChatHistoryManager from '@/components/admin/ChatHistoryManager';
+import CustomerChatManager from '@/components/admin/CustomerChatManager';
 import { softDelete } from '@/lib/trashBin';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history' | 'customer-chat';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -61,6 +62,7 @@ interface DBOrder {
   invoice_pdf_send_count?: number | null;
   invoice_pdf_last_error?: string | null;
   invoice_pdf_last_url?: string | null;
+  is_hidden?: boolean;
 }
 
 interface DBProfile {
@@ -201,6 +203,13 @@ export default function AdminDashboard() {
     if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchOrders(); }
     else toast.error('Không xóa được');
   };
+  const toggleOrderHidden = async (o: DBOrder) => {
+    const next = !o.is_hidden;
+    const { error } = await supabase.from('orders').update({ is_hidden: next }).eq('id', o.id);
+    if (error) { toast.error('Lỗi: ' + error.message); return; }
+    toast.success(next ? 'Đã ẩn đơn khỏi khách' : 'Đã hiện lại đơn cho khách');
+    fetchOrders();
+  };
   const deleteMember = async (m: DBProfile) => {
     if (!confirm(`Chuyển thành viên "${m.name || m.email}" vào thùng rác?`)) return;
     const ok = await softDelete('member', m.id, m.name || m.email);
@@ -332,6 +341,7 @@ export default function AdminDashboard() {
       { id: 'content' as Tab, label: 'Nội dung', icon: FileText },
       { id: 'chat-history' as Tab, label: '💬 Lịch sử chat AI', icon: Sparkles },
       { id: 'trash' as Tab, label: '🗑️ Thùng rác', icon: Trash2 },
+      { id: 'customer-chat' as Tab, label: '💬 Chat khách hàng', icon: MessageSquare },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
 
@@ -751,10 +761,17 @@ export default function AdminDashboard() {
                             })()}
                           </td>
                           <td className="px-3 py-2 text-center">
-                            <button onClick={() => deleteOrder(o)} title="Xóa đơn"
-                              className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => toggleOrderHidden(o)}
+                                title={o.is_hidden ? 'Đang ẩn (khách không thấy) - bấm để hiện lại' : 'Ẩn đơn này khỏi khách'}
+                                className={`p-1.5 rounded-lg ${o.is_hidden ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200' : 'hover:bg-muted text-muted-foreground'}`}>
+                                {o.is_hidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                              <button onClick={() => deleteOrder(o)} title="Xóa đơn"
+                                className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1100,6 +1117,7 @@ export default function AdminDashboard() {
         {/* ===== TRASH BIN ===== */}
         {tab === 'trash' && <TrashBinManager />}
         {tab === 'chat-history' && <ChatHistoryManager />}
+        {tab === 'customer-chat' && <CustomerChatManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

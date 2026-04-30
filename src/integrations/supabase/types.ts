@@ -552,6 +552,33 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          sender: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       exit_intent_events: {
         Row: {
           cart_value: number
@@ -676,6 +703,7 @@ export type Database = {
           invoice_pdf_send_count: number
           invoice_pdf_sent_at: string | null
           invoice_pdf_status: string
+          is_hidden: boolean
           items: Json
           order_code: string
           points_earned: number
@@ -697,6 +725,7 @@ export type Database = {
           invoice_pdf_send_count?: number
           invoice_pdf_sent_at?: string | null
           invoice_pdf_status?: string
+          is_hidden?: boolean
           items?: Json
           order_code: string
           points_earned?: number
@@ -718,6 +747,7 @@ export type Database = {
           invoice_pdf_send_count?: number
           invoice_pdf_sent_at?: string | null
           invoice_pdf_status?: string
+          is_hidden?: boolean
           items?: Json
           order_code?: string
           points_earned?: number

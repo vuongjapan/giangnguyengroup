@@ -1,12 +1,74 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame, Radio, Building2 } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame, Radio, Building2, ShoppingBag, LogOut, Settings, Crown } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice, categories } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import defaultLogo from '@/assets/logo-giang-nguyen.jpg';
+
+function UserMenu() {
+  const { user, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  if (!user) return null;
+  const initials = (user.user_metadata?.full_name || user.email || 'U').slice(0, 2).toUpperCase();
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Tài khoản';
+
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors">
+        <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-black">
+          {initials}
+        </div>
+        <span className="hidden lg:inline text-xs text-gray-700 font-bold max-w-[100px] truncate">{displayName}</span>
+        <ChevronDown className="hidden lg:block h-3 w-3 text-gray-400" />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-60 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+          <div className="p-3 ocean-gradient text-primary-foreground">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-black">{initials}</div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold truncate">{displayName}</p>
+                <p className="text-[10px] opacity-80 truncate">{user.email}</p>
+              </div>
+            </div>
+          </div>
+          <div className="p-1">
+            <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+              <User className="h-4 w-4 text-primary" /> Trang cá nhân
+            </Link>
+            <Link to="/account?tab=orders" onClick={() => { setOpen(false); navigate('/account'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+              <ShoppingBag className="h-4 w-4 text-primary" /> Đơn hàng của tôi
+            </Link>
+            <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+              <MessageCircle className="h-4 w-4 text-primary" /> Chat với Admin
+            </Link>
+            <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+              <Crown className="h-4 w-4 text-accent" /> Hạng thành viên
+            </Link>
+            <button onClick={async () => { await signOut(); setOpen(false); navigate('/'); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 rounded-lg border-t border-gray-100 mt-1">
+              <LogOut className="h-4 w-4" /> Đăng xuất
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const DEFAULT_TICKER = [
   '🔥 FLASH SALE hải sản khô Sầm Sơn – Giảm 10% đơn đầu tiên',
@@ -236,12 +298,15 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Right: Account + Phone + Cart */}
             <div className="flex items-center gap-2">
-              <Link to={user ? '/account' : '/auth'} className="flex items-center gap-1.5 p-2 hover:bg-gray-50 rounded-lg transition-colors" title={user ? 'Tài khoản' : 'Đăng nhập'}>
-                <User className="h-5 w-5 text-gray-600" />
-                <span className="hidden lg:inline text-xs text-gray-600 font-medium">{user ? 'Tài khoản' : 'Đăng nhập'}</span>
-              </Link>
+              {user ? (
+                <UserMenu />
+              ) : (
+                <Link to="/auth" className="flex items-center gap-1.5 p-2 hover:bg-gray-50 rounded-lg transition-colors" title="Đăng nhập">
+                  <User className="h-5 w-5 text-gray-600" />
+                  <span className="hidden lg:inline text-xs text-gray-600 font-medium">Đăng nhập</span>
+                </Link>
+              )}
               <a href="tel:0933562286" className="flex items-center gap-1.5 p-2 hover:bg-gray-50 rounded-lg transition-colors">
                 <Phone className="h-5 w-5 text-primary" />
                 <span className="hidden lg:inline text-xs text-primary font-bold">0933.562.286</span>

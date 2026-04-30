@@ -74,6 +74,7 @@ export default function OrderTracking() {
       const { data, error: e1 } = await supabase
         .from('orders').select('*')
         .eq('order_code', oc).eq('customer_phone', ph)
+        .eq('is_hidden', false)
         .maybeSingle();
       if (e1) throw e1;
       if (!data) { setError('Không tìm thấy đơn. Vui lòng kiểm tra mã đơn và số điện thoại.'); return; }

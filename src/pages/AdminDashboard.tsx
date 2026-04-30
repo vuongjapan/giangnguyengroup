@@ -203,6 +203,13 @@ export default function AdminDashboard() {
     if (ok) { toast.success('Đã chuyển vào thùng rác'); fetchOrders(); }
     else toast.error('Không xóa được');
   };
+  const toggleOrderHidden = async (o: DBOrder) => {
+    const next = !o.is_hidden;
+    const { error } = await supabase.from('orders').update({ is_hidden: next }).eq('id', o.id);
+    if (error) { toast.error('Lỗi: ' + error.message); return; }
+    toast.success(next ? 'Đã ẩn đơn khỏi khách' : 'Đã hiện lại đơn cho khách');
+    fetchOrders();
+  };
   const deleteMember = async (m: DBProfile) => {
     if (!confirm(`Chuyển thành viên "${m.name || m.email}" vào thùng rác?`)) return;
     const ok = await softDelete('member', m.id, m.name || m.email);

@@ -29,9 +29,10 @@ import AgentsManager from '@/components/admin/AgentsManager';
 import ProductCsvTools from '@/components/admin/ProductCsvTools';
 import TrashBinManager from '@/components/admin/TrashBinManager';
 import ChatHistoryManager from '@/components/admin/ChatHistoryManager';
+import CustomerChatManager from '@/components/admin/CustomerChatManager';
 import { softDelete } from '@/lib/trashBin';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history' | 'customer-chat';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;

@@ -313,6 +313,10 @@ export default function Header() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Link to="/tra-cuu-don" className="hidden md:flex items-center gap-1.5 px-2.5 py-2 hover:bg-primary/5 rounded-lg transition-colors text-primary" title="Tra cứu đơn hàng">
+                <SearchIcon className="h-4 w-4" />
+                <span className="hidden lg:inline text-xs font-bold">Tra cứu đơn</span>
+              </Link>
               {user ? (
                 <UserMenu />
               ) : (

@@ -43,6 +43,7 @@ import AuctionDetail from "./pages/AuctionDetail.tsx";
 import LivePage from "./pages/LivePage.tsx";
 import AgentsPage from "./pages/AgentsPage.tsx";
 import OrderTracking from "./pages/OrderTracking.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import AbandonedCartTracker from "./components/AbandonedCartTracker.tsx";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/gioi-thieu" element={<BrandStory />} />
                 <Route path="/ve-chung-toi" element={<Navigate to="/gioi-thieu" replace />} />
                 <Route path="/chinh-sach" element={<SalesPolicy />} />
@@ -89,6 +91,7 @@ const App = () => (
                 <Route path="/live" element={<LivePage />} />
                 <Route path="/dai-ly-phan-phoi" element={<AgentsPage />} />
                 <Route path="/tra-cuu-don" element={<OrderTracking />} />
+                <Route path="/tra-cuu" element={<Navigate to="/tra-cuu-don" replace />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <TrackingPixels />

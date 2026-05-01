@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame, Radio, Building2, ShoppingBag, LogOut, Settings, Crown } from 'lucide-react';
+import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame, Radio, Building2, ShoppingBag, LogOut, Settings, Crown, ShieldAlert, Search as SearchIcon } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatPrice, categories } from '@/data/products';
@@ -9,7 +9,7 @@ import { useSiteContent } from '@/hooks/useSiteContent';
 import defaultLogo from '@/assets/logo-giang-nguyen.jpg';
 
 function UserMenu() {
-  const { user, signOut } = useAuth();
+  const { user, profile, isAdmin, unreadCount, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -23,23 +23,31 @@ function UserMenu() {
   }, []);
 
   if (!user) return null;
-  const initials = (user.user_metadata?.full_name || user.email || 'U').slice(0, 2).toUpperCase();
-  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Tài khoản';
+  const displayName = profile?.full_name || profile?.name || user.user_metadata?.full_name || user.email?.split('@')[0] || 'Tài khoản';
+  const initials = displayName.trim().split(/\s+/).slice(-1)[0].slice(0, 1).toUpperCase() || 'U';
+  const avatar = profile?.avatar_url;
 
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen(!open)} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors">
-        <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[11px] font-black">
-          {initials}
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded-lg transition-colors relative">
+        <div className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-black overflow-hidden ring-2 ring-white shadow">
+          {avatar ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" /> : initials}
         </div>
         <span className="hidden lg:inline text-xs text-gray-700 font-bold max-w-[100px] truncate">{displayName}</span>
         <ChevronDown className="hidden lg:block h-3 w-3 text-gray-400" />
+        {unreadCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-destructive text-white text-[9px] font-bold rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-60 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-1 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="p-3 ocean-gradient text-primary-foreground">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-black">{initials}</div>
+              <div className="w-11 h-11 rounded-full bg-white/20 flex items-center justify-center font-black overflow-hidden">
+                {avatar ? <img src={avatar} alt={displayName} className="w-full h-full object-cover" /> : initials}
+              </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold truncate">{displayName}</p>
                 <p className="text-[10px] opacity-80 truncate">{user.email}</p>
@@ -50,15 +58,21 @@ function UserMenu() {
             <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
               <User className="h-4 w-4 text-primary" /> Trang cá nhân
             </Link>
-            <Link to="/account?tab=orders" onClick={() => { setOpen(false); navigate('/account'); }} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+            <Link to="/account?tab=orders" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
               <ShoppingBag className="h-4 w-4 text-primary" /> Đơn hàng của tôi
             </Link>
-            <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
-              <MessageCircle className="h-4 w-4 text-primary" /> Chat với Admin
+            <Link to="/account?tab=chat" onClick={() => setOpen(false)} className="flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+              <span className="flex items-center gap-2"><MessageCircle className="h-4 w-4 text-primary" /> Tin nhắn</span>
+              {unreadCount > 0 && <span className="bg-destructive text-white text-[10px] font-bold rounded-full px-1.5 py-0.5">{unreadCount}</span>}
             </Link>
-            <Link to="/account" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
-              <Crown className="h-4 w-4 text-accent" /> Hạng thành viên
+            <Link to="/account?tab=security" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
+              <Settings className="h-4 w-4 text-primary" /> Cài đặt
             </Link>
+            {isAdmin && (
+              <Link to="/admin" onClick={() => setOpen(false)} className="flex items-center gap-2 px-3 py-2 text-sm text-accent font-bold hover:bg-accent/10 rounded-lg border-t border-gray-100 mt-1">
+                <ShieldAlert className="h-4 w-4" /> Quản trị Admin
+              </Link>
+            )}
             <button onClick={async () => { await signOut(); setOpen(false); navigate('/'); }}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/5 rounded-lg border-t border-gray-100 mt-1">
               <LogOut className="h-4 w-4" /> Đăng xuất
@@ -299,6 +313,10 @@ export default function Header() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Link to="/tra-cuu-don" className="hidden md:flex items-center gap-1.5 px-2.5 py-2 hover:bg-primary/5 rounded-lg transition-colors text-primary" title="Tra cứu đơn hàng">
+                <SearchIcon className="h-4 w-4" />
+                <span className="hidden lg:inline text-xs font-bold">Tra cứu đơn</span>
+              </Link>
               {user ? (
                 <UserMenu />
               ) : (

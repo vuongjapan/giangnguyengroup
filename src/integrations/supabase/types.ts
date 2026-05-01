@@ -558,6 +558,7 @@ export type Database = {
           created_at: string
           id: string
           is_read: boolean
+          order_id: string | null
           sender: string
           user_id: string
         }
@@ -566,6 +567,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean
+          order_id?: string | null
           sender: string
           user_id: string
         }
@@ -574,6 +576,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean
+          order_id?: string | null
           sender?: string
           user_id?: string
         }
@@ -692,10 +695,12 @@ export type Database = {
       }
       orders: {
         Row: {
+          admin_note: string
           created_at: string
           customer_address: string
           customer_email: string
           customer_name: string
+          customer_note: string
           customer_phone: string
           id: string
           invoice_pdf_last_error: string | null
@@ -714,10 +719,12 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          admin_note?: string
           created_at?: string
           customer_address: string
           customer_email?: string
           customer_name: string
+          customer_note?: string
           customer_phone: string
           id?: string
           invoice_pdf_last_error?: string | null
@@ -736,10 +743,12 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          admin_note?: string
           created_at?: string
           customer_address?: string
           customer_email?: string
           customer_name?: string
+          customer_note?: string
           customer_phone?: string
           id?: string
           invoice_pdf_last_error?: string | null
@@ -959,9 +968,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string
+          avatar_url: string
+          bio: string
           birthday: string | null
+          cover_url: string
           created_at: string
           email: string
+          full_name: string
           id: string
           level: string
           name: string
@@ -971,9 +985,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          address?: string
+          avatar_url?: string
+          bio?: string
           birthday?: string | null
+          cover_url?: string
           created_at?: string
           email?: string
+          full_name?: string
           id: string
           level?: string
           name?: string
@@ -983,9 +1002,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          address?: string
+          avatar_url?: string
+          bio?: string
           birthday?: string | null
+          cover_url?: string
           created_at?: string
           email?: string
+          full_name?: string
           id?: string
           level?: string
           name?: string
@@ -1035,6 +1059,30 @@ export type Database = {
           sent_at?: string
           suggested_product_ids?: string[]
           voucher_code?: string | null
+        }
+        Relationships: []
+      }
+      search_logs: {
+        Row: {
+          created_at: string
+          id: string
+          result_found: boolean
+          search_type: string
+          search_value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          result_found?: boolean
+          search_type: string
+          search_value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          result_found?: boolean
+          search_type?: string
+          search_value?: string
         }
         Relationships: []
       }
@@ -1268,6 +1316,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_order_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

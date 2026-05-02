@@ -563,24 +563,96 @@ export default function Checkout() {
         )}
 
         {step === 'done' && (
-          <div className="text-center py-12 space-y-4 animate-fade-in">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-            <h2 className="text-2xl font-extrabold text-foreground">Đặt hàng thành công!</h2>
-            <p className="text-muted-foreground">Mã đơn: <span className="font-bold text-primary">{orderCode}</span></p>
-            <p className="text-sm text-muted-foreground">Chúng tôi sẽ liên hệ xác nhận đơn hàng trong vòng 30 phút.</p>
-            <p className="text-sm text-green-600 font-medium">📧 Email hóa đơn sẽ được gửi tự động nếu khách có nhập địa chỉ email</p>
-            <div className="flex gap-3 justify-center">
-              {user && (
-                <button onClick={() => navigate('/account')}
-                  className="bg-card border border-border text-foreground font-bold px-6 py-3 rounded-xl hover:bg-muted transition-colors text-sm">
-                  XEM ĐƠN HÀNG
-                </button>
+          <div className="space-y-5 animate-fade-in">
+            {/* Hero success */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 text-center shadow-sm">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-3">
+                <CheckCircle className="h-10 w-10 text-green-600" />
+              </div>
+              <h2 className="text-2xl font-extrabold text-foreground">🎉 Đặt hàng thành công!</h2>
+              <p className="text-sm text-muted-foreground mt-1">Cảm ơn {displayCustomer.name?.split(' ').slice(-1)[0] || 'quý khách'} đã tin tưởng Giang Nguyên Group</p>
+
+              <div className="mt-4 inline-flex flex-col items-center bg-card rounded-xl px-5 py-3 border border-green-300">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Mã đơn của bạn</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="font-black text-primary text-lg">{orderCode}</span>
+                  <button onClick={() => copyToClipboard(orderCode)} className="inline-flex">
+                    {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground hover:text-primary" />}
+                  </button>
+                </div>
+              </div>
+
+              {displayCustomer.email && (
+                <p className="text-sm text-green-700 font-medium mt-3 inline-flex items-center gap-1">
+                  📧 Hóa đơn đã được gửi đến <strong>{displayCustomer.email}</strong>
+                </p>
               )}
-              <button onClick={() => navigate('/')}
-                className="ocean-gradient text-primary-foreground font-bold px-8 py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all">
-                VỀ TRANG CHỦ
-              </button>
+              <p className="text-xs text-muted-foreground mt-1">Cửa hàng sẽ liên hệ xác nhận trong vòng 30 phút.</p>
             </div>
+
+            {/* Order summary */}
+            <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+              <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" /> Tóm tắt đơn hàng
+              </h3>
+              <div className="divide-y divide-border">
+                {displayItems.map((item: any, i: number) => (
+                  <div key={i} className="py-2 flex justify-between items-start gap-3 text-sm">
+                    <div>
+                      <p className="font-medium text-foreground">{item.name}</p>
+                      <p className="text-xs text-muted-foreground">{item.quantity} {item.unit || 'kg'} × {formatPrice(item.price)}</p>
+                    </div>
+                    <p className="font-semibold text-foreground whitespace-nowrap">{formatPrice(item.price * item.quantity)}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-border space-y-1 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Tạm tính</span><span className="font-semibold">{formatPrice(displaySubtotal)}</span></div>
+                {displayHotelDiscount > 0 && (
+                  <div className="flex justify-between text-primary"><span>Giảm khách sạn</span><span className="font-semibold">-{formatPrice(displayHotelDiscount)}</span></div>
+                )}
+                {displayCouponDiscount > 0 && (
+                  <div className="flex justify-between text-green-600"><span>Mã giảm giá</span><span className="font-semibold">-{formatPrice(displayCouponDiscount)}</span></div>
+                )}
+                <div className="flex justify-between pt-2 border-t border-border">
+                  <span className="font-extrabold text-foreground">Tổng cộng</span>
+                  <span className="font-extrabold text-primary text-lg">{formatPrice(displayTotal)}</span>
+                </div>
+                <div className="flex justify-between bg-orange-50 rounded-lg px-3 py-2 mt-2 border border-orange-200">
+                  <span className="text-orange-700 font-bold text-xs">✅ Đã cọc 50%</span>
+                  <span className="font-bold text-orange-700">{formatPrice(displayDepositAmount)}</span>
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground"><span>Còn lại khi nhận hàng</span><span className="font-semibold">{formatPrice(displayRemainingAmount)}</span></div>
+              </div>
+            </div>
+
+            {/* CTA buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button onClick={() => navigate('/')}
+                className="ocean-gradient text-primary-foreground font-bold px-4 py-3 rounded-xl hover:opacity-90 active:scale-95 transition-all text-sm inline-flex items-center justify-center gap-2">
+                🛒 Tiếp tục mua hàng
+              </button>
+              <button onClick={() => navigate(`/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(displayCustomer.phone)}`)}
+                className="bg-card border-2 border-primary text-primary font-bold px-4 py-3 rounded-xl hover:bg-primary/5 active:scale-95 transition-all text-sm inline-flex items-center justify-center gap-2">
+                📦 Tra cứu đơn
+              </button>
+              <a href="tel:0933562286"
+                className="bg-card border-2 border-orange-400 text-orange-600 font-bold px-4 py-3 rounded-xl hover:bg-orange-50 active:scale-95 transition-all text-sm inline-flex items-center justify-center gap-2">
+                📞 Hotline 0933.562.286
+              </a>
+            </div>
+
+            {user ? (
+              <button onClick={() => navigate('/account')}
+                className="w-full text-sm text-primary hover:underline font-semibold py-2">
+                Xem lịch sử đơn hàng trong trang cá nhân →
+              </button>
+            ) : (
+              <Link to={`/auth?email=${encodeURIComponent(displayCustomer.email || '')}&phone=${encodeURIComponent(displayCustomer.phone || '')}`}
+                className="block w-full text-center text-sm text-primary hover:underline font-semibold py-2">
+                💡 Đăng ký tài khoản để lưu đơn vĩnh viễn & nhận voucher →
+              </Link>
+            )}
           </div>
         )}
       </main>

@@ -30,9 +30,10 @@ import ProductCsvTools from '@/components/admin/ProductCsvTools';
 import TrashBinManager from '@/components/admin/TrashBinManager';
 import ChatHistoryManager from '@/components/admin/ChatHistoryManager';
 import CustomerChatManager from '@/components/admin/CustomerChatManager';
+import SearchLogsManager from '@/components/admin/SearchLogsManager';
 import { softDelete } from '@/lib/trashBin';
 
-type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history' | 'customer-chat';
+type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history' | 'customer-chat' | 'search-logs';
 
 interface DBCoupon {
   id: string; code: string; discount_percent: number; max_uses: number;
@@ -342,6 +343,7 @@ export default function AdminDashboard() {
       { id: 'chat-history' as Tab, label: '💬 Lịch sử chat AI', icon: Sparkles },
       { id: 'trash' as Tab, label: '🗑️ Thùng rác', icon: Trash2 },
       { id: 'customer-chat' as Tab, label: '💬 Chat khách hàng', icon: MessageSquare },
+      { id: 'search-logs' as Tab, label: '🔍 Lịch sử tra cứu', icon: Search },
       { id: 'settings' as Tab, label: 'Cài đặt', icon: Settings },
   ];
 
@@ -1118,6 +1120,7 @@ export default function AdminDashboard() {
         {tab === 'trash' && <TrashBinManager />}
         {tab === 'chat-history' && <ChatHistoryManager />}
         {tab === 'customer-chat' && <CustomerChatManager />}
+        {tab === 'search-logs' && <SearchLogsManager />}
 
         {/* ===== SETTINGS ===== */}
         {tab === 'settings' && (

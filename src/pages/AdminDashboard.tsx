@@ -1522,8 +1522,31 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-6 space-y-5">
-      <h3 className="font-bold text-foreground text-lg">{product ? '✏️ Sửa sản phẩm' : '➕ Thêm sản phẩm mới'}</h3>
+    <form onSubmit={(e) => handleSubmit(e, { publish: true })} className="bg-card rounded-xl border border-border mb-6">
+      {/* Sticky action toolbar */}
+      <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-2 flex-wrap">
+        <button type="button" onClick={onCancel} className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm">
+          <ArrowLeft className="h-4 w-4" /> Quay lại
+        </button>
+        <div className="flex-1 min-w-0 px-2">
+          <div className="text-[11px] text-muted-foreground">{product ? 'Đang sửa' : 'Đang tạo mới'}</div>
+          <div className="font-bold text-sm truncate">{form.name || (product ? product.name : 'Sản phẩm chưa đặt tên')}</div>
+        </div>
+        <button type="button" onClick={handlePreview} className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm">
+          <Eye className="h-4 w-4" /> Preview
+        </button>
+        <button type="button" disabled={saving} onClick={() => handleSubmit(null, { publish: false })}
+          className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm disabled:opacity-50">
+          <Save className="h-4 w-4" /> Lưu nháp
+        </button>
+        <button type="submit" disabled={saving}
+          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 disabled:opacity-50">
+          <Check className="h-4 w-4" /> {uploading ? 'Đang upload...' : saving ? 'Đang lưu...' : 'Lưu & Xuất bản'}
+        </button>
+      </div>
+
+      <div className="p-6 space-y-4">
+      <h3 className="sr-only">{product ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}</h3>
 
       {/* Basic info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

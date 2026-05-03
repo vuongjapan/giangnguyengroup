@@ -1148,6 +1148,68 @@ export default function AdminDashboard() {
   );
 }
 
+// =================== CATEGORY PICKER (searchable, grouped, with counts) ===================
+function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; onChange: (v: string) => void; allProducts?: DBProduct[] }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+
+  const counts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const p of allProducts) {
+      const k = (p.category || '').trim();
+      if (!k) continue;
+      m[k] = (m[k] || 0) + 1;
+    }
+    return m;
+  }, [allProducts]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  const ql = q.trim().toLowerCase();
+  const groups = CATEGORY_GROUPS.map(g => ({
+    ...g,
+    items: g.items.map(i => i.trim()).filter(i => !ql || i.toLowerCase().includes(ql) || g.group.toLowerCase().includes(ql)),
+  })).filter(g => g.items.length > 0);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-left flex items-center justify-between">
+        <span className={value ? '' : 'text-muted-foreground'}>{value || '-- Chọn danh mục --'}</span>
+        <span className="text-muted-foreground text-xs">▾</span>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full max-h-80 overflow-auto rounded-lg border border-border bg-popover shadow-lg">
+          <div className="sticky top-0 bg-popover border-b border-border p-2">
+            <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Tìm danh mục..."
+              className="w-full px-2 py-1.5 rounded border border-border bg-background text-sm" />
+          </div>
+          {groups.length === 0 && <div className="p-3 text-xs text-muted-foreground">Không tìm thấy</div>}
+          {groups.map(g => (
+            <div key={g.group}>
+              <div className="px-3 py-1.5 text-[11px] font-bold text-muted-foreground bg-muted/40 sticky top-[44px]">{g.icon} {g.group}</div>
+              {g.items.map(item => (
+                <button type="button" key={item} onClick={() => { onChange(item); setOpen(false); setQ(''); }}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center justify-between ${value === item ? 'bg-primary/10 font-medium' : ''}`}>
+                  <span>{item}</span>
+                  {counts[item] > 0 && <span className="text-xs text-muted-foreground">({counts[item]})</span>}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // =================== PRODUCT FORM (FULL) ===================
 function ProductForm({ product, allProducts = [], onSave, onCancel }: { product: DBProduct | null; allProducts?: DBProduct[]; onSave: () => void; onCancel: () => void }) {
   const [form, setForm] = useState({

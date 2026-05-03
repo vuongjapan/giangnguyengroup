@@ -1647,6 +1647,174 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
         </div>
       </div>
 
+      {/* ===== PHASE 2 — EXTRA FIELDS (accordion) ===== */}
+      <div className="space-y-3">
+        <Acc id="pricing" icon="💰" title="Giá & Khuyến mãi">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Giá gốc (gạch ngang)</label>
+              <input type="number" value={form.original_price} onChange={e => setForm(f => ({ ...f, original_price: Number(e.target.value) }))}
+                placeholder="VD: 350000" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              <p className="text-[11px] text-muted-foreground mt-1">Để trống nếu không có giá gốc</p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">% Giảm giá (tự tính)</label>
+              <div className="px-3 py-2 rounded-lg border border-border bg-muted/40 text-sm">
+                {discountPercent > 0 ? <span className="px-2 py-0.5 bg-destructive text-destructive-foreground rounded font-bold text-xs">-{discountPercent}%</span> : <span className="text-muted-foreground">—</span>}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Giá sỉ</label>
+              <input type="number" value={form.wholesale_price} onChange={e => setForm(f => ({ ...f, wholesale_price: Number(e.target.value) }))}
+                placeholder="VD: 250000" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              <input type="number" value={form.wholesale_min_qty} onChange={e => setForm(f => ({ ...f, wholesale_min_qty: Number(e.target.value) }))}
+                placeholder="SL tối thiểu" className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        </Acc>
+
+        <Acc id="package" icon="📦" title="Đóng gói & Bảo quản">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Trọng lượng thực</label>
+              <input value={form.weight} onChange={e => setForm(f => ({ ...f, weight: e.target.value }))}
+                placeholder="VD: 500g, 1kg" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Quy cách đóng gói</label>
+              <select value={form.package_type} onChange={e => setForm(f => ({ ...f, package_type: e.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+                <option value="">-- Chọn --</option>
+                {['Túi zip', 'Hộp giấy', 'Hộp thiếc', 'Túi hút chân không', 'Hộp quà'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Kích thước (D × R × C cm)</label>
+              <input value={form.dimensions} onChange={e => setForm(f => ({ ...f, dimensions: e.target.value }))}
+                placeholder="VD: 20 x 15 x 5" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Hạn sử dụng</label>
+              <input value={form.expiry} onChange={e => setForm(f => ({ ...f, expiry: e.target.value }))}
+                placeholder="VD: 12 tháng kể từ NSX" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold mb-1">Bảo quản</label>
+              <input value={form.storage_note} onChange={e => setForm(f => ({ ...f, storage_note: e.target.value }))}
+                placeholder="VD: Nơi khô ráo, thoáng mát, tránh ánh nắng" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        </Acc>
+
+        <Acc id="origin" icon="🏆" title="Xuất xứ & Chứng nhận">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Xuất xứ</label>
+              <input value={form.origin_text} onChange={e => setForm(f => ({ ...f, origin_text: e.target.value }))}
+                placeholder="VD: Sầm Sơn, Thanh Hóa" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Nhà sản xuất / Đánh bắt bởi</label>
+              <input value={form.producer} onChange={e => setForm(f => ({ ...f, producer: e.target.value }))}
+                placeholder="VD: Ngư dân Sầm Sơn" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold mb-1">Chứng nhận chất lượng</label>
+              <div className="flex flex-wrap gap-2">
+                {['VSATTP', 'OCOP', 'VietGAP', 'Organic', 'ISO', 'Khác'].map(c => (
+                  <label key={c} className={`px-3 py-1.5 rounded-lg border cursor-pointer text-xs flex items-center gap-1.5 ${form.certifications.includes(c) ? 'bg-primary/10 border-primary text-primary font-bold' : 'border-border'}`}>
+                    <input type="checkbox" checked={form.certifications.includes(c)} onChange={() => toggleCert(c)} className="hidden" />
+                    {form.certifications.includes(c) && <Check className="h-3 w-3" />} {c}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Acc>
+
+        <Acc id="seo" icon="🔍" title="SEO & Tags">
+          <div>
+            <label className="block text-xs font-bold mb-1">Mô tả ngắn (meta description)</label>
+            <textarea rows={2} maxLength={160} value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))}
+              placeholder="Mô tả ngắn hiện trên Google..." className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            <p className={`text-[11px] mt-1 ${metaLeft < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>{form.meta_description.length}/160 ký tự</p>
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">Tags / Từ khóa SEO (phẩy ngăn)</label>
+            <input value={form.seo_tags} onChange={e => setForm(f => ({ ...f, seo_tags: e.target.value }))}
+              placeholder="mực khô, hải sản sầm sơn, đặc sản thanh hóa" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+        </Acc>
+
+        <Acc id="display" icon="⚙️" title="Cài đặt hiển thị">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Trạng thái</label>
+              <select value={form.is_active ? '1' : '0'} onChange={e => setForm(f => ({ ...f, is_active: e.target.value === '1' }))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+                <option value="1">🟢 Đang bán</option>
+                <option value="0">🔴 Tạm ẩn</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Nổi bật trang chủ</label>
+              <button type="button" onClick={() => setForm(f => ({ ...f, is_featured: !f.is_featured }))}
+                className={`w-full px-3 py-2 rounded-lg border text-sm font-bold ${form.is_featured ? 'bg-primary/10 border-primary text-primary' : 'border-border'}`}>
+                {form.is_featured ? '⭐ Đang nổi bật' : 'Tắt'}
+              </button>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Thứ tự (1 = đầu)</label>
+              <input type="number" value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: Number(e.target.value) }))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">Sản phẩm liên quan (tối đa 4)</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {form.related_product_ids.map(id => {
+                const pp = allProducts.find(x => x.id === id);
+                return pp ? (
+                  <span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs">
+                    {pp.name}
+                    <button type="button" onClick={() => setForm(f => ({ ...f, related_product_ids: f.related_product_ids.filter(x => x !== id) }))}><X className="h-3 w-3" /></button>
+                  </span>
+                ) : null;
+              })}
+            </div>
+            <select value="" onChange={e => {
+              const v = e.target.value; if (!v) return;
+              setForm(f => f.related_product_ids.length >= 4 || f.related_product_ids.includes(v) ? f : { ...f, related_product_ids: [...f.related_product_ids, v] });
+            }} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+              <option value="">+ Thêm sản phẩm liên quan</option>
+              {allProducts.filter(x => x.id !== product?.id && !form.related_product_ids.includes(x.id)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
+            </select>
+          </div>
+        </Acc>
+
+        <Acc id="shipping" icon="🚚" title="Vận chuyển">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Miễn phí vận chuyển</label>
+              <button type="button" onClick={() => setForm(f => ({ ...f, free_shipping: !f.free_shipping }))}
+                className={`w-full px-3 py-2 rounded-lg border text-sm font-bold ${form.free_shipping ? 'bg-green-100 border-green-500 text-green-800' : 'border-border'}`}>
+                {form.free_shipping ? '✅ Có' : 'Không'}
+              </button>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold mb-1">Thời gian giao hàng</label>
+              <input value={form.delivery_time} onChange={e => setForm(f => ({ ...f, delivery_time: e.target.value }))}
+                placeholder="VD: 2-3 ngày làm việc" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="block text-xs font-bold mb-1">Lưu ý khi vận chuyển</label>
+              <input value={form.shipping_note} onChange={e => setForm(f => ({ ...f, shipping_note: e.target.value }))}
+                placeholder="VD: Giữ nơi khô ráo trong quá trình ship" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        </Acc>
+      </div>
+
       {/* ===== STRUCTURED DESCRIPTION ===== */}
       <div className="border border-border rounded-xl overflow-hidden">
         <div className="bg-muted px-4 py-2.5">

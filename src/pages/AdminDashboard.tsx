@@ -31,6 +31,8 @@ import TrashBinManager from '@/components/admin/TrashBinManager';
 import ChatHistoryManager from '@/components/admin/ChatHistoryManager';
 import CustomerChatManager from '@/components/admin/CustomerChatManager';
 import SearchLogsManager from '@/components/admin/SearchLogsManager';
+import CategoriesManager from '@/components/admin/CategoriesManager';
+import { useCategories } from '@/hooks/useCategories';
 import { softDelete } from '@/lib/trashBin';
 
 type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history' | 'customer-chat' | 'search-logs';

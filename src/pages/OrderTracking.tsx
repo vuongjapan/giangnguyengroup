@@ -160,6 +160,15 @@ export default function OrderTracking() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Auto-scroll to detail when arriving from email CTA
+  useEffect(() => {
+    if (order?.id && (params.get('auto') === '1' || window.location.hash === '#order-detail')) {
+      setTimeout(() => {
+        document.getElementById('order-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 200);
+    }
+  }, [order?.id]);
+
   // Realtime
   useEffect(() => {
     if (!order?.id) return;
@@ -300,7 +309,7 @@ export default function OrderTracking() {
         )}
 
         {order && st && (
-          <div className="mt-6 space-y-5">
+          <div id="order-detail" className="mt-6 space-y-5 scroll-mt-24">
             <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
                 <div>

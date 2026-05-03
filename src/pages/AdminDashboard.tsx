@@ -8,7 +8,7 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame, Mail
+  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame, Mail, Copy, ArrowLeft, Check
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';
@@ -31,6 +31,8 @@ import TrashBinManager from '@/components/admin/TrashBinManager';
 import ChatHistoryManager from '@/components/admin/ChatHistoryManager';
 import CustomerChatManager from '@/components/admin/CustomerChatManager';
 import SearchLogsManager from '@/components/admin/SearchLogsManager';
+import CategoriesManager from '@/components/admin/CategoriesManager';
+import { useCategories } from '@/hooks/useCategories';
 import { softDelete } from '@/lib/trashBin';
 
 type Tab = 'dashboard' | 'products' | 'combos' | 'orders' | 'members' | 'stores' | 'hotels' | 'coupons' | 'reviews' | 'content' | 'settings' | 'ai-assistant' | 'wholesale' | 'seo-landing' | 'ai-import' | 'abandoned-carts' | 'ai-growth' | 'popups' | 'growth-analytics' | 'auctions' | 'agents' | 'trash' | 'chat-history' | 'customer-chat' | 'search-logs';
@@ -46,6 +48,8 @@ interface DBProduct {
   images: string[]; category: string; grade: string; badges: string[];
   needs: string[]; rating: number; stock: number; is_active: boolean;
   sort_order: number; description: any; sku?: string | null;
+  views?: number; is_featured?: boolean; original_price?: number;
+  status?: string; updated_at?: string;
 }
 
 interface DBStore {
@@ -236,6 +240,26 @@ export default function AdminDashboard() {
     await supabase.from('products').update({ is_active: !p.is_active }).eq('id', p.id);
     fetchProducts();
   };
+  const toggleProductFeatured = async (p: DBProduct) => {
+    await (supabase as any).from('products').update({ is_featured: !p.is_featured }).eq('id', p.id);
+    fetchProducts();
+  };
+  const duplicateProduct = async (p: DBProduct) => {
+    const { id, ...rest } = p as any;
+    const copy = {
+      ...rest,
+      name: `${p.name} - Copy`,
+      slug: `${p.slug}-copy-${Date.now().toString(36)}`,
+      sku: p.sku ? `${p.sku}-COPY` : null,
+      is_active: false,
+    };
+    delete copy.created_at; delete copy.updated_at;
+    const { error } = await supabase.from('products').insert(copy);
+    if (error) toast.error('Không nhân bản được: ' + error.message);
+    else { toast.success('Đã nhân bản (đang ẩn — bấm Sửa để chỉnh)'); fetchProducts(); }
+  };
+  const [productFilter, setProductFilter] = useState<'all' | 'active' | 'inactive' | 'out' | 'featured' | 'low'>('all');
+  const [productSearch, setProductSearch] = useState('');
   const toggleHotelActive = async (h: DBHotel) => {
     await supabase.from('hotels').update({ is_active: !h.is_active }).eq('id', h.id);
     fetchHotels();
@@ -803,10 +827,26 @@ export default function AdminDashboard() {
         )}
 
         {/* ===== PRODUCTS ===== */}
-        {tab === 'products' && (
+        {tab === 'products' && (() => {
+          const filtered = products.filter(p => {
+            if (productFilter === 'active' && !p.is_active) return false;
+            if (productFilter === 'inactive' && p.is_active) return false;
+            if (productFilter === 'out' && p.stock > 0) return false;
+            if (productFilter === 'featured' && !p.is_featured) return false;
+            if (productFilter === 'low' && p.stock >= 10) return false;
+            if (productSearch && !`${p.name} ${p.sku || ''} ${p.category}`.toLowerCase().includes(productSearch.toLowerCase())) return false;
+            return true;
+          });
+          const filterBtn = (k: typeof productFilter, label: string, count?: number) => (
+            <button onClick={() => setProductFilter(k)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${productFilter === k ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+              {label}{count !== undefined && ` (${count})`}
+            </button>
+          );
+          return (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-foreground">Quản lý sản phẩm ({products.length})</h2>
+              <h2 className="text-lg font-bold text-foreground">Quản lý sản phẩm ({filtered.length}/{products.length})</h2>
               <button onClick={() => { setEditingProduct(null); setShowProductForm(true); }}
                 className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
                 <Plus className="h-4 w-4" /> Thêm SP
@@ -816,62 +856,105 @@ export default function AdminDashboard() {
             {showProductForm && (
               <ProductForm product={editingProduct} allProducts={products} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
             )}
+
+            {/* Quick filters */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {filterBtn('all', 'Tất cả', products.length)}
+              {filterBtn('active', 'Đang bán', products.filter(p => p.is_active).length)}
+              {filterBtn('inactive', 'Tạm ẩn', products.filter(p => !p.is_active).length)}
+              {filterBtn('out', 'Hết hàng', products.filter(p => p.stock <= 0).length)}
+              {filterBtn('featured', 'Nổi bật', products.filter(p => p.is_featured).length)}
+              {filterBtn('low', 'Sắp hết (<10)', products.filter(p => p.stock > 0 && p.stock < 10).length)}
+              <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="🔍 Tìm tên / SKU / danh mục..."
+                className="ml-auto w-full sm:w-64 px-3 py-1.5 rounded-lg border border-border bg-background text-sm" />
+            </div>
+
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted text-muted-foreground">
                     <tr>
-                      <th className="text-left px-4 py-3 font-medium">Sản phẩm</th>
-                      <th className="text-left px-4 py-3 font-medium">Danh mục</th>
-                      <th className="text-right px-4 py-3 font-medium">Giá</th>
-                      <th className="text-center px-4 py-3 font-medium">Tồn kho</th>
-                      <th className="text-center px-4 py-3 font-medium">Trạng thái</th>
-                      <th className="text-center px-4 py-3 font-medium">Hành động</th>
+                      <th className="text-left px-3 py-3 font-medium">Sản phẩm</th>
+                      <th className="text-left px-3 py-3 font-medium">Danh mục</th>
+                      <th className="text-right px-3 py-3 font-medium">Giá</th>
+                      <th className="text-center px-3 py-3 font-medium">Tồn</th>
+                      <th className="text-center px-3 py-3 font-medium">Lượt xem</th>
+                      <th className="text-center px-3 py-3 font-medium">Trạng thái</th>
+                      <th className="text-center px-3 py-3 font-medium">Nổi bật</th>
+                      <th className="text-center px-3 py-3 font-medium">Cập nhật</th>
+                      <th className="text-center px-3 py-3 font-medium">Hành động</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {products.map(p => (
-                      <tr key={p.id} className={`hover:bg-muted/50 ${!p.is_active ? 'opacity-50' : ''}`}>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            {p.images[0] ? <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-lg object-cover" /> : <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center"><Image className="h-5 w-5 text-muted-foreground" /></div>}
-                            <div>
-                              <p className="font-medium text-foreground">{p.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {p.grade} • {p.images.length} ảnh
-                                {(p as any).sku && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono text-[10px]">SKU: {(p as any).sku}</span>}
-                              </p>
+                    {filtered.map(p => {
+                      const stockColor = p.stock <= 0 ? 'bg-destructive/15 text-destructive' : p.stock < 10 ? 'bg-destructive/10 text-destructive' : p.stock < 30 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+                      const statusInfo = !p.is_active
+                        ? { label: 'Tạm ẩn', cls: 'bg-muted text-muted-foreground' }
+                        : p.stock <= 0
+                        ? { label: 'Hết hàng', cls: 'bg-destructive/15 text-destructive' }
+                        : { label: 'Đang bán', cls: 'bg-green-100 text-green-800' };
+                      return (
+                        <tr key={p.id} className={`hover:bg-muted/50 ${!p.is_active ? 'opacity-60' : ''}`}>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-3">
+                              {p.images[0] ? <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-lg object-cover" /> : <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center"><Image className="h-5 w-5 text-muted-foreground" /></div>}
+                              <div className="min-w-0">
+                                <p className="font-medium text-foreground truncate max-w-[220px]">{p.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {p.grade} • {p.images.length} ảnh
+                                  {p.sku && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono text-[10px]">SKU: {p.sku}</span>}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
-                        <td className="px-4 py-3 text-right font-bold text-coral">{formatPrice(p.price)}</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`text-xs font-bold ${p.stock < 10 ? 'text-destructive' : 'text-foreground'}`}>{p.stock}</span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button onClick={() => toggleProductActive(p)}>
-                            {p.is_active ? (
-                              <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium flex items-center gap-1"><Eye className="h-3 w-3" /> Hiện</span>
+                          </td>
+                          <td className="px-3 py-2 text-muted-foreground text-xs">{p.category}</td>
+                          <td className="px-3 py-2 text-right">
+                            {p.original_price && p.original_price > p.price ? (
+                              <div>
+                                <div className="text-[11px] text-muted-foreground line-through">{formatPrice(p.original_price)}</div>
+                                <div className="font-bold text-coral">{formatPrice(p.price)}</div>
+                              </div>
                             ) : (
-                              <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium flex items-center gap-1"><EyeOff className="h-3 w-3" /> Ẩn</span>
+                              <div className="font-bold text-coral">{formatPrice(p.price)}</div>
                             )}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <button onClick={() => { setEditingProduct(p); setShowProductForm(true); }} className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => deleteProduct(p)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${stockColor}`}>{p.stock}</span>
+                          </td>
+                          <td className="px-3 py-2 text-center text-xs text-muted-foreground">{p.views || 0}</td>
+                          <td className="px-3 py-2 text-center">
+                            <button onClick={() => toggleProductActive(p)} className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusInfo.cls}`}>
+                              {p.is_active ? <Eye className="h-3 w-3 inline mr-1" /> : <EyeOff className="h-3 w-3 inline mr-1" />}
+                              {statusInfo.label}
+                            </button>
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <button onClick={() => toggleProductFeatured(p)} title="Toggle nổi bật"
+                              className={`text-base ${p.is_featured ? '' : 'opacity-30 grayscale'}`}>⭐</button>
+                          </td>
+                          <td className="px-3 py-2 text-center text-[11px] text-muted-foreground">
+                            {p.updated_at ? new Date(p.updated_at).toLocaleDateString('vi-VN') : '—'}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => { setEditingProduct(p); setShowProductForm(true); }} title="Sửa" className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
+                              <button onClick={() => duplicateProduct(p)} title="Nhân bản" className="p-1.5 hover:bg-muted rounded-lg text-foreground"><Copy className="h-4 w-4" /></button>
+                              <button onClick={() => deleteProduct(p)} title="Xóa" className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filtered.length === 0 && (
+                      <tr><td colSpan={9} className="text-center text-muted-foreground py-8 text-sm">Không có sản phẩm phù hợp</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* ===== COMBOS ===== */}
         {tab === 'combos' && (
@@ -1140,6 +1223,7 @@ export default function AdminDashboard() {
         {tab === 'settings' && (
           <div className="space-y-6">
             <LogoManager />
+            <CategoriesManager />
             <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />
           </div>
         )}
@@ -1153,6 +1237,7 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const ref = useRef<HTMLDivElement>(null);
+  const { categories } = useCategories(false);
 
   const counts = useMemo(() => {
     const m: Record<string, number> = {};
@@ -1172,17 +1257,36 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
+  // Group by group_name
   const ql = q.trim().toLowerCase();
-  const groups = CATEGORY_GROUPS.map(g => ({
-    ...g,
-    items: g.items.map(i => i.trim()).filter(i => !ql || i.toLowerCase().includes(ql) || g.group.toLowerCase().includes(ql)),
-  })).filter(g => g.items.length > 0);
+  const groupedAll = useMemo(() => {
+    const src = categories.length > 0
+      ? categories.map(c => ({ name: c.name, icon: c.icon, group: c.group_name }))
+      : CATEGORY_GROUPS.flatMap(g => g.items.map(i => ({ name: i.trim(), icon: g.icon, group: g.group })));
+    const m: Record<string, { icon: string; items: { name: string; icon: string }[] }> = {};
+    for (const c of src) {
+      if (!m[c.group]) m[c.group] = { icon: c.icon, items: [] };
+      m[c.group].items.push({ name: c.name, icon: c.icon });
+    }
+    return Object.entries(m).map(([group, v]) => ({
+      group, icon: v.icon,
+      items: v.items.filter(i => !ql || i.name.toLowerCase().includes(ql) || group.toLowerCase().includes(ql)),
+    })).filter(g => g.items.length > 0);
+  }, [categories, ql]);
+
+  const selectedIcon = useMemo(() => {
+    const c = categories.find(c => c.name === value);
+    return c?.icon || '';
+  }, [categories, value]);
 
   return (
     <div className="relative" ref={ref}>
       <button type="button" onClick={() => setOpen(o => !o)}
         className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-left flex items-center justify-between">
-        <span className={value ? '' : 'text-muted-foreground'}>{value || '-- Chọn danh mục --'}</span>
+        <span className={value ? '' : 'text-muted-foreground'}>
+          {selectedIcon && <span className="mr-1">{selectedIcon}</span>}
+          {value || '-- Chọn danh mục --'}
+        </span>
         <span className="text-muted-foreground text-xs">▾</span>
       </button>
       {open && (
@@ -1191,15 +1295,15 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
             <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Tìm danh mục..."
               className="w-full px-2 py-1.5 rounded border border-border bg-background text-sm" />
           </div>
-          {groups.length === 0 && <div className="p-3 text-xs text-muted-foreground">Không tìm thấy</div>}
-          {groups.map(g => (
+          {groupedAll.length === 0 && <div className="p-3 text-xs text-muted-foreground">Không tìm thấy</div>}
+          {groupedAll.map(g => (
             <div key={g.group}>
               <div className="px-3 py-1.5 text-[11px] font-bold text-muted-foreground bg-muted/40 sticky top-[44px]">{g.icon} {g.group}</div>
               {g.items.map(item => (
-                <button type="button" key={item} onClick={() => { onChange(item); setOpen(false); setQ(''); }}
-                  className={`w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center justify-between ${value === item ? 'bg-primary/10 font-medium' : ''}`}>
-                  <span>{item}</span>
-                  {counts[item] > 0 && <span className="text-xs text-muted-foreground">({counts[item]})</span>}
+                <button type="button" key={item.name} onClick={() => { onChange(item.name); setOpen(false); setQ(''); }}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center justify-between ${value === item.name ? 'bg-primary/10 font-medium' : ''}`}>
+                  <span>{item.icon} {item.name}</span>
+                  {counts[item.name] > 0 && <span className="text-xs text-muted-foreground">({counts[item.name]})</span>}
                 </button>
               ))}
             </div>
@@ -1212,15 +1316,63 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
 
 // =================== PRODUCT FORM (FULL) ===================
 function ProductForm({ product, allProducts = [], onSave, onCancel }: { product: DBProduct | null; allProducts?: DBProduct[]; onSave: () => void; onCancel: () => void }) {
+  const p: any = product || {};
+  const pdesc: any = p.description || {};
   const [form, setForm] = useState({
-    name: product?.name || '', slug: product?.slug || '', price: product?.price || 0,
-    unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
-    stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
-    rating: product?.rating || 5,
-    sku: (product as any)?.sku || '',
-    taste: (product as any)?.taste || '', color: (product as any)?.color || '',
-    ingredients: (product as any)?.ingredients || '', cooking: (product as any)?.cooking || '',
+    name: p.name || '', slug: p.slug || '', price: p.price || 0,
+    unit: p.unit || 'kg', category: p.category || '', grade: p.grade || 'Cao cấp',
+    stock: p.stock || 50, badges: p.badges?.join(', ') || '', needs: p.needs?.join(', ') || '',
+    rating: p.rating || 5,
+    sku: p.sku || '',
+    taste: p.taste || '', color: p.color || '',
+    ingredients: p.ingredients || '', cooking: p.cooking || '',
+    // Phase 2 — new fields
+    original_price: p.original_price || 0,
+    is_featured: !!p.is_featured,
+    sort_order: p.sort_order || 0,
+    is_active: p.is_active !== false,
+    // stored inside description.specs/extras
+    weight: pdesc.specs?.weight || '',
+    package_type: pdesc.extras?.package_type || '',
+    dimensions: pdesc.extras?.dimensions || '',
+    expiry: pdesc.specs?.expiry || '',
+    storage_note: pdesc.extras?.storage_note || '',
+    origin_text: pdesc.extras?.origin_text || pdesc.highlights?.origin || '',
+    producer: pdesc.extras?.producer || '',
+    certifications: (pdesc.extras?.certifications as string[]) || [],
+    meta_description: pdesc.extras?.meta_description || '',
+    seo_tags: (pdesc.extras?.seo_tags as string[])?.join(', ') || '',
+    free_shipping: !!pdesc.extras?.free_shipping,
+    delivery_time: pdesc.extras?.delivery_time || '',
+    shipping_note: pdesc.extras?.shipping_note || '',
+    wholesale_price: pdesc.extras?.wholesale_price || 0,
+    wholesale_min_qty: pdesc.extras?.wholesale_min_qty || 0,
+    related_product_ids: (pdesc.extras?.related_product_ids as string[]) || [],
   });
+  const discountPercent = form.original_price > 0 && form.original_price > form.price
+    ? Math.round((1 - form.price / form.original_price) * 100) : 0;
+  const metaLeft = 160 - (form.meta_description?.length || 0);
+
+  // Accordion sections — first 3 open by default
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    basic: true, images: true, pricing: true,
+    package: false, attrs: false, origin: false, seo: false, display: false, shipping: false,
+  });
+  const toggleAcc = (k: string) => setOpenSections(s => ({ ...s, [k]: !s[k] }));
+  const Acc = ({ id, icon, title, children }: { id: string; icon: string; title: string; children: any }) => (
+    <div className="border border-border rounded-xl overflow-hidden">
+      <button type="button" onClick={() => toggleAcc(id)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted text-left">
+        <span className="font-bold text-sm">{icon} {title}</span>
+        {openSections[id] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {openSections[id] && <div className="p-4 space-y-3">{children}</div>}
+    </div>
+  );
+
+  const toggleCert = (c: string) => {
+    setForm(f => ({ ...f, certifications: f.certifications.includes(c) ? f.certifications.filter(x => x !== c) : [...f.certifications, c] }));
+  };
 
   // Structured description state
   const desc = product?.description as any || {};
@@ -1293,8 +1445,8 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
   const removeImage = (idx: number) => setImages(prev => prev.filter((_, i) => i !== idx));
   const removeNewFile = (idx: number) => setNewFiles(prev => prev.filter((_, i) => i !== idx));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | null, opts?: { publish?: boolean | null }) => {
+    if (e && (e as any).preventDefault) (e as any).preventDefault();
     setSaving(true);
 
     let allImages = [...images];
@@ -1308,14 +1460,34 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
     const descObj = {
       hook, intro,
       benefits: benefits.filter(Boolean),
-      highlights,
+      highlights: { ...highlights, origin: form.origin_text || highlights.origin },
       cooking: { methods: cookingMethods.filter(m => m.name), suggestions: cookingSuggestions.filter(Boolean) },
       choosingTips: choosingTips.filter(Boolean),
       realVsFake: { real: realVsFakeReal.filter(Boolean), fake: realVsFakeFake.filter(Boolean) },
       storage: storage.filter(Boolean),
       suitableFor: suitableFor.filter(Boolean),
-      specs, commitment: commitment.filter(Boolean), cta,
+      specs: { ...specs, weight: form.weight || specs.weight, expiry: form.expiry || specs.expiry, origin: form.origin_text || specs.origin },
+      commitment: commitment.filter(Boolean), cta,
+      // Phase 2 — extras (stored in JSONB so no schema change required)
+      extras: {
+        package_type: form.package_type,
+        dimensions: form.dimensions,
+        storage_note: form.storage_note,
+        origin_text: form.origin_text,
+        producer: form.producer,
+        certifications: form.certifications,
+        meta_description: form.meta_description,
+        seo_tags: form.seo_tags ? form.seo_tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+        free_shipping: form.free_shipping,
+        delivery_time: form.delivery_time,
+        shipping_note: form.shipping_note,
+        wholesale_price: Number(form.wholesale_price) || 0,
+        wholesale_min_qty: Number(form.wholesale_min_qty) || 0,
+        related_product_ids: form.related_product_ids,
+      },
     };
+
+    const isActive = opts?.publish === false ? false : (opts?.publish === true ? true : form.is_active);
 
     const payload = {
       name: form.name,
@@ -1327,21 +1499,54 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
       images: allImages, description: descObj,
       sku: form.sku?.trim() || null,
       taste: form.taste, color: form.color, ingredients: form.ingredients, cooking: form.cooking,
+      original_price: Number(form.original_price) || 0,
+      is_featured: form.is_featured,
+      sort_order: Number(form.sort_order) || 0,
+      is_active: isActive,
     } as any;
 
     if (product) {
       const { error } = await supabase.from('products').update(payload).eq('id', product.id);
-      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã cập nhật!');
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success(opts?.publish === false ? 'Đã lưu nháp!' : 'Đã cập nhật!');
     } else {
       const { error } = await supabase.from('products').insert(payload);
-      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã thêm!');
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success(opts?.publish === false ? 'Đã lưu nháp!' : 'Đã thêm!');
     }
     setSaving(false); onSave();
   };
 
+  const handlePreview = () => {
+    if (!form.slug && !form.name) { toast.error('Cần có tên/slug để xem trước'); return; }
+    const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    window.open(`/san-pham/${slug}`, '_blank');
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-6 space-y-5">
-      <h3 className="font-bold text-foreground text-lg">{product ? '✏️ Sửa sản phẩm' : '➕ Thêm sản phẩm mới'}</h3>
+    <form onSubmit={(e) => handleSubmit(e, { publish: true })} className="bg-card rounded-xl border border-border mb-6">
+      {/* Sticky action toolbar */}
+      <div className="sticky top-0 z-30 bg-card/95 backdrop-blur border-b border-border px-4 py-3 flex items-center gap-2 flex-wrap">
+        <button type="button" onClick={onCancel} className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm">
+          <ArrowLeft className="h-4 w-4" /> Quay lại
+        </button>
+        <div className="flex-1 min-w-0 px-2">
+          <div className="text-[11px] text-muted-foreground">{product ? 'Đang sửa' : 'Đang tạo mới'}</div>
+          <div className="font-bold text-sm truncate">{form.name || (product ? product.name : 'Sản phẩm chưa đặt tên')}</div>
+        </div>
+        <button type="button" onClick={handlePreview} className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm">
+          <Eye className="h-4 w-4" /> Preview
+        </button>
+        <button type="button" disabled={saving} onClick={() => handleSubmit(null, { publish: false })}
+          className="flex items-center gap-1 px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm disabled:opacity-50">
+          <Save className="h-4 w-4" /> Lưu nháp
+        </button>
+        <button type="submit" disabled={saving}
+          className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 disabled:opacity-50">
+          <Check className="h-4 w-4" /> {uploading ? 'Đang upload...' : saving ? 'Đang lưu...' : 'Lưu & Xuất bản'}
+        </button>
+      </div>
+
+      <div className="p-6 space-y-4">
+      <h3 className="sr-only">{product ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}</h3>
 
       {/* Basic info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1440,6 +1645,174 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
           <input value={form.cooking} onChange={e => setForm(f => ({ ...f, cooking: e.target.value }))} placeholder="VD: Nướng / chiên / xé khô"
             className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </div>
+      </div>
+
+      {/* ===== PHASE 2 — EXTRA FIELDS (accordion) ===== */}
+      <div className="space-y-3">
+        <Acc id="pricing" icon="💰" title="Giá & Khuyến mãi">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Giá gốc (gạch ngang)</label>
+              <input type="number" value={form.original_price} onChange={e => setForm(f => ({ ...f, original_price: Number(e.target.value) }))}
+                placeholder="VD: 350000" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              <p className="text-[11px] text-muted-foreground mt-1">Để trống nếu không có giá gốc</p>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">% Giảm giá (tự tính)</label>
+              <div className="px-3 py-2 rounded-lg border border-border bg-muted/40 text-sm">
+                {discountPercent > 0 ? <span className="px-2 py-0.5 bg-destructive text-destructive-foreground rounded font-bold text-xs">-{discountPercent}%</span> : <span className="text-muted-foreground">—</span>}
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Giá sỉ</label>
+              <input type="number" value={form.wholesale_price} onChange={e => setForm(f => ({ ...f, wholesale_price: Number(e.target.value) }))}
+                placeholder="VD: 250000" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+              <input type="number" value={form.wholesale_min_qty} onChange={e => setForm(f => ({ ...f, wholesale_min_qty: Number(e.target.value) }))}
+                placeholder="SL tối thiểu" className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        </Acc>
+
+        <Acc id="package" icon="📦" title="Đóng gói & Bảo quản">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Trọng lượng thực</label>
+              <input value={form.weight} onChange={e => setForm(f => ({ ...f, weight: e.target.value }))}
+                placeholder="VD: 500g, 1kg" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Quy cách đóng gói</label>
+              <select value={form.package_type} onChange={e => setForm(f => ({ ...f, package_type: e.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+                <option value="">-- Chọn --</option>
+                {['Túi zip', 'Hộp giấy', 'Hộp thiếc', 'Túi hút chân không', 'Hộp quà'].map(o => <option key={o}>{o}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Kích thước (D × R × C cm)</label>
+              <input value={form.dimensions} onChange={e => setForm(f => ({ ...f, dimensions: e.target.value }))}
+                placeholder="VD: 20 x 15 x 5" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Hạn sử dụng</label>
+              <input value={form.expiry} onChange={e => setForm(f => ({ ...f, expiry: e.target.value }))}
+                placeholder="VD: 12 tháng kể từ NSX" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold mb-1">Bảo quản</label>
+              <input value={form.storage_note} onChange={e => setForm(f => ({ ...f, storage_note: e.target.value }))}
+                placeholder="VD: Nơi khô ráo, thoáng mát, tránh ánh nắng" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        </Acc>
+
+        <Acc id="origin" icon="🏆" title="Xuất xứ & Chứng nhận">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Xuất xứ</label>
+              <input value={form.origin_text} onChange={e => setForm(f => ({ ...f, origin_text: e.target.value }))}
+                placeholder="VD: Sầm Sơn, Thanh Hóa" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Nhà sản xuất / Đánh bắt bởi</label>
+              <input value={form.producer} onChange={e => setForm(f => ({ ...f, producer: e.target.value }))}
+                placeholder="VD: Ngư dân Sầm Sơn" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold mb-1">Chứng nhận chất lượng</label>
+              <div className="flex flex-wrap gap-2">
+                {['VSATTP', 'OCOP', 'VietGAP', 'Organic', 'ISO', 'Khác'].map(c => (
+                  <label key={c} className={`px-3 py-1.5 rounded-lg border cursor-pointer text-xs flex items-center gap-1.5 ${form.certifications.includes(c) ? 'bg-primary/10 border-primary text-primary font-bold' : 'border-border'}`}>
+                    <input type="checkbox" checked={form.certifications.includes(c)} onChange={() => toggleCert(c)} className="hidden" />
+                    {form.certifications.includes(c) && <Check className="h-3 w-3" />} {c}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        </Acc>
+
+        <Acc id="seo" icon="🔍" title="SEO & Tags">
+          <div>
+            <label className="block text-xs font-bold mb-1">Mô tả ngắn (meta description)</label>
+            <textarea rows={2} maxLength={160} value={form.meta_description} onChange={e => setForm(f => ({ ...f, meta_description: e.target.value }))}
+              placeholder="Mô tả ngắn hiện trên Google..." className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            <p className={`text-[11px] mt-1 ${metaLeft < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>{form.meta_description.length}/160 ký tự</p>
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">Tags / Từ khóa SEO (phẩy ngăn)</label>
+            <input value={form.seo_tags} onChange={e => setForm(f => ({ ...f, seo_tags: e.target.value }))}
+              placeholder="mực khô, hải sản sầm sơn, đặc sản thanh hóa" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          </div>
+        </Acc>
+
+        <Acc id="display" icon="⚙️" title="Cài đặt hiển thị">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Trạng thái</label>
+              <select value={form.is_active ? '1' : '0'} onChange={e => setForm(f => ({ ...f, is_active: e.target.value === '1' }))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+                <option value="1">🟢 Đang bán</option>
+                <option value="0">🔴 Tạm ẩn</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Nổi bật trang chủ</label>
+              <button type="button" onClick={() => setForm(f => ({ ...f, is_featured: !f.is_featured }))}
+                className={`w-full px-3 py-2 rounded-lg border text-sm font-bold ${form.is_featured ? 'bg-primary/10 border-primary text-primary' : 'border-border'}`}>
+                {form.is_featured ? '⭐ Đang nổi bật' : 'Tắt'}
+              </button>
+            </div>
+            <div>
+              <label className="block text-xs font-bold mb-1">Thứ tự (1 = đầu)</label>
+              <input type="number" value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: Number(e.target.value) }))}
+                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">Sản phẩm liên quan (tối đa 4)</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {form.related_product_ids.map(id => {
+                const pp = allProducts.find(x => x.id === id);
+                return pp ? (
+                  <span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded text-xs">
+                    {pp.name}
+                    <button type="button" onClick={() => setForm(f => ({ ...f, related_product_ids: f.related_product_ids.filter(x => x !== id) }))}><X className="h-3 w-3" /></button>
+                  </span>
+                ) : null;
+              })}
+            </div>
+            <select value="" onChange={e => {
+              const v = e.target.value; if (!v) return;
+              setForm(f => f.related_product_ids.length >= 4 || f.related_product_ids.includes(v) ? f : { ...f, related_product_ids: [...f.related_product_ids, v] });
+            }} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm">
+              <option value="">+ Thêm sản phẩm liên quan</option>
+              {allProducts.filter(x => x.id !== product?.id && !form.related_product_ids.includes(x.id)).map(x => <option key={x.id} value={x.id}>{x.name}</option>)}
+            </select>
+          </div>
+        </Acc>
+
+        <Acc id="shipping" icon="🚚" title="Vận chuyển">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold mb-1">Miễn phí vận chuyển</label>
+              <button type="button" onClick={() => setForm(f => ({ ...f, free_shipping: !f.free_shipping }))}
+                className={`w-full px-3 py-2 rounded-lg border text-sm font-bold ${form.free_shipping ? 'bg-green-100 border-green-500 text-green-800' : 'border-border'}`}>
+                {form.free_shipping ? '✅ Có' : 'Không'}
+              </button>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold mb-1">Thời gian giao hàng</label>
+              <input value={form.delivery_time} onChange={e => setForm(f => ({ ...f, delivery_time: e.target.value }))}
+                placeholder="VD: 2-3 ngày làm việc" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+            <div className="md:col-span-3">
+              <label className="block text-xs font-bold mb-1">Lưu ý khi vận chuyển</label>
+              <input value={form.shipping_note} onChange={e => setForm(f => ({ ...f, shipping_note: e.target.value }))}
+                placeholder="VD: Giữ nơi khô ráo trong quá trình ship" className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            </div>
+          </div>
+        </Acc>
       </div>
 
       {/* ===== STRUCTURED DESCRIPTION ===== */}
@@ -1666,12 +2039,9 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
         </label>
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <button type="submit" disabled={saving}
-          className="ocean-gradient text-primary-foreground px-6 py-2.5 rounded-lg text-sm font-bold hover:opacity-90 flex items-center gap-1.5 disabled:opacity-50">
-          <Save className="h-4 w-4" /> {uploading ? 'Đang upload ảnh...' : saving ? 'Đang lưu...' : 'Lưu sản phẩm'}
-        </button>
-        <button type="button" onClick={onCancel} className="px-4 py-2.5 rounded-lg text-sm border border-border hover:bg-muted">Hủy</button>
+      <div className="flex gap-2 pt-2 border-t border-border">
+        <p className="text-xs text-muted-foreground self-center">💡 Dùng các nút ở thanh trên để Lưu nháp / Xuất bản / Preview.</p>
+      </div>
       </div>
     </form>
   );

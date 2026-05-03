@@ -828,6 +828,42 @@ export type Database = {
         }
         Relationships: []
       }
+      product_categories: {
+        Row: {
+          created_at: string
+          group_name: string
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          group_name?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          group_name?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_relations: {
         Row: {
           created_at: string
@@ -901,8 +937,10 @@ export type Database = {
           images: string[]
           ingredients: string
           is_active: boolean
+          is_featured: boolean
           name: string
           needs: string[]
+          original_price: number
           price: number
           rating: number
           sku: string | null
@@ -913,6 +951,7 @@ export type Database = {
           taste: string
           unit: string
           updated_at: string
+          views: number
         }
         Insert: {
           badges?: string[]
@@ -926,8 +965,10 @@ export type Database = {
           images?: string[]
           ingredients?: string
           is_active?: boolean
+          is_featured?: boolean
           name: string
           needs?: string[]
+          original_price?: number
           price: number
           rating?: number
           sku?: string | null
@@ -938,6 +979,7 @@ export type Database = {
           taste?: string
           unit?: string
           updated_at?: string
+          views?: number
         }
         Update: {
           badges?: string[]
@@ -951,8 +993,10 @@ export type Database = {
           images?: string[]
           ingredients?: string
           is_active?: boolean
+          is_featured?: boolean
           name?: string
           needs?: string[]
+          original_price?: number
           price?: number
           rating?: number
           sku?: string | null
@@ -963,6 +1007,7 @@ export type Database = {
           taste?: string
           unit?: string
           updated_at?: string
+          views?: number
         }
         Relationships: []
       }

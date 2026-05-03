@@ -1327,11 +1327,7 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
         </div>
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">Danh mục *</label>
-          <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required>
-            <option value="">-- Chọn --</option>
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <CategoryPicker value={form.category} onChange={v => setForm(f => ({ ...f, category: v }))} allProducts={allProducts} />
         </div>
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">Tồn kho</label>

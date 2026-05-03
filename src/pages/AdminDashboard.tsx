@@ -1149,7 +1149,7 @@ export default function AdminDashboard() {
 }
 
 // =================== PRODUCT FORM (FULL) ===================
-function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null; onSave: () => void; onCancel: () => void }) {
+function ProductForm({ product, allProducts = [], onSave, onCancel }: { product: DBProduct | null; allProducts?: DBProduct[]; onSave: () => void; onCancel: () => void }) {
   const [form, setForm] = useState({
     name: product?.name || '', slug: product?.slug || '', price: product?.price || 0,
     unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',

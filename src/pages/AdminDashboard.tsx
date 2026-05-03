@@ -1316,15 +1316,63 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
 
 // =================== PRODUCT FORM (FULL) ===================
 function ProductForm({ product, allProducts = [], onSave, onCancel }: { product: DBProduct | null; allProducts?: DBProduct[]; onSave: () => void; onCancel: () => void }) {
+  const p: any = product || {};
+  const pdesc: any = p.description || {};
   const [form, setForm] = useState({
-    name: product?.name || '', slug: product?.slug || '', price: product?.price || 0,
-    unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
-    stock: product?.stock || 50, badges: product?.badges?.join(', ') || '', needs: product?.needs?.join(', ') || '',
-    rating: product?.rating || 5,
-    sku: (product as any)?.sku || '',
-    taste: (product as any)?.taste || '', color: (product as any)?.color || '',
-    ingredients: (product as any)?.ingredients || '', cooking: (product as any)?.cooking || '',
+    name: p.name || '', slug: p.slug || '', price: p.price || 0,
+    unit: p.unit || 'kg', category: p.category || '', grade: p.grade || 'Cao cấp',
+    stock: p.stock || 50, badges: p.badges?.join(', ') || '', needs: p.needs?.join(', ') || '',
+    rating: p.rating || 5,
+    sku: p.sku || '',
+    taste: p.taste || '', color: p.color || '',
+    ingredients: p.ingredients || '', cooking: p.cooking || '',
+    // Phase 2 — new fields
+    original_price: p.original_price || 0,
+    is_featured: !!p.is_featured,
+    sort_order: p.sort_order || 0,
+    is_active: p.is_active !== false,
+    // stored inside description.specs/extras
+    weight: pdesc.specs?.weight || '',
+    package_type: pdesc.extras?.package_type || '',
+    dimensions: pdesc.extras?.dimensions || '',
+    expiry: pdesc.specs?.expiry || '',
+    storage_note: pdesc.extras?.storage_note || '',
+    origin_text: pdesc.extras?.origin_text || pdesc.highlights?.origin || '',
+    producer: pdesc.extras?.producer || '',
+    certifications: (pdesc.extras?.certifications as string[]) || [],
+    meta_description: pdesc.extras?.meta_description || '',
+    seo_tags: (pdesc.extras?.seo_tags as string[])?.join(', ') || '',
+    free_shipping: !!pdesc.extras?.free_shipping,
+    delivery_time: pdesc.extras?.delivery_time || '',
+    shipping_note: pdesc.extras?.shipping_note || '',
+    wholesale_price: pdesc.extras?.wholesale_price || 0,
+    wholesale_min_qty: pdesc.extras?.wholesale_min_qty || 0,
+    related_product_ids: (pdesc.extras?.related_product_ids as string[]) || [],
   });
+  const discountPercent = form.original_price > 0 && form.original_price > form.price
+    ? Math.round((1 - form.price / form.original_price) * 100) : 0;
+  const metaLeft = 160 - (form.meta_description?.length || 0);
+
+  // Accordion sections — first 3 open by default
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    basic: true, images: true, pricing: true,
+    package: false, attrs: false, origin: false, seo: false, display: false, shipping: false,
+  });
+  const toggleAcc = (k: string) => setOpenSections(s => ({ ...s, [k]: !s[k] }));
+  const Acc = ({ id, icon, title, children }: { id: string; icon: string; title: string; children: any }) => (
+    <div className="border border-border rounded-xl overflow-hidden">
+      <button type="button" onClick={() => toggleAcc(id)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-muted/40 hover:bg-muted text-left">
+        <span className="font-bold text-sm">{icon} {title}</span>
+        {openSections[id] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {openSections[id] && <div className="p-4 space-y-3">{children}</div>}
+    </div>
+  );
+
+  const toggleCert = (c: string) => {
+    setForm(f => ({ ...f, certifications: f.certifications.includes(c) ? f.certifications.filter(x => x !== c) : [...f.certifications, c] }));
+  };
 
   // Structured description state
   const desc = product?.description as any || {};

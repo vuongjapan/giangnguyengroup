@@ -93,7 +93,21 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'Đã hủy', color: 'bg-red-100 text-red-800' },
 };
 
-const CATEGORIES = ['Mực khô', 'Cá khô', 'Hải sản 1 nắng', 'Tôm khô', 'Nem chua', 'Combo quà biếu', 'Đặc sản khác'];
+// Cấu trúc danh mục có nhóm + emoji. Giữ các danh mục cũ, bổ sung mới.
+const CATEGORY_GROUPS: { group: string; icon: string; items: string[] }[] = [
+  { group: 'HẢI SẢN KHÔ', icon: '🦑', items: ['Mực khô', 'Mực rim', 'Mực một nắng', 'Bạch tuộc khô', 'Bạch tuộc rim'] },
+  { group: 'CÁ KHÔ', icon: '🐟', items: ['Cá khô', 'Cá thu khô', 'Cá thu một nắng', 'Cá đục khô', 'Cá đuối khô', 'Cá chỉ vàng khô', 'Cá trích khô', 'Cá cơm khô', 'Cá hố khô', 'Cá lưỡi trâu khô'] },
+  { group: 'TÔM & GIÁP XÁC KHÔ', icon: '🦐', items: ['Tôm khô', 'Tôm nõn khô', 'Tôm tít khô', 'Ghẹ khô', 'Cua khô', 'Còng khô'] },
+  { group: 'MẮM CÁC LOẠI', icon: '🫙', items: ['Mắm tôm', 'Mắm ruốc', 'Mắm cá thu', 'Mắm cá cơm', 'Mắm mực', 'Mắm tép', 'Mắm nêm'] },
+  { group: 'RUỐC & CHÀ BÔNG', icon: '🌿', items: ['Ruốc tôm', 'Ruốc cá', 'Ruốc mực', 'Chà bông cá thu', 'Chà bông tôm'] },
+  { group: 'HẢI SẢN MỘT NẮNG', icon: '🏖️', items: ['Hải sản 1 nắng', 'Cá thu một nắng ', 'Mực một nắng ', 'Cá đục một nắng', 'Tôm một nắng'] },
+  { group: 'HẢI SẢN CHẾ BIẾN SẴN', icon: '🥘', items: ['Nem chua', 'Chả mực', 'Chả cá', 'Nem mực', 'Tôm rim muối ớt', 'Mực rim muối ớt', 'Cá rim muối ớt'] },
+  { group: 'COMBO & QUÀ BIẾU', icon: '🎁', items: ['Combo quà biếu', 'Combo gia đình', 'Combo quà biếu cao cấp', 'Combo quà biếu tiêu chuẩn', 'Combo tết', 'Combo hải sản mix', 'Hộp quà cao cấp'] },
+  { group: 'GIA VỊ & NƯỚC CHẤM', icon: '🧂', items: ['Muối ớt hải sản', 'Tương ớt hải sản', 'Nước mắm nguyên chất', 'Muối vừng hải sản'] },
+  { group: 'ĐẶC SẢN SẦM SƠN KHÁC', icon: '🌊', items: ['Sứa biển', 'Rong biển khô', 'Hàu khô', 'Sò điệp khô', 'Tu hài khô', 'Bào ngư khô'] },
+  { group: 'KHÁC', icon: '📦', items: ['Đặc sản khác', 'Sản phẩm mới'] },
+];
+const CATEGORIES = Array.from(new Set(CATEGORY_GROUPS.flatMap(g => g.items.map(i => i.trim()))));
 
 export default function AdminDashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();

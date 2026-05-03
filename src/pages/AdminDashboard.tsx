@@ -814,7 +814,7 @@ export default function AdminDashboard() {
             </div>
             <ProductCsvTools onImported={fetchProducts} />
             {showProductForm && (
-              <ProductForm product={editingProduct} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
+              <ProductForm product={editingProduct} allProducts={products} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
             )}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="overflow-x-auto">

@@ -1144,6 +1144,7 @@ export default function AdminDashboard() {
         {tab === 'settings' && (
           <div className="space-y-6">
             <LogoManager />
+            <CategoriesManager />
             <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />
           </div>
         )}

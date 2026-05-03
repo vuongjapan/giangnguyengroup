@@ -93,7 +93,21 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   cancelled: { label: 'Đã hủy', color: 'bg-red-100 text-red-800' },
 };
 
-const CATEGORIES = ['Mực khô', 'Cá khô', 'Hải sản 1 nắng', 'Tôm khô', 'Nem chua', 'Combo quà biếu', 'Đặc sản khác'];
+// Cấu trúc danh mục có nhóm + emoji. Giữ các danh mục cũ, bổ sung mới.
+const CATEGORY_GROUPS: { group: string; icon: string; items: string[] }[] = [
+  { group: 'HẢI SẢN KHÔ', icon: '🦑', items: ['Mực khô', 'Mực rim', 'Mực một nắng', 'Bạch tuộc khô', 'Bạch tuộc rim'] },
+  { group: 'CÁ KHÔ', icon: '🐟', items: ['Cá khô', 'Cá thu khô', 'Cá thu một nắng', 'Cá đục khô', 'Cá đuối khô', 'Cá chỉ vàng khô', 'Cá trích khô', 'Cá cơm khô', 'Cá hố khô', 'Cá lưỡi trâu khô'] },
+  { group: 'TÔM & GIÁP XÁC KHÔ', icon: '🦐', items: ['Tôm khô', 'Tôm nõn khô', 'Tôm tít khô', 'Ghẹ khô', 'Cua khô', 'Còng khô'] },
+  { group: 'MẮM CÁC LOẠI', icon: '🫙', items: ['Mắm tôm', 'Mắm ruốc', 'Mắm cá thu', 'Mắm cá cơm', 'Mắm mực', 'Mắm tép', 'Mắm nêm'] },
+  { group: 'RUỐC & CHÀ BÔNG', icon: '🌿', items: ['Ruốc tôm', 'Ruốc cá', 'Ruốc mực', 'Chà bông cá thu', 'Chà bông tôm'] },
+  { group: 'HẢI SẢN MỘT NẮNG', icon: '🏖️', items: ['Hải sản 1 nắng', 'Cá thu một nắng ', 'Mực một nắng ', 'Cá đục một nắng', 'Tôm một nắng'] },
+  { group: 'HẢI SẢN CHẾ BIẾN SẴN', icon: '🥘', items: ['Nem chua', 'Chả mực', 'Chả cá', 'Nem mực', 'Tôm rim muối ớt', 'Mực rim muối ớt', 'Cá rim muối ớt'] },
+  { group: 'COMBO & QUÀ BIẾU', icon: '🎁', items: ['Combo quà biếu', 'Combo gia đình', 'Combo quà biếu cao cấp', 'Combo quà biếu tiêu chuẩn', 'Combo tết', 'Combo hải sản mix', 'Hộp quà cao cấp'] },
+  { group: 'GIA VỊ & NƯỚC CHẤM', icon: '🧂', items: ['Muối ớt hải sản', 'Tương ớt hải sản', 'Nước mắm nguyên chất', 'Muối vừng hải sản'] },
+  { group: 'ĐẶC SẢN SẦM SƠN KHÁC', icon: '🌊', items: ['Sứa biển', 'Rong biển khô', 'Hàu khô', 'Sò điệp khô', 'Tu hài khô', 'Bào ngư khô'] },
+  { group: 'KHÁC', icon: '📦', items: ['Đặc sản khác', 'Sản phẩm mới'] },
+];
+const CATEGORIES = Array.from(new Set(CATEGORY_GROUPS.flatMap(g => g.items.map(i => i.trim()))));
 
 export default function AdminDashboard() {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -800,7 +814,7 @@ export default function AdminDashboard() {
             </div>
             <ProductCsvTools onImported={fetchProducts} />
             {showProductForm && (
-              <ProductForm product={editingProduct} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
+              <ProductForm product={editingProduct} allProducts={products} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
             )}
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="overflow-x-auto">
@@ -1134,8 +1148,70 @@ export default function AdminDashboard() {
   );
 }
 
+// =================== CATEGORY PICKER (searchable, grouped, with counts) ===================
+function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; onChange: (v: string) => void; allProducts?: DBProduct[] }) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+
+  const counts = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const p of allProducts) {
+      const k = (p.category || '').trim();
+      if (!k) continue;
+      m[k] = (m[k] || 0) + 1;
+    }
+    return m;
+  }, [allProducts]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    return () => document.removeEventListener('mousedown', onClick);
+  }, []);
+
+  const ql = q.trim().toLowerCase();
+  const groups = CATEGORY_GROUPS.map(g => ({
+    ...g,
+    items: g.items.map(i => i.trim()).filter(i => !ql || i.toLowerCase().includes(ql) || g.group.toLowerCase().includes(ql)),
+  })).filter(g => g.items.length > 0);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button type="button" onClick={() => setOpen(o => !o)}
+        className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-left flex items-center justify-between">
+        <span className={value ? '' : 'text-muted-foreground'}>{value || '-- Chọn danh mục --'}</span>
+        <span className="text-muted-foreground text-xs">▾</span>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full max-h-80 overflow-auto rounded-lg border border-border bg-popover shadow-lg">
+          <div className="sticky top-0 bg-popover border-b border-border p-2">
+            <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Tìm danh mục..."
+              className="w-full px-2 py-1.5 rounded border border-border bg-background text-sm" />
+          </div>
+          {groups.length === 0 && <div className="p-3 text-xs text-muted-foreground">Không tìm thấy</div>}
+          {groups.map(g => (
+            <div key={g.group}>
+              <div className="px-3 py-1.5 text-[11px] font-bold text-muted-foreground bg-muted/40 sticky top-[44px]">{g.icon} {g.group}</div>
+              {g.items.map(item => (
+                <button type="button" key={item} onClick={() => { onChange(item); setOpen(false); setQ(''); }}
+                  className={`w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center justify-between ${value === item ? 'bg-primary/10 font-medium' : ''}`}>
+                  <span>{item}</span>
+                  {counts[item] > 0 && <span className="text-xs text-muted-foreground">({counts[item]})</span>}
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // =================== PRODUCT FORM (FULL) ===================
-function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null; onSave: () => void; onCancel: () => void }) {
+function ProductForm({ product, allProducts = [], onSave, onCancel }: { product: DBProduct | null; allProducts?: DBProduct[]; onSave: () => void; onCancel: () => void }) {
   const [form, setForm] = useState({
     name: product?.name || '', slug: product?.slug || '', price: product?.price || 0,
     unit: product?.unit || 'kg', category: product?.category || '', grade: product?.grade || 'Cao cấp',
@@ -1313,11 +1389,7 @@ function ProductForm({ product, onSave, onCancel }: { product: DBProduct | null;
         </div>
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">Danh mục *</label>
-          <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-            className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm" required>
-            <option value="">-- Chọn --</option>
-            {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
+          <CategoryPicker value={form.category} onChange={v => setForm(f => ({ ...f, category: v }))} allProducts={allProducts} />
         </div>
         <div>
           <label className="block text-xs font-bold text-foreground mb-1">Tồn kho</label>

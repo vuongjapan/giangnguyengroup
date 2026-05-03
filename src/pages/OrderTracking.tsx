@@ -309,7 +309,7 @@ export default function OrderTracking() {
         )}
 
         {order && st && (
-          <div className="mt-6 space-y-5">
+          <div id="order-detail" className="mt-6 space-y-5 scroll-mt-24">
             <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
                 <div>

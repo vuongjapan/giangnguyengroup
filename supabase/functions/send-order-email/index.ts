@@ -194,6 +194,9 @@ function generateInvoiceHtml(order: any) {
     <a href="${trackUrl}" style="display:inline-block;background:#fff;color:#0369a1;text-decoration:none;padding:12px 26px;border-radius:30px;font-weight:700;font-size:14px;margin:6px 4px;border:2px solid #0ea5e9;">
       📦 Theo dõi đơn
     </a>
+    <a href="${detailUrl}" style="display:inline-block;background:linear-gradient(135deg,#0ea5e9,#0369a1);color:#fff;text-decoration:none;padding:13px 28px;border-radius:30px;font-weight:800;font-size:14px;margin:6px 4px;box-shadow:0 4px 12px rgba(14,165,233,0.3);">
+      🔍 Xem chi tiết đơn
+    </a>
     <p style="margin:10px 0 0;font-size:11px;color:#94a3b8;">Hoặc nhắn Zalo <strong style="color:#0369a1;">0933.562.286</strong> kèm mã <strong>${orderCode}</strong></p>
   </div>
 

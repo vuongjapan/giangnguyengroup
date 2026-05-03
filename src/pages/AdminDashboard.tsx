@@ -1445,8 +1445,8 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
   const removeImage = (idx: number) => setImages(prev => prev.filter((_, i) => i !== idx));
   const removeNewFile = (idx: number) => setNewFiles(prev => prev.filter((_, i) => i !== idx));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | null, opts?: { publish?: boolean | null }) => {
+    if (e && (e as any).preventDefault) (e as any).preventDefault();
     setSaving(true);
 
     let allImages = [...images];
@@ -1460,14 +1460,34 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
     const descObj = {
       hook, intro,
       benefits: benefits.filter(Boolean),
-      highlights,
+      highlights: { ...highlights, origin: form.origin_text || highlights.origin },
       cooking: { methods: cookingMethods.filter(m => m.name), suggestions: cookingSuggestions.filter(Boolean) },
       choosingTips: choosingTips.filter(Boolean),
       realVsFake: { real: realVsFakeReal.filter(Boolean), fake: realVsFakeFake.filter(Boolean) },
       storage: storage.filter(Boolean),
       suitableFor: suitableFor.filter(Boolean),
-      specs, commitment: commitment.filter(Boolean), cta,
+      specs: { ...specs, weight: form.weight || specs.weight, expiry: form.expiry || specs.expiry, origin: form.origin_text || specs.origin },
+      commitment: commitment.filter(Boolean), cta,
+      // Phase 2 — extras (stored in JSONB so no schema change required)
+      extras: {
+        package_type: form.package_type,
+        dimensions: form.dimensions,
+        storage_note: form.storage_note,
+        origin_text: form.origin_text,
+        producer: form.producer,
+        certifications: form.certifications,
+        meta_description: form.meta_description,
+        seo_tags: form.seo_tags ? form.seo_tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+        free_shipping: form.free_shipping,
+        delivery_time: form.delivery_time,
+        shipping_note: form.shipping_note,
+        wholesale_price: Number(form.wholesale_price) || 0,
+        wholesale_min_qty: Number(form.wholesale_min_qty) || 0,
+        related_product_ids: form.related_product_ids,
+      },
     };
+
+    const isActive = opts?.publish === false ? false : (opts?.publish === true ? true : form.is_active);
 
     const payload = {
       name: form.name,
@@ -1479,16 +1499,26 @@ function ProductForm({ product, allProducts = [], onSave, onCancel }: { product:
       images: allImages, description: descObj,
       sku: form.sku?.trim() || null,
       taste: form.taste, color: form.color, ingredients: form.ingredients, cooking: form.cooking,
+      original_price: Number(form.original_price) || 0,
+      is_featured: form.is_featured,
+      sort_order: Number(form.sort_order) || 0,
+      is_active: isActive,
     } as any;
 
     if (product) {
       const { error } = await supabase.from('products').update(payload).eq('id', product.id);
-      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã cập nhật!');
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success(opts?.publish === false ? 'Đã lưu nháp!' : 'Đã cập nhật!');
     } else {
       const { error } = await supabase.from('products').insert(payload);
-      if (error) toast.error('Lỗi: ' + error.message); else toast.success('Đã thêm!');
+      if (error) toast.error('Lỗi: ' + error.message); else toast.success(opts?.publish === false ? 'Đã lưu nháp!' : 'Đã thêm!');
     }
     setSaving(false); onSave();
+  };
+
+  const handlePreview = () => {
+    if (!form.slug && !form.name) { toast.error('Cần có tên/slug để xem trước'); return; }
+    const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    window.open(`/san-pham/${slug}`, '_blank');
   };
 
   return (

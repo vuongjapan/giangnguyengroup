@@ -827,10 +827,26 @@ export default function AdminDashboard() {
         )}
 
         {/* ===== PRODUCTS ===== */}
-        {tab === 'products' && (
+        {tab === 'products' && (() => {
+          const filtered = products.filter(p => {
+            if (productFilter === 'active' && !p.is_active) return false;
+            if (productFilter === 'inactive' && p.is_active) return false;
+            if (productFilter === 'out' && p.stock > 0) return false;
+            if (productFilter === 'featured' && !p.is_featured) return false;
+            if (productFilter === 'low' && p.stock >= 10) return false;
+            if (productSearch && !`${p.name} ${p.sku || ''} ${p.category}`.toLowerCase().includes(productSearch.toLowerCase())) return false;
+            return true;
+          });
+          const filterBtn = (k: typeof productFilter, label: string, count?: number) => (
+            <button onClick={() => setProductFilter(k)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${productFilter === k ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+              {label}{count !== undefined && ` (${count})`}
+            </button>
+          );
+          return (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-foreground">Quản lý sản phẩm ({products.length})</h2>
+              <h2 className="text-lg font-bold text-foreground">Quản lý sản phẩm ({filtered.length}/{products.length})</h2>
               <button onClick={() => { setEditingProduct(null); setShowProductForm(true); }}
                 className="ocean-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 hover:opacity-90">
                 <Plus className="h-4 w-4" /> Thêm SP
@@ -840,62 +856,105 @@ export default function AdminDashboard() {
             {showProductForm && (
               <ProductForm product={editingProduct} allProducts={products} onSave={() => { setShowProductForm(false); fetchProducts(); }} onCancel={() => setShowProductForm(false)} />
             )}
+
+            {/* Quick filters */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {filterBtn('all', 'Tất cả', products.length)}
+              {filterBtn('active', 'Đang bán', products.filter(p => p.is_active).length)}
+              {filterBtn('inactive', 'Tạm ẩn', products.filter(p => !p.is_active).length)}
+              {filterBtn('out', 'Hết hàng', products.filter(p => p.stock <= 0).length)}
+              {filterBtn('featured', 'Nổi bật', products.filter(p => p.is_featured).length)}
+              {filterBtn('low', 'Sắp hết (<10)', products.filter(p => p.stock > 0 && p.stock < 10).length)}
+              <input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="🔍 Tìm tên / SKU / danh mục..."
+                className="ml-auto w-full sm:w-64 px-3 py-1.5 rounded-lg border border-border bg-background text-sm" />
+            </div>
+
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="bg-muted text-muted-foreground">
                     <tr>
-                      <th className="text-left px-4 py-3 font-medium">Sản phẩm</th>
-                      <th className="text-left px-4 py-3 font-medium">Danh mục</th>
-                      <th className="text-right px-4 py-3 font-medium">Giá</th>
-                      <th className="text-center px-4 py-3 font-medium">Tồn kho</th>
-                      <th className="text-center px-4 py-3 font-medium">Trạng thái</th>
-                      <th className="text-center px-4 py-3 font-medium">Hành động</th>
+                      <th className="text-left px-3 py-3 font-medium">Sản phẩm</th>
+                      <th className="text-left px-3 py-3 font-medium">Danh mục</th>
+                      <th className="text-right px-3 py-3 font-medium">Giá</th>
+                      <th className="text-center px-3 py-3 font-medium">Tồn</th>
+                      <th className="text-center px-3 py-3 font-medium">Lượt xem</th>
+                      <th className="text-center px-3 py-3 font-medium">Trạng thái</th>
+                      <th className="text-center px-3 py-3 font-medium">Nổi bật</th>
+                      <th className="text-center px-3 py-3 font-medium">Cập nhật</th>
+                      <th className="text-center px-3 py-3 font-medium">Hành động</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {products.map(p => (
-                      <tr key={p.id} className={`hover:bg-muted/50 ${!p.is_active ? 'opacity-50' : ''}`}>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            {p.images[0] ? <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-lg object-cover" /> : <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center"><Image className="h-5 w-5 text-muted-foreground" /></div>}
-                            <div>
-                              <p className="font-medium text-foreground">{p.name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {p.grade} • {p.images.length} ảnh
-                                {(p as any).sku && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono text-[10px]">SKU: {(p as any).sku}</span>}
-                              </p>
+                    {filtered.map(p => {
+                      const stockColor = p.stock <= 0 ? 'bg-destructive/15 text-destructive' : p.stock < 10 ? 'bg-destructive/10 text-destructive' : p.stock < 30 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800';
+                      const statusInfo = !p.is_active
+                        ? { label: 'Tạm ẩn', cls: 'bg-muted text-muted-foreground' }
+                        : p.stock <= 0
+                        ? { label: 'Hết hàng', cls: 'bg-destructive/15 text-destructive' }
+                        : { label: 'Đang bán', cls: 'bg-green-100 text-green-800' };
+                      return (
+                        <tr key={p.id} className={`hover:bg-muted/50 ${!p.is_active ? 'opacity-60' : ''}`}>
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-3">
+                              {p.images[0] ? <img src={p.images[0]} alt={p.name} className="w-12 h-12 rounded-lg object-cover" /> : <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center"><Image className="h-5 w-5 text-muted-foreground" /></div>}
+                              <div className="min-w-0">
+                                <p className="font-medium text-foreground truncate max-w-[220px]">{p.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {p.grade} • {p.images.length} ảnh
+                                  {p.sku && <span className="ml-2 px-1.5 py-0.5 bg-primary/10 text-primary rounded font-mono text-[10px]">SKU: {p.sku}</span>}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
-                        <td className="px-4 py-3 text-right font-bold text-coral">{formatPrice(p.price)}</td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`text-xs font-bold ${p.stock < 10 ? 'text-destructive' : 'text-foreground'}`}>{p.stock}</span>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <button onClick={() => toggleProductActive(p)}>
-                            {p.is_active ? (
-                              <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium flex items-center gap-1"><Eye className="h-3 w-3" /> Hiện</span>
+                          </td>
+                          <td className="px-3 py-2 text-muted-foreground text-xs">{p.category}</td>
+                          <td className="px-3 py-2 text-right">
+                            {p.original_price && p.original_price > p.price ? (
+                              <div>
+                                <div className="text-[11px] text-muted-foreground line-through">{formatPrice(p.original_price)}</div>
+                                <div className="font-bold text-coral">{formatPrice(p.price)}</div>
+                              </div>
                             ) : (
-                              <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium flex items-center gap-1"><EyeOff className="h-3 w-3" /> Ẩn</span>
+                              <div className="font-bold text-coral">{formatPrice(p.price)}</div>
                             )}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            <button onClick={() => { setEditingProduct(p); setShowProductForm(true); }} className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => deleteProduct(p)} className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${stockColor}`}>{p.stock}</span>
+                          </td>
+                          <td className="px-3 py-2 text-center text-xs text-muted-foreground">{p.views || 0}</td>
+                          <td className="px-3 py-2 text-center">
+                            <button onClick={() => toggleProductActive(p)} className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusInfo.cls}`}>
+                              {p.is_active ? <Eye className="h-3 w-3 inline mr-1" /> : <EyeOff className="h-3 w-3 inline mr-1" />}
+                              {statusInfo.label}
+                            </button>
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <button onClick={() => toggleProductFeatured(p)} title="Toggle nổi bật"
+                              className={`text-base ${p.is_featured ? '' : 'opacity-30 grayscale'}`}>⭐</button>
+                          </td>
+                          <td className="px-3 py-2 text-center text-[11px] text-muted-foreground">
+                            {p.updated_at ? new Date(p.updated_at).toLocaleDateString('vi-VN') : '—'}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => { setEditingProduct(p); setShowProductForm(true); }} title="Sửa" className="p-1.5 hover:bg-muted rounded-lg text-primary"><Edit className="h-4 w-4" /></button>
+                              <button onClick={() => duplicateProduct(p)} title="Nhân bản" className="p-1.5 hover:bg-muted rounded-lg text-foreground"><Copy className="h-4 w-4" /></button>
+                              <button onClick={() => deleteProduct(p)} title="Xóa" className="p-1.5 hover:bg-destructive/10 rounded-lg text-destructive"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filtered.length === 0 && (
+                      <tr><td colSpan={9} className="text-center text-muted-foreground py-8 text-sm">Không có sản phẩm phù hợp</td></tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* ===== COMBOS ===== */}
         {tab === 'combos' && (

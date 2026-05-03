@@ -8,7 +8,7 @@ import {
   ShoppingBag, Users, TrendingUp, DollarSign, Hotel, Image, X, GripVertical,
   ChevronDown, ChevronUp, Search, Filter, Lock, Upload, FileText, Globe,
   Shield, UserPlus, RefreshCw, Tag, Percent, Gift, BellRing, AlertTriangle,
-  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame, Mail
+  BarChart3, Sparkles, Printer, PlusCircle, Star, MessageSquare, Flame, Mail, Copy, ArrowLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '@/data/products';

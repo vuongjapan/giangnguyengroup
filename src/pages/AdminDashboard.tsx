@@ -46,6 +46,8 @@ interface DBProduct {
   images: string[]; category: string; grade: string; badges: string[];
   needs: string[]; rating: number; stock: number; is_active: boolean;
   sort_order: number; description: any; sku?: string | null;
+  views?: number; is_featured?: boolean; original_price?: number;
+  status?: string; updated_at?: string;
 }
 
 interface DBStore {

@@ -64,8 +64,10 @@ function generateInvoiceHtml(order: any) {
   const orderCode = order.order_code || ''
   const qrUrl = `https://qr.sepay.vn/img?acc=104002912582&bank=VietinBank&amount=${depositAmount}&des=${encodeURIComponent(orderCode)}`
   const st = STATUS_MAP[order.status as string] || STATUS_MAP.pending
-  const trackUrl = `${getSiteOrigin()}/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}`
-  const confirmDepositUrl = `${getSiteOrigin()}/tra-cuu-don?code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}&action=confirm_deposit`
+  const baseTrackUrl = `${getSiteOrigin()}/tra-cuu-don?tab=code&code=${encodeURIComponent(orderCode)}&phone=${encodeURIComponent(order.customer_phone || '')}`
+  const trackUrl = baseTrackUrl
+  const detailUrl = `${baseTrackUrl}&auto=1#order-detail`
+  const confirmDepositUrl = `${baseTrackUrl}&action=confirm_deposit`
 
   const itemRows = items.map((item: any, i: number) => `
     <tr style="border-bottom:1px solid #e5e7eb;">

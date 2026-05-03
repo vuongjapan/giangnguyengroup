@@ -240,6 +240,26 @@ export default function AdminDashboard() {
     await supabase.from('products').update({ is_active: !p.is_active }).eq('id', p.id);
     fetchProducts();
   };
+  const toggleProductFeatured = async (p: DBProduct) => {
+    await (supabase as any).from('products').update({ is_featured: !p.is_featured }).eq('id', p.id);
+    fetchProducts();
+  };
+  const duplicateProduct = async (p: DBProduct) => {
+    const { id, ...rest } = p as any;
+    const copy = {
+      ...rest,
+      name: `${p.name} - Copy`,
+      slug: `${p.slug}-copy-${Date.now().toString(36)}`,
+      sku: p.sku ? `${p.sku}-COPY` : null,
+      is_active: false,
+    };
+    delete copy.created_at; delete copy.updated_at;
+    const { error } = await supabase.from('products').insert(copy);
+    if (error) toast.error('Không nhân bản được: ' + error.message);
+    else { toast.success('Đã nhân bản (đang ẩn — bấm Sửa để chỉnh)'); fetchProducts(); }
+  };
+  const [productFilter, setProductFilter] = useState<'all' | 'active' | 'inactive' | 'out' | 'featured' | 'low'>('all');
+  const [productSearch, setProductSearch] = useState('');
   const toggleHotelActive = async (h: DBHotel) => {
     await supabase.from('hotels').update({ is_active: !h.is_active }).eq('id', h.id);
     fetchHotels();

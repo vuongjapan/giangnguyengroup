@@ -834,6 +834,7 @@ export type Database = {
           group_name: string
           icon: string
           id: string
+          image_url: string
           is_active: boolean
           name: string
           slug: string
@@ -845,6 +846,7 @@ export type Database = {
           group_name?: string
           icon?: string
           id?: string
+          image_url?: string
           is_active?: boolean
           name: string
           slug: string
@@ -856,6 +858,7 @@ export type Database = {
           group_name?: string
           icon?: string
           id?: string
+          image_url?: string
           is_active?: boolean
           name?: string
           slug?: string

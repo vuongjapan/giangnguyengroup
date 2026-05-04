@@ -1282,8 +1282,10 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
     <div className="relative" ref={ref}>
       <button type="button" onClick={() => setOpen(o => !o)}
         className="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm text-left flex items-center justify-between">
-        <span className={value ? '' : 'text-muted-foreground'}>
-          {selectedIcon && <span className="mr-1">{selectedIcon}</span>}
+        <span className={`flex items-center gap-1.5 ${value ? '' : 'text-muted-foreground'}`}>
+          {selectedImg
+            ? <img src={selectedImg} alt="" className="w-5 h-5 rounded object-cover" />
+            : (selectedIcon && <span>{selectedIcon}</span>)}
           {value || '-- Chọn danh mục --'}
         </span>
         <span className="text-muted-foreground text-xs">▾</span>
@@ -1301,7 +1303,12 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
               {g.items.map(item => (
                 <button type="button" key={item.name} onClick={() => { onChange(item.name); setOpen(false); setQ(''); }}
                   className={`w-full text-left px-4 py-2 text-sm hover:bg-muted flex items-center justify-between ${value === item.name ? 'bg-primary/10 font-medium' : ''}`}>
-                  <span>{item.icon} {item.name}</span>
+                  <span className="flex items-center gap-1.5">
+                    {item.image_url
+                      ? <img src={item.image_url} alt="" className="w-5 h-5 rounded object-cover" />
+                      : <span>{item.icon}</span>}
+                    {item.name}
+                  </span>
                   {counts[item.name] > 0 && <span className="text-xs text-muted-foreground">({counts[item.name]})</span>}
                 </button>
               ))}

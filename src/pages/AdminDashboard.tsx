@@ -1261,12 +1261,12 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
   const ql = q.trim().toLowerCase();
   const groupedAll = useMemo(() => {
     const src = categories.length > 0
-      ? categories.map(c => ({ name: c.name, icon: c.icon, group: c.group_name }))
-      : CATEGORY_GROUPS.flatMap(g => g.items.map(i => ({ name: i.trim(), icon: g.icon, group: g.group })));
-    const m: Record<string, { icon: string; items: { name: string; icon: string }[] }> = {};
+      ? categories.map(c => ({ name: c.name, icon: c.icon, group: c.group_name, image_url: (c as any).image_url || '' }))
+      : CATEGORY_GROUPS.flatMap(g => g.items.map(i => ({ name: i.trim(), icon: g.icon, group: g.group, image_url: '' })));
+    const m: Record<string, { icon: string; items: { name: string; icon: string; image_url: string }[] }> = {};
     for (const c of src) {
       if (!m[c.group]) m[c.group] = { icon: c.icon, items: [] };
-      m[c.group].items.push({ name: c.name, icon: c.icon });
+      m[c.group].items.push({ name: c.name, icon: c.icon, image_url: c.image_url });
     }
     return Object.entries(m).map(([group, v]) => ({
       group, icon: v.icon,
@@ -1274,10 +1274,9 @@ function CategoryPicker({ value, onChange, allProducts = [] }: { value: string; 
     })).filter(g => g.items.length > 0);
   }, [categories, ql]);
 
-  const selectedIcon = useMemo(() => {
-    const c = categories.find(c => c.name === value);
-    return c?.icon || '';
-  }, [categories, value]);
+  const selected = useMemo(() => categories.find(c => c.name === value), [categories, value]);
+  const selectedIcon = selected?.icon || '';
+  const selectedImg = (selected as any)?.image_url || '';
 
   return (
     <div className="relative" ref={ref}>

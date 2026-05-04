@@ -9,6 +9,7 @@ export interface CategoryRow {
   group_name: string;
   sort_order: number;
   is_active: boolean;
+  image_url?: string;
 }
 
 export function useCategories(includeInactive = false) {

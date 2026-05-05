@@ -28,7 +28,7 @@ export function useCategories(includeInactive = false) {
     };
     load();
     const ch = (supabase as any)
-      .channel('product_categories_realtime')
+      .channel(`product_categories_realtime_${Math.random().toString(36).slice(2)}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'product_categories' }, load)
       .subscribe();
     return () => { alive = false; supabase.removeChannel(ch); };

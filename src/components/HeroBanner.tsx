@@ -90,13 +90,13 @@ const DEFAULT_DATA: HeroData = {
     {
       title: 'MỰC KHÔ SẦM SƠN',
       subtitle: 'Thượng phẩm từ biển cả',
-      image: mucKho,
+      image: 'https://hhnycprummorizjvzyrw.supabase.co/storage/v1/object/public/product-images/products/1775350382347-irxjotx3op.png',
       href: '/san-pham?category=' + encodeURIComponent('Mực khô'),
     },
     {
       title: 'HẢI SẢN MỘT NẮNG',
       subtitle: 'Tinh túy biển Thanh Hóa',
-      image: mucNang,
+      image: 'https://hhnycprummorizjvzyrw.supabase.co/storage/v1/object/public/product-images/products/1775549685263-4f3kao3iou.png',
       href: '/san-pham?category=' + encodeURIComponent('Hải sản 1 nắng'),
     },
   ],

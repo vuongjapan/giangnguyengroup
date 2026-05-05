@@ -41,6 +41,8 @@ function CheckboxItem({ label, checked, count, onClick }: { label: string; check
 }
 
 export default function FilterSidebar({ filters, onChange, isOpen, onClose }: Props) {
+  const { categories: dbCats } = useCategories();
+  const categories = dbCats.map(c => c.name);
   const set = <K extends keyof Filters>(key: K, value: Filters[K]) => {
     onChange({ ...filters, [key]: filters[key] === value ? null : value });
   };

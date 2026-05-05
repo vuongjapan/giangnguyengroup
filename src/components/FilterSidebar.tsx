@@ -1,4 +1,5 @@
-import { categories, priceRanges, grades, needsList, statusFilters } from '@/data/products';
+import { priceRanges, grades, needsList, statusFilters } from '@/data/products';
+import { useCategories } from '@/hooks/useCategories';
 import { X, SlidersHorizontal } from 'lucide-react';
 
 interface Filters {

@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingCart, Phone, Menu, X, MapPin, Clock, ChevronDown, ChevronRight, User, Gift, BookOpen, ShieldCheck, Package, Tag, Newspaper, UtensilsCrossed, Hotel, Store, MessageCircle, Mail, Flame, Radio, Building2, ShoppingBag, LogOut, Settings, Crown, ShieldAlert, Search as SearchIcon } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatPrice, categories } from '@/data/products';
+import { formatPrice } from '@/data/products';
+import { useCategories } from '@/hooks/useCategories';
 import { useProducts } from '@/hooks/useProducts';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import defaultLogo from '@/assets/logo-giang-nguyen.jpg';
@@ -132,6 +133,8 @@ export default function Header() {
   const location = useLocation();
   const { data: tickerItems } = useSiteContent<string[]>('ticker_banner', DEFAULT_TICKER);
   const { data: logoUrl } = useSiteContent<string>('site_logo', defaultLogo);
+  const { categories: dbCategories } = useCategories();
+  const categories = dbCategories.map(c => c.name);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);

@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Filter, ArrowUpDown, ChevronRight, ArrowLeft } from 'lucide-react';
-import { priceRanges, categories, formatPrice } from '@/data/products';
+import { priceRanges, formatPrice } from '@/data/products';
+import { useCategories } from '@/hooks/useCategories';
 import { useProducts } from '@/hooks/useProducts';
 import ProductCard from '@/components/ProductCard';
 import FilterSidebar from '@/components/FilterSidebar';
@@ -22,6 +23,8 @@ interface Filters {
 
 export default function ProductsPage() {
   const { products } = useProducts();
+  const { categories: dbCats } = useCategories();
+  const categories = dbCats.map(c => c.name);
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
   const initialStatus = searchParams.get('status');

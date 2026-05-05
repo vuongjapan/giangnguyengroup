@@ -277,9 +277,10 @@ export default function HeroBanner() {
                   </h3>
                   <div className="flex flex-col gap-2">
                     {featured.map((p, idx) => {
+                      const op = (p as any).originalPrice ?? (p as any).oldPrice;
                       const discount =
-                        p.originalPrice && p.originalPrice > p.price
-                          ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
+                        op && op > p.price
+                          ? Math.round(((op - p.price) / op) * 100)
                           : [20, 15, 10][idx] || 10;
                       return (
                         <Link
@@ -289,7 +290,7 @@ export default function HeroBanner() {
                           style={{ background: 'rgba(255,255,255,0.08)', padding: '12px' }}
                         >
                           <img
-                            src={p.image}
+                            src={p.images?.[0] || ''}
                             alt={p.name}
                             className="w-12 h-12 object-cover rounded-md flex-shrink-0"
                           />

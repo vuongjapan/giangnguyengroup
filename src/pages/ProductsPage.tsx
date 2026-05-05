@@ -23,6 +23,8 @@ interface Filters {
 
 export default function ProductsPage() {
   const { products } = useProducts();
+  const { categories: dbCats } = useCategories();
+  const categories = dbCats.map(c => c.name);
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get('category');
   const initialStatus = searchParams.get('status');

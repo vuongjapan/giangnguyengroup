@@ -133,6 +133,8 @@ export default function Header() {
   const location = useLocation();
   const { data: tickerItems } = useSiteContent<string[]>('ticker_banner', DEFAULT_TICKER);
   const { data: logoUrl } = useSiteContent<string>('site_logo', defaultLogo);
+  const { categories: dbCategories } = useCategories();
+  const categories = dbCategories.map(c => c.name);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);

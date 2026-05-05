@@ -1,453 +1,373 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Phone, Pause, Play } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useSiteContent } from '@/hooks/useSiteContent';
-import heroSeafood from '@/assets/hero-seafood.jpg';
-import mucKho from '@/assets/products/muc-kho-1.jpg';
-import mucNang from '@/assets/products/muc-1-nang.jpg';
-import caThu from '@/assets/products/ca-thu-1-nang.jpg';
-import caChiVang from '@/assets/products/ca-chi-vang.jpg';
+import { useProducts } from '@/hooks/useProducts';
+import { formatPrice } from '@/data/products';
 
-interface HeroSlide {
-  title: string;
-  subtitle: string;
-  slogan: string;
-  image?: string;
-  cta?: string;
-  href?: string;
+const HERO_BG = 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920';
+
+function useCountdown() {
+  const [time, setTime] = useState('00:00:00');
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      const diff = Math.max(0, end.getTime() - now.getTime());
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTime(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
 }
 
-interface SideBanner {
-  title: string;
-  subtitle?: string;
-  price?: string;
-  image: string;
-  href: string;
-  badge?: string;
+function useStat(min: number, max: number, intervalMs = 10000) {
+  const [val, setVal] = useState(() => Math.floor(Math.random() * (max - min + 1)) + min);
+  useEffect(() => {
+    const id = setInterval(() => setVal(Math.floor(Math.random() * (max - min + 1)) + min), intervalMs);
+    return () => clearInterval(id);
+  }, [min, max, intervalMs]);
+  return val;
 }
 
-interface BottomBanner {
-  title: string;
-  subtitle?: string;
-  image: string;
-  href: string;
+function useCounter(target: number, start: boolean, duration = 1500) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    const t0 = performance.now();
+    let raf = 0;
+    const step = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      setVal(Math.floor(target * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, start, duration]);
+  return val;
 }
 
-interface HeroData {
-  videoUrl: string;
-  slides: HeroSlide[];
-  sideBanners?: SideBanner[];
-  bottomBanners?: BottomBanner[];
+const STATS = [
+  { value: 50000, suffix: '+', label: 'Đơn hàng giao thành công' },
+  { value: 10000, suffix: '+', label: 'Khách tin tưởng' },
+  { value: 49, suffix: '/5', label: 'Đánh giá', divisor: 10 },
+  { value: 99, suffix: '%', label: 'Hài lòng' },
+];
+
+function StatItem({ s, start }: { s: typeof STATS[number]; start: boolean }) {
+  const v = useCounter(s.value, start);
+  const display = s.divisor ? (v / s.divisor).toFixed(1) : v.toLocaleString('en-US');
+  return (
+    <div className="text-center px-2">
+      <p className="text-accent font-black" style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
+        {display}{s.suffix}
+      </p>
+      <p className="text-primary-foreground/90 text-xs md:text-sm mt-1">{s.label}</p>
+    </div>
+  );
 }
-
-const DEFAULT_DATA: HeroData = {
-  videoUrl: '',
-  slides: [
-    {
-      title: 'MỰC KHÔ SẦM SƠN',
-      subtitle: 'THƯỢNG PHẨM TỪ BIỂN CẢ',
-      slogan: 'Phơi nắng tự nhiên • Chính gốc Sầm Sơn',
-      image: heroSeafood,
-      cta: 'GỌI NGAY 0933.562.286',
-      href: 'tel:0933562286',
-    },
-    {
-      title: 'CÁ THU 1 NẮNG',
-      subtitle: 'TƯƠI NGON ĐẬM ĐÀ',
-      slogan: 'Đóng gói sang trọng – Giao tận nhà',
-      image: caThu,
-      cta: 'XEM SẢN PHẨM',
-      href: '/san-pham',
-    },
-    {
-      title: 'MỰC MỘT NẮNG',
-      subtitle: 'ĐẶC SẢN BIỂN THANH HÓA',
-      slogan: 'Free ship toàn quốc đơn từ 1.5 triệu',
-      image: mucNang,
-      cta: 'MUA NGAY',
-      href: '/san-pham',
-    },
-  ],
-  sideBanners: [
-    {
-      title: 'MỰC KHÔ LOẠI 1',
-      subtitle: 'SẦM SƠN',
-      price: '850K/KG',
-      image: mucKho,
-      href: '/san-pham?category=' + encodeURIComponent('Mực khô'),
-      badge: 'MUA NGAY',
-    },
-    {
-      title: 'CÁ CHỈ VÀNG',
-      subtitle: 'CAO CẤP',
-      price: '420K/KG',
-      image: caChiVang,
-      href: '/san-pham?category=' + encodeURIComponent('Cá khô'),
-      badge: 'MUA NGAY',
-    },
-  ],
-  bottomBanners: [
-    {
-      title: 'MỰC KHÔ SẦM SƠN',
-      subtitle: 'Thượng phẩm từ biển cả',
-      image: 'https://hhnycprummorizjvzyrw.supabase.co/storage/v1/object/public/product-images/products/1775350382347-irxjotx3op.png',
-      href: '/san-pham?category=' + encodeURIComponent('Mực khô'),
-    },
-    {
-      title: 'HẢI SẢN MỘT NẮNG',
-      subtitle: 'Tinh túy biển Thanh Hóa',
-      image: 'https://hhnycprummorizjvzyrw.supabase.co/storage/v1/object/public/product-images/products/1775549685263-4f3kao3iou.png',
-      href: '/san-pham?category=' + encodeURIComponent('Hải sản 1 nắng'),
-    },
-  ],
-};
-
-const AUTOPLAY_INTERVAL = 5000;
-const TRANSITION_MS = 800;
 
 export default function HeroBanner() {
-  const { data: heroData } = useSiteContent<HeroData>('hero_banner', DEFAULT_DATA);
-  const slides = heroData.slides?.length ? heroData.slides : DEFAULT_DATA.slides;
-  const sideBanners = heroData.sideBanners?.length ? heroData.sideBanners : DEFAULT_DATA.sideBanners!;
-  const bottomBanners = heroData.bottomBanners?.length ? heroData.bottomBanners : DEFAULT_DATA.bottomBanners!;
-  const videoUrl = heroData.videoUrl || '';
-
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const timerRef = useRef<number | null>(null);
-  const startRef = useRef<number>(Date.now());
-  const rafRef = useRef<number | null>(null);
-
-  const goTo = useCallback((index: number) => {
-    setCurrent(((index % slides.length) + slides.length) % slides.length);
-    startRef.current = Date.now();
-    setProgress(0);
-  }, [slides.length]);
-
-  const prev = useCallback(() => goTo(current - 1), [current, goTo]);
-  const next = useCallback(() => goTo(current + 1), [current, goTo]);
+  const { products } = useProducts();
+  const featured = products.slice(0, 3);
+  const countdown = useCountdown();
+  const viewers = useStat(15, 35);
+  const [scrollY, setScrollY] = useState(0);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (slides.length <= 1 || isPaused || videoUrl) return;
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-    startRef.current = Date.now();
-    setProgress(0);
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setStatsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-    timerRef.current = window.setTimeout(() => {
-      setCurrent(p => (p + 1) % slides.length);
-    }, AUTOPLAY_INTERVAL);
-
-    const tick = () => {
-      const elapsed = Date.now() - startRef.current;
-      setProgress(Math.min(100, (elapsed / AUTOPLAY_INTERVAL) * 100));
-      if (elapsed < AUTOPLAY_INTERVAL) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
-    };
-    rafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [current, slides.length, isPaused, videoUrl]);
-
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') prev();
-    else if (e.key === 'ArrowRight') next();
+  const scrollDown = () => {
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   };
 
   return (
-    <section className="bg-background py-2 md:py-4">
-      <div className="container mx-auto px-2 sm:px-3 md:px-4">
-        {/* Top grid: big slider + side banners. Aspect ratios keep proportions at every width */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-          {/* Big slider — fluid via aspect ratio */}
-          <div
-            className="md:col-span-2 relative w-full aspect-[16/10] sm:aspect-[16/9] md:aspect-[16/8.5] lg:aspect-[16/8] rounded-xl overflow-hidden group shadow-lg bg-muted"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onFocus={() => setIsPaused(true)}
-            onBlur={() => setIsPaused(false)}
-            onKeyDown={onKeyDown}
-            tabIndex={0}
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Hero banner"
-          >
-            {videoUrl ? (
-              <video
-                key={videoUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover"
-              >
-                <source src={videoUrl} type="video/mp4" />
-              </video>
-            ) : (
-              <div className="absolute inset-0 w-full h-full">
-                {slides.map((s, i) => {
-                  const active = i === current;
-                  return (
-                    <div
-                      key={i}
-                      className="absolute inset-0 will-change-[opacity,transform]"
+    <>
+      <section
+        className="relative overflow-hidden"
+        style={{
+          width: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+          height: '100vh',
+          minHeight: '600px',
+        }}
+      >
+        {/* Background image with parallax */}
+        <div
+          className="absolute inset-0 will-change-transform"
+          style={{ transform: `translateY(${scrollY * 0.5}px)` }}
+        >
+          <img
+            src={HERO_BG}
+            alt="Hải sản khô Sầm Sơn"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
+          />
+        </div>
+
+        {/* Gradient overlays */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.2) 100%)',
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 40%)',
+          }}
+        />
+
+        {/* Content */}
+        <div className="relative z-10 h-full flex items-center">
+          <div className="w-full max-w-[1280px] mx-auto px-4 md:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-[55%_45%] gap-8 items-center">
+              {/* LEFT */}
+              <div className="text-center md:text-left">
+                {/* Badge */}
+                <div
+                  className="inline-flex items-center gap-2 rounded-full text-white text-[13px] animate-fade-in"
+                  style={{
+                    background: 'rgba(255,255,255,0.15)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    padding: '6px 16px',
+                    animationDelay: '0.3s',
+                    animationFillMode: 'backwards',
+                  }}
+                >
+                  <span>⭐</span>
+                  <span>Được tin dùng bởi 10,000+ gia đình Việt</span>
+                </div>
+
+                {/* Title */}
+                <h1
+                  className="font-extrabold text-white mt-5 animate-fade-in"
+                  style={{
+                    fontSize: 'clamp(2.25rem, 6vw, 4.25rem)',
+                    lineHeight: 1.1,
+                    fontWeight: 800,
+                  }}
+                >
+                  Hải Sản Khô
+                  <br />
+                  <span style={{ color: '#f59e0b' }}>Sầm Sơn Chính Gốc</span>
+                </h1>
+
+                {/* Subtitle */}
+                <p
+                  className="mt-5 animate-fade-in"
+                  style={{
+                    fontSize: 'clamp(0.95rem, 1.6vw, 1.125rem)',
+                    color: 'rgba(255,255,255,0.85)',
+                    animationDelay: '0.2s',
+                    animationFillMode: 'backwards',
+                  }}
+                >
+                  Đánh bắt mỗi sáng · Phơi tự nhiên · Giao tận nhà toàn quốc
+                </p>
+
+                {/* Trust badges */}
+                <div
+                  className="flex flex-wrap gap-2.5 mt-6 justify-center md:justify-start animate-fade-in"
+                  style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
+                >
+                  {['✅ Kiểm định VSATTP', '🚚 Freeship từ 500k', '🔄 Đổi trả 7 ngày'].map(t => (
+                    <span
+                      key={t}
+                      className="text-white text-[13px] rounded-lg"
                       style={{
-                        opacity: active ? 1 : 0,
-                        transform: active ? 'scale(1)' : 'scale(1.04)',
-                        transition: `opacity ${TRANSITION_MS}ms ease-in-out, transform ${TRANSITION_MS + 400}ms ease-out`,
-                        zIndex: active ? 2 : 1,
+                        background: 'rgba(255,255,255,0.1)',
+                        backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)',
+                        padding: '8px 14px',
                       }}
-                      aria-hidden={!active}
                     >
-                      <img
-                        src={s.image || heroSeafood}
-                        alt={s.title}
-                        className="absolute inset-0 w-full h-full object-cover object-center"
-                        loading={i === 0 ? 'eager' : 'lazy'}
-                        decoding="async"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/85 via-foreground/35 to-foreground/10 pointer-events-none z-[3]" />
-
-            {/* Title block — fluid sizes via clamp() so text scales smoothly */}
-            <div
-              className="absolute z-[4] pointer-events-none"
-              style={{
-                top: 'clamp(0.75rem, 3.5%, 2rem)',
-                left: 'clamp(0.75rem, 3.5%, 2rem)',
-                right: 'clamp(0.75rem, 3.5%, 33%)',
-              }}
-            >
-              {slides.map((s, i) => {
-                const active = i === current;
-                return (
-                  <div
-                    key={i}
-                    className="absolute inset-0"
-                    style={{
-                      opacity: active ? 1 : 0,
-                      transform: active ? 'translateY(0)' : 'translateY(8px)',
-                      transition: `opacity ${TRANSITION_MS}ms ease-in-out, transform ${TRANSITION_MS}ms ease-out`,
-                    }}
-                    aria-hidden={!active}
-                  >
-                    <h2
-                      className="font-black text-accent leading-[1.05] drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
-                      style={{ fontSize: 'clamp(1.25rem, 4.5vw, 3.75rem)' }}
-                    >
-                      {s.title}
-                    </h2>
-                    <p
-                      className="text-primary-foreground font-bold drop-shadow-md"
-                      style={{ fontSize: 'clamp(0.75rem, 1.6vw, 1.25rem)', marginTop: 'clamp(0.25rem, 0.6vw, 0.5rem)' }}
-                    >
-                      {s.subtitle}
-                    </p>
-                    <p
-                      className="text-primary-foreground/90 drop-shadow line-clamp-2"
-                      style={{ fontSize: 'clamp(0.6875rem, 1.1vw, 0.875rem)', marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}
-                    >
-                      {s.slogan}
-                    </p>
-                  </div>
-                );
-              })}
-              {/* invisible spacer to reserve height */}
-              <div className="invisible" aria-hidden>
-                <h2 className="font-black leading-[1.05]" style={{ fontSize: 'clamp(1.25rem, 4.5vw, 3.75rem)' }}>A</h2>
-                <p className="font-bold" style={{ fontSize: 'clamp(0.75rem, 1.6vw, 1.25rem)', marginTop: 'clamp(0.25rem, 0.6vw, 0.5rem)' }}>A</p>
-                <p style={{ fontSize: 'clamp(0.6875rem, 1.1vw, 0.875rem)', marginTop: 'clamp(0.25rem, 0.5vw, 0.5rem)' }}>A</p>
-              </div>
-            </div>
-
-            {/* CTA bottom-left — fluid padding & font */}
-            {slides[current].cta && (
-              <a
-                key={`cta-${current}`}
-                href={slides[current].href || '#'}
-                className="absolute inline-flex items-center gap-2 bg-coral text-primary-foreground font-bold rounded-full shadow-xl hover:scale-105 transition-transform z-[5] animate-fade-in whitespace-nowrap"
-                style={{
-                  bottom: 'clamp(1rem, 4%, 2rem)',
-                  left: 'clamp(0.75rem, 3.5%, 2rem)',
-                  fontSize: 'clamp(0.6875rem, 1.1vw, 0.875rem)',
-                  paddingInline: 'clamp(0.75rem, 1.6vw, 1.5rem)',
-                  paddingBlock: 'clamp(0.5rem, 0.9vw, 0.75rem)',
-                  maxWidth: 'calc(100% - 1.5rem)',
-                }}
-              >
-                <Phone className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
-                <span className="truncate">{slides[current].cta}</span>
-              </a>
-            )}
-
-            {/* Nav arrows + controls */}
-            {slides.length > 1 && (
-              <>
-                <button
-                  onClick={prev}
-                  className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-[6]"
-                  aria-label="Slide trước"
-                >
-                  <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
-                </button>
-                <button
-                  onClick={next}
-                  className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 md:p-2 rounded-full opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-[6]"
-                  aria-label="Slide kế tiếp"
-                >
-                  <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
-                </button>
-
-                <button
-                  onClick={() => setIsPaused(p => !p)}
-                  className="absolute top-2 right-2 md:top-3 md:right-3 bg-foreground/40 hover:bg-foreground/70 text-primary-foreground p-1.5 rounded-full opacity-60 md:opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity z-[6]"
-                  aria-label={isPaused ? 'Tiếp tục' : 'Tạm dừng'}
-                >
-                  {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-                </button>
-
-                {/* Dots */}
-                <div className="absolute bottom-2.5 right-3 md:right-4 flex gap-1.5 z-[6]">
-                  {slides.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => goTo(i)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        i === current
-                          ? 'bg-accent w-6 shadow'
-                          : 'bg-primary-foreground/50 w-2 hover:bg-primary-foreground/80'
-                      }`}
-                      aria-label={`Slide ${i + 1}`}
-                      aria-current={i === current}
-                    />
+                      {t}
+                    </span>
                   ))}
                 </div>
 
-                {/* Progress bar */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-foreground/20 z-[6]">
-                  <div
-                    className="h-full bg-accent ease-linear"
-                    style={{ width: `${progress}%`, transition: isPaused ? 'none' : 'width 100ms linear' }}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Side banners — aspect ratios so they scale proportionally with column width.
-              Mobile: 2 cols → wider 16/9. Desktop stacked: each ~half the slider height → ~16/8.5/2 ≈ 16/4.25 */}
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3 md:content-between">
-            {sideBanners.slice(0, 2).map((b, i) => (
-              <Link
-                key={i}
-                to={b.href}
-                className="relative w-full aspect-[16/9] sm:aspect-[16/8] md:aspect-auto md:h-[calc((100%-0.75rem)/2)] rounded-xl overflow-hidden shadow-lg group block"
-              >
-                <img
-                  src={b.image}
-                  alt={b.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-l from-foreground/75 via-foreground/30 to-transparent" />
+                {/* CTAs */}
                 <div
-                  className="absolute text-right max-w-[75%]"
+                  className="flex flex-col sm:flex-row gap-4 mt-8 animate-fade-in justify-center md:justify-start"
+                  style={{ animationDelay: '0.6s', animationFillMode: 'backwards' }}
+                >
+                  <Link
+                    to="/san-pham"
+                    className="inline-flex items-center justify-center text-white font-bold rounded-[10px] hover-scale hero-glow"
+                    style={{
+                      background: '#f59e0b',
+                      padding: '16px 36px',
+                      fontSize: '17px',
+                      boxShadow: '0 4px 20px rgba(245,158,11,0.5)',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#d97706')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#f59e0b')}
+                  >
+                    🛒 Mua Ngay
+                  </Link>
+                  <a
+                    href="tel:0933562286"
+                    className="inline-flex items-center justify-center text-white font-semibold rounded-[10px] transition-colors"
+                    style={{
+                      background: 'transparent',
+                      border: '2px solid rgba(255,255,255,0.7)',
+                      padding: '14px 36px',
+                      fontSize: '17px',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    📞 Tư Vấn Ngay
+                  </a>
+                </div>
+
+                {/* Countdown */}
+                <p
+                  className="text-white/85 text-sm mt-4 animate-fade-in"
+                  style={{ animationDelay: '0.7s', animationFillMode: 'backwards' }}
+                >
+                  ⏰ Ưu đãi kết thúc sau: <span className="font-mono font-bold text-accent">{countdown}</span>
+                </p>
+              </div>
+
+              {/* RIGHT — glass card (hidden on mobile) */}
+              <div
+                className="hidden md:block animate-slide-in-right"
+                style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
+              >
+                <div
+                  className="rounded-[20px]"
                   style={{
-                    top: 'clamp(0.5rem, 6%, 1rem)',
-                    right: 'clamp(0.5rem, 6%, 1rem)',
+                    background: 'rgba(255,255,255,0.12)',
+                    backdropFilter: 'blur(20px)',
+                    WebkitBackdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.25)',
+                    padding: '28px',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
                   }}
                 >
-                  <p
-                    className="text-accent font-black leading-tight drop-shadow-lg"
-                    style={{ fontSize: 'clamp(0.75rem, 1.6vw, 1.5rem)' }}
-                  >
-                    {b.title}
+                  <h3 className="text-white font-bold text-base mb-4">
+                    🏆 Sản Phẩm Nổi Bật Tuần Này
+                  </h3>
+                  <div className="flex flex-col gap-2">
+                    {featured.map((p, idx) => {
+                      const discount =
+                        p.originalPrice && p.originalPrice > p.price
+                          ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
+                          : [20, 15, 10][idx] || 10;
+                      return (
+                        <Link
+                          key={p.id}
+                          to={`/san-pham/${p.id}`}
+                          className="flex items-center gap-3 rounded-[10px] hover:bg-white/15 transition-colors"
+                          style={{ background: 'rgba(255,255,255,0.08)', padding: '12px' }}
+                        >
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            className="w-12 h-12 object-cover rounded-md flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="text-white font-semibold text-sm truncate">{p.name}</p>
+                              <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex-shrink-0">
+                                -{discount}%
+                              </span>
+                            </div>
+                            <p className="text-accent text-xs font-bold mt-0.5">{formatPrice(p.price)}</p>
+                            {idx === 0 && (
+                              <p className="text-white/70 text-[10px] mt-1">🔥 Bán Chạy #1</p>
+                            )}
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                  <p className="text-accent text-[13px] mt-3 text-center">
+                    🔥 {viewers} người đang xem sản phẩm này
                   </p>
-                  {b.subtitle && (
-                    <p
-                      className="text-primary-foreground font-bold drop-shadow"
-                      style={{ fontSize: 'clamp(0.5625rem, 0.9vw, 0.875rem)' }}
-                    >
-                      {b.subtitle}
-                    </p>
-                  )}
-                  {b.price && (
-                    <p
-                      className="text-accent font-black drop-shadow"
-                      style={{ fontSize: 'clamp(0.875rem, 1.4vw, 1.25rem)', marginTop: '0.125rem' }}
-                    >
-                      {b.price}
-                    </p>
-                  )}
-                </div>
-                {b.badge && (
-                  <span
-                    className="absolute bg-coral text-primary-foreground font-bold rounded-full shadow whitespace-nowrap"
-                    style={{
-                      bottom: 'clamp(0.375rem, 5%, 0.75rem)',
-                      right: 'clamp(0.5rem, 6%, 1rem)',
-                      fontSize: 'clamp(0.5rem, 0.75vw, 0.75rem)',
-                      paddingInline: 'clamp(0.375rem, 0.8vw, 0.75rem)',
-                      paddingBlock: 'clamp(0.125rem, 0.3vw, 0.25rem)',
-                    }}
+                  <Link
+                    to="/san-pham"
+                    className="block w-full text-center text-white font-semibold rounded-[10px] mt-4 transition-opacity hover:opacity-90"
+                    style={{ background: '#0f766e', padding: '12px' }}
                   >
-                    {b.badge}
-                  </span>
-                )}
-              </Link>
+                    Xem Tất Cả Sản Phẩm →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scroll down indicator */}
+        {scrollY < 100 && (
+          <button
+            onClick={scrollDown}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-white/80 hover:text-white"
+            style={{ animation: 'hero-bounce 1.5s infinite' }}
+            aria-label="Cuộn xuống"
+          >
+            <ChevronDown className="h-8 w-8" />
+          </button>
+        )}
+      </section>
+
+      {/* Stats bar */}
+      <div
+        ref={statsRef}
+        style={{
+          width: '100vw',
+          marginLeft: 'calc(-50vw + 50%)',
+          background: '#0f766e',
+          padding: '20px 0',
+        }}
+      >
+        <div className="max-w-[1280px] mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/20">
+            {STATS.map(s => (
+              <StatItem key={s.label} s={s} start={statsVisible} />
             ))}
           </div>
         </div>
-
-        {/* Bottom banners — wide horizontal aspect, scales with width */}
-        <div className="grid grid-cols-2 gap-2 md:gap-3 mt-2 md:mt-3">
-          {bottomBanners.slice(0, 2).map((b, i) => (
-            <Link
-              key={i}
-              to={b.href}
-              className="relative w-full aspect-[16/5] sm:aspect-[16/4.5] md:aspect-[16/4] rounded-xl overflow-hidden shadow-lg group block"
-            >
-              <img
-                src={b.image}
-                alt={b.title}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-foreground/75 via-foreground/30 to-transparent" />
-              <div
-                className="absolute inset-0 flex flex-col justify-center"
-                style={{ paddingInline: 'clamp(0.625rem, 2.5vw, 1.5rem)' }}
-              >
-                <p
-                  className="text-accent font-black leading-tight drop-shadow-lg"
-                  style={{ fontSize: 'clamp(0.75rem, 1.8vw, 1.5rem)' }}
-                >
-                  {b.title}
-                </p>
-                {b.subtitle && (
-                  <p
-                    className="text-primary-foreground font-medium drop-shadow line-clamp-1"
-                    style={{ fontSize: 'clamp(0.5625rem, 1vw, 0.875rem)' }}
-                  >
-                    {b.subtitle}
-                  </p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
-    </section>
+
+      <style>{`
+        @keyframes hero-bounce {
+          0%, 100% { transform: translate(-50%, 0); }
+          50% { transform: translate(-50%, -10px); }
+        }
+        @keyframes hero-glow-pulse {
+          0%, 100% { box-shadow: 0 4px 20px rgba(245,158,11,0.5); }
+          50% { box-shadow: 0 4px 30px rgba(245,158,11,0.85); }
+        }
+        .hero-glow { animation: hero-glow-pulse 3s ease-in-out infinite; }
+      `}</style>
+    </>
   );
 }

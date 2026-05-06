@@ -17,6 +17,7 @@ import AIAssistantManager from '@/components/admin/AIAssistantManager';
 import AISalesScriptsManager from '@/components/AISalesScriptsManager';
 import AIAnalyticsDashboard from '@/components/admin/AIAnalyticsDashboard';
 import LogoManager from '@/components/admin/LogoManager';
+import HeroBackgroundManager from '@/components/admin/HeroBackgroundManager';
 import WholesaleLeadsManager from '@/components/admin/WholesaleLeadsManager';
 import SeoLandingManager from '@/components/admin/SeoLandingManager';
 import AIQuickImport from '@/components/admin/AIQuickImport';
@@ -1223,6 +1224,7 @@ export default function AdminDashboard() {
         {tab === 'settings' && (
           <div className="space-y-6">
             <LogoManager />
+            <HeroBackgroundManager />
             <CategoriesManager />
             <SettingsTab user={user} products={products} stores={stores} members={members} hotels={hotels} />
           </div>

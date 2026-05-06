@@ -121,20 +121,25 @@ export default function HeroBanner() {
           className="absolute inset-0 will-change-transform"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         >
-          {heroBg?.type === 'video' ? (
+          {heroBg?.type === 'video' && !videoFailed ? (
             <video
               src={heroBg.url}
-              poster={heroBg.poster || undefined}
+              poster={heroBg.poster || heroBg.fallback || undefined}
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
+              onError={() => setVideoFailed(true)}
+              onStalled={() => { if (heroBg.fallback) setVideoFailed(true); }}
               className="w-full h-full object-cover object-center"
             />
           ) : (
             <img
-              src={heroBg?.url || DEFAULT_HERO_BG.url}
+              src={
+                (heroBg?.type === 'video' ? (heroBg.fallback || heroBg.poster) : heroBg?.url) ||
+                DEFAULT_HERO_BG.url
+              }
               alt="Hải sản khô Sầm Sơn"
               className="w-full h-full object-cover object-center"
               loading="eager"

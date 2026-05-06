@@ -2,9 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '@/hooks/useProducts';
+import { useSiteContent } from '@/hooks/useSiteContent';
 import { formatPrice } from '@/data/products';
 
-const HERO_BG = 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920';
+const DEFAULT_HERO_BG = { type: 'image' as const, url: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920', poster: '' };
+type HeroBg = { type: 'image' | 'video'; url: string; poster?: string };
 
 function useCountdown() {
   const [time, setTime] = useState('00:00:00');
@@ -77,6 +79,7 @@ export default function HeroBanner() {
   const featured = products.slice(0, 3);
   const countdown = useCountdown();
   const viewers = useStat(15, 35);
+  const { data: heroBg } = useSiteContent<HeroBg>('hero_background', DEFAULT_HERO_BG);
   const [scrollY, setScrollY] = useState(0);
   const [statsVisible, setStatsVisible] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -112,17 +115,30 @@ export default function HeroBanner() {
           minHeight: '600px',
         }}
       >
-        {/* Background image with parallax */}
+        {/* Background image/video with parallax */}
         <div
           className="absolute inset-0 will-change-transform"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         >
-          <img
-            src={HERO_BG}
-            alt="Hải sản khô Sầm Sơn"
-            className="w-full h-full object-cover object-center"
-            loading="eager"
-          />
+          {heroBg?.type === 'video' ? (
+            <video
+              src={heroBg.url}
+              poster={heroBg.poster || undefined}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="w-full h-full object-cover object-center"
+            />
+          ) : (
+            <img
+              src={heroBg?.url || DEFAULT_HERO_BG.url}
+              alt="Hải sản khô Sầm Sơn"
+              className="w-full h-full object-cover object-center"
+              loading="eager"
+            />
+          )}
         </div>
 
         {/* Gradient overlays */}

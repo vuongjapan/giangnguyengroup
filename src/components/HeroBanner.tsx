@@ -82,6 +82,7 @@ export default function HeroBanner() {
   const { data: heroBg } = useSiteContent<HeroBg>('hero_background', DEFAULT_HERO_BG);
   const [scrollY, setScrollY] = useState(0);
   const [statsVisible, setStatsVisible] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

@@ -5,8 +5,8 @@ import { useProducts } from '@/hooks/useProducts';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { formatPrice } from '@/data/products';
 
-const DEFAULT_HERO_BG = { type: 'image' as const, url: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920', poster: '' };
-type HeroBg = { type: 'image' | 'video'; url: string; poster?: string };
+const DEFAULT_HERO_BG = { type: 'image' as const, url: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920', poster: '', fallback: '', aspectRatio: '16:9' as const };
+type HeroBg = { type: 'image' | 'video'; url: string; poster?: string; fallback?: string; aspectRatio?: '16:9' | '4:3' | '1:1' | 'auto' };
 
 function useCountdown() {
   const [time, setTime] = useState('00:00:00');
@@ -82,6 +82,7 @@ export default function HeroBanner() {
   const { data: heroBg } = useSiteContent<HeroBg>('hero_background', DEFAULT_HERO_BG);
   const [scrollY, setScrollY] = useState(0);
   const [statsVisible, setStatsVisible] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,20 +121,25 @@ export default function HeroBanner() {
           className="absolute inset-0 will-change-transform"
           style={{ transform: `translateY(${scrollY * 0.5}px)` }}
         >
-          {heroBg?.type === 'video' ? (
+          {heroBg?.type === 'video' && !videoFailed ? (
             <video
               src={heroBg.url}
-              poster={heroBg.poster || undefined}
+              poster={heroBg.poster || heroBg.fallback || undefined}
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
+              onError={() => setVideoFailed(true)}
+              onStalled={() => { if (heroBg.fallback) setVideoFailed(true); }}
               className="w-full h-full object-cover object-center"
             />
           ) : (
             <img
-              src={heroBg?.url || DEFAULT_HERO_BG.url}
+              src={
+                (heroBg?.type === 'video' ? (heroBg.fallback || heroBg.poster) : heroBg?.url) ||
+                DEFAULT_HERO_BG.url
+              }
               alt="Hải sản khô Sầm Sơn"
               className="w-full h-full object-cover object-center"
               loading="eager"

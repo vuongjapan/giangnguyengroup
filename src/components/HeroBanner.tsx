@@ -5,8 +5,8 @@ import { useProducts } from '@/hooks/useProducts';
 import { useSiteContent } from '@/hooks/useSiteContent';
 import { formatPrice } from '@/data/products';
 
-const DEFAULT_HERO_BG = { type: 'image' as const, url: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920', poster: '' };
-type HeroBg = { type: 'image' | 'video'; url: string; poster?: string };
+const DEFAULT_HERO_BG = { type: 'image' as const, url: 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=1920', poster: '', fallback: '', aspectRatio: '16:9' as const };
+type HeroBg = { type: 'image' | 'video'; url: string; poster?: string; fallback?: string; aspectRatio?: '16:9' | '4:3' | '1:1' | 'auto' };
 
 function useCountdown() {
   const [time, setTime] = useState('00:00:00');
